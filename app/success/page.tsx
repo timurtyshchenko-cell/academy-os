@@ -42,8 +42,8 @@ function SuccessContent() {
           </ul>
         </div>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/app" style={{ display: "flex", alignItems: "center", gap: 8, background: "#2563eb", color: "#fff", fontWeight: 800, fontSize: 15, padding: "13px 28px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 20px rgba(37,99,235,.3)" }}>
-            Go to Dashboard →
+          <Link href="/signup" style={{ display: "flex", alignItems: "center", gap: 8, background: "#2563eb", color: "#fff", fontWeight: 800, fontSize: 15, padding: "13px 28px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 20px rgba(37,99,235,.3)" }}>
+            Create your account →
           </Link>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid #1a1a1a", color: "#555", fontWeight: 600, fontSize: 14, padding: "13px 24px", borderRadius: 12, textDecoration: "none" }}>
             Back to Home
