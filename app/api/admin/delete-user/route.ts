@@ -1,0 +1,15 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getDb } from "@/lib/db";
+
+export async function GET(req: NextRequest) {
+  const secret = req.nextUrl.searchParams.get("secret");
+  const email = req.nextUrl.searchParams.get("email");
+  if (secret !== "academy_os_admin_2025") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+  const db = getDb();
+  const user = db.prepare("SELECT id FROM users WHERE email = ?").get(email) as any;
+  if (!user) return NextResponse.json({ error: "User not found" });
+  db.prepare("DELETE FROM academies WHERE owner_id = ?").run(user.id);
+  db.prepare("DELETE FROM users WHERE id = ?").run(user.id);
+  return NextResponse.json({ success: true, deleted: email });
+}
