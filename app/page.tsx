@@ -96,8 +96,8 @@ export default function LandingPage() {
             Players, coaches, billing, invoices — all in one place. Built for academy directors who are serious about growing.
           </p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-            <Link href="/signup" className="btn-primary" style={{ fontSize: 16, fontWeight: 800, color: "#fff", padding: "16px 40px", borderRadius: 13, textDecoration: "none", boxShadow: "0 8px 32px rgba(79,70,229,.5)", letterSpacing: "-.2px" }}>
-              Start free trial →
+            <Link href="/book-demo" className="btn-primary" style={{ fontSize: 16, fontWeight: 800, color: "#fff", padding: "16px 40px", borderRadius: 13, textDecoration: "none", boxShadow: "0 8px 32px rgba(79,70,229,.5)", letterSpacing: "-.2px" }}>
+              Book a Free Demo →
             </Link>
             <Link href="/app" className="btn-ghost" style={{ fontSize: 16, fontWeight: 600, color: "#475569", padding: "16px 28px", borderRadius: 13, textDecoration: "none", border: "1px solid #1a1a2e", background: "transparent" }}>
               View dashboard
