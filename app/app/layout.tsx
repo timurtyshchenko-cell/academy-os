@@ -16,13 +16,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [academyName, setAcademyName] = useState("");
   const [userName, setUserName] = useState("");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/me").then(r => {
       if (r.status === 401) { router.push("/login"); return r; }
       return r.json();
     }).then(d => {
-      if (d?.academyName) { setAcademyName(d.academyName); setUserName(d.name); }
+      if (d?.academyName) { setAcademyName(d.academyName); setUserName(d.name); setSubscriptionStatus(d.subscriptionStatus); }
     });
   }, []);
 
@@ -100,7 +101,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Page content */}
         <main style={{ flex: 1, padding: "32px", minWidth: 0 }}>
-          {children}
+          {subscriptionStatus === "trial" ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
+              <div style={{ maxWidth: 480, textAlign: "center", background: "#111", border: "1px solid #1a1a1a", borderRadius: 24, padding: 48 }}>
+                <div style={{ fontSize: 48, marginBottom: 20 }}>🔒</div>
+                <h2 style={{ fontSize: 26, fontWeight: 900, color: "#fff", letterSpacing: "-1px", marginBottom: 12 }}>Subscription Required</h2>
+                <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, marginBottom: 32 }}>To access your academy dashboard you need an active subscription.</p>
+                <a href="/#pricing" style={{ display: "inline-block", background: "linear-gradient(135deg,#4f46e5,#2563eb)", color: "#fff", fontWeight: 800, fontSize: 15, padding: "14px 32px", borderRadius: 13, textDecoration: "none", boxShadow: "0 8px 28px rgba(79,70,229,.4)" }}>
+                  View plans →
+                </a>
+              </div>
+            </div>
+          ) : children}
         </main>
       </div>
     </div>
