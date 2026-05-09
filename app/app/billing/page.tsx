@@ -50,7 +50,7 @@ export default function BillingPage() {
 
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid #1a1a1a", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid #e2e8f0", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
@@ -59,10 +59,10 @@ export default function BillingPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#fff", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
-          <p style={{ fontSize: 14, color: "#444" }}>{pendingCount} pending · {invoices.length} total invoices</p>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
+          <p style={{ fontSize: 14, color: "#64748b" }}>{pendingCount} pending · {invoices.length} total invoices</p>
         </div>
-        <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(37,99,235,.3)" }}>
+        <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(37,99,235,.25)" }}>
           {generating ? "Generating..." : "⚡ Generate Invoices"}
         </button>
       </div>
@@ -71,13 +71,13 @@ export default function BillingPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
         {[
           { label: "Collected", value: `$${totalCollected.toLocaleString()}`, color: "#059669", sub: `${invoices.filter(i => i.status === "paid").length} paid` },
-          { label: "Pending", value: `$${totalPending.toLocaleString()}`, color: "#f59e0b", sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""}` },
-          { label: "Total Billed", value: `$${(totalCollected + totalPending).toLocaleString()}`, color: "#fff", sub: `${invoices.length} total` },
+          { label: "Pending", value: `$${totalPending.toLocaleString()}`, color: "#d97706", sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""}` },
+          { label: "Total Billed", value: `$${(totalCollected + totalPending).toLocaleString()}`, color: "#0f172a", sub: `${invoices.length} total` },
         ].map(({ label, value, color, sub }) => (
-          <div key={label} style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: 14, padding: "18px 20px" }}>
-            <p style={{ fontSize: 11, color: "#444", fontWeight: 600, marginBottom: 8 }}>{label}</p>
+          <div key={label} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,.04)" }}>
+            <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, marginBottom: 8 }}>{label}</p>
             <p style={{ fontSize: 26, fontWeight: 900, color, marginBottom: 4 }}>{value}</p>
-            <p style={{ fontSize: 12, color: "#444" }}>{sub}</p>
+            <p style={{ fontSize: 12, color: "#94a3b8" }}>{sub}</p>
           </div>
         ))}
       </div>
@@ -87,9 +87,9 @@ export default function BillingPage() {
         {(["all", "pending", "paid"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
             padding: "8px 16px", borderRadius: 8, border: "1px solid",
-            borderColor: filter === f ? "#2563eb" : "#1a1a1a",
-            background: filter === f ? "rgba(37,99,235,.12)" : "transparent",
-            color: filter === f ? "#60a5fa" : "#555",
+            borderColor: filter === f ? "#2563eb" : "#e2e8f0",
+            background: filter === f ? "#eff6ff" : "#fff",
+            color: filter === f ? "#2563eb" : "#64748b",
             fontSize: 13, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
           }}>{f}</button>
         ))}
@@ -97,12 +97,12 @@ export default function BillingPage() {
 
       {/* Invoice table */}
       {filtered.length === 0 ? (
-        <div style={{ background: "#111", border: "1px dashed #1a1a1a", borderRadius: 16, padding: 60, textAlign: "center" }}>
+        <div style={{ background: "#fff", border: "1px dashed #cbd5e1", borderRadius: 16, padding: 60, textAlign: "center", boxShadow: "0 1px 4px rgba(0,0,0,.04)" }}>
           <p style={{ fontSize: 32, marginBottom: 12 }}>💳</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
             {invoices.length === 0 ? "No invoices yet" : "No invoices match this filter"}
           </p>
-          <p style={{ fontSize: 14, color: "#444", marginBottom: 20 }}>
+          <p style={{ fontSize: 14, color: "#64748b", marginBottom: 20 }}>
             {invoices.length === 0 ? "Click Generate Invoices to bill all active players" : "Try a different filter"}
           </p>
           {invoices.length === 0 && (
@@ -112,34 +112,34 @@ export default function BillingPage() {
           )}
         </div>
       ) : (
-        <div style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: 16, overflow: "hidden" }}>
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,.04)" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #1a1a1a" }}>
+              <tr style={{ borderBottom: "1px solid #f1f5f9", background: "#f8fafc" }}>
                 {["Player", "Month", "Amount", "Due Date", "Status", "Actions"].map(h => (
-                  <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#444", textTransform: "uppercase", letterSpacing: ".08em" }}>{h}</th>
+                  <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".08em" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map(inv => (
-                <tr key={inv.id} style={{ borderBottom: "1px solid #161616" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "#161616")}
+                <tr key={inv.id} style={{ borderBottom: "1px solid #f1f5f9" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "#f8fafc")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                   <td style={{ padding: "14px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 30, height: 30, background: "#1a1a1a", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>{(inv.player_name || "?")[0]}</div>
-                      <span style={{ fontSize: 14, color: "#ccc", fontWeight: 600 }}>{inv.player_name}</span>
+                      <div style={{ width: 30, height: 30, background: "#eff6ff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#2563eb" }}>{(inv.player_name || "?")[0]}</div>
+                      <span style={{ fontSize: 14, color: "#1e293b", fontWeight: 600 }}>{inv.player_name}</span>
                     </div>
                   </td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, color: "#888" }}>{inv.month || "—"}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "#fff" }}>${inv.amount.toLocaleString()}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, color: "#555" }}>{inv.due_date || "—"}</td>
+                  <td style={{ padding: "14px 16px", fontSize: 13, color: "#64748b" }}>{inv.month || "—"}</td>
+                  <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>${inv.amount.toLocaleString()}</td>
+                  <td style={{ padding: "14px 16px", fontSize: 13, color: "#94a3b8" }}>{inv.due_date || "—"}</td>
                   <td style={{ padding: "14px 16px" }}>
                     <span style={{
                       fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100,
-                      color: inv.status === "paid" ? "#059669" : "#f59e0b",
-                      background: inv.status === "paid" ? "#05966918" : "#f59e0b18",
+                      color: inv.status === "paid" ? "#059669" : "#d97706",
+                      background: inv.status === "paid" ? "#d1fae5" : "#fef3c7",
                     }}>
                       {inv.status === "paid" ? "Paid" : "Pending"}
                     </span>
@@ -147,18 +147,18 @@ export default function BillingPage() {
                   <td style={{ padding: "14px 16px" }}>
                     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                       {inv.status !== "paid" && (
-                        <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "none", border: "1px solid rgba(37,99,235,.3)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontWeight: 600 }}
-                          onMouseEnter={e => { const el = e.currentTarget; el.style.background = "rgba(37,99,235,.1)"; }}
-                          onMouseLeave={e => { const el = e.currentTarget; el.style.background = "none"; }}>
+                        <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "#eff6ff", border: "1px solid rgba(37,99,235,.2)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontWeight: 600 }}
+                          onMouseEnter={e => { const el = e.currentTarget; el.style.background = "#dbeafe"; }}
+                          onMouseLeave={e => { const el = e.currentTarget; el.style.background = "#eff6ff"; }}>
                           Mark Paid
                         </button>
                       )}
                       <button
                         onClick={() => sendToParent(inv.id)}
                         disabled={sending === inv.id}
-                        style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "#888", background: "none", border: "1px solid", borderColor: sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "#1a1a1a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}
-                        onMouseEnter={e => { if (sending !== inv.id) { const el = e.currentTarget; el.style.color = "#fff"; el.style.borderColor = "#333"; } }}
-                        onMouseLeave={e => { const el = e.currentTarget; el.style.color = sentIds.has(inv.id) ? "#059669" : "#888"; el.style.borderColor = sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "#1a1a1a"; }}>
+                        style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "#64748b", background: sentIds.has(inv.id) ? "#d1fae5" : "#f8fafc", border: "1px solid", borderColor: sentIds.has(inv.id) ? "#a7f3d0" : "#e2e8f0", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}
+                        onMouseEnter={e => { if (sending !== inv.id) { const el = e.currentTarget; el.style.color = "#0f172a"; el.style.borderColor = "#cbd5e1"; } }}
+                        onMouseLeave={e => { const el = e.currentTarget; el.style.color = sentIds.has(inv.id) ? "#059669" : "#64748b"; el.style.borderColor = sentIds.has(inv.id) ? "#a7f3d0" : "#e2e8f0"; }}>
                         {sending === inv.id ? "Sending..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
                       </button>
                     </div>
