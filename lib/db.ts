@@ -83,11 +83,37 @@ function initSchema(db: Database.Database) {
       player_id INTEGER REFERENCES players(id) ON DELETE CASCADE,
       player_name TEXT,
       date TEXT NOT NULL,
+      start_time TEXT,
       duration INTEGER DEFAULT 60,
       coach_name TEXT,
       type TEXT DEFAULT 'Training',
       notes TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS courts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      academy_id INTEGER REFERENCES academies(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      surface TEXT DEFAULT 'Hard',
+      status TEXT DEFAULT 'available',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS court_bookings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      academy_id INTEGER REFERENCES academies(id) ON DELETE CASCADE,
+      court_id INTEGER REFERENCES courts(id) ON DELETE CASCADE,
+      court_name TEXT,
+      player_name TEXT,
+      coach_name TEXT,
+      date TEXT NOT NULL,
+      start_time TEXT NOT NULL,
+      end_time TEXT NOT NULL,
+      notes TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
+
+  try { db.exec(`ALTER TABLE sessions ADD COLUMN start_time TEXT`); } catch {}
 }

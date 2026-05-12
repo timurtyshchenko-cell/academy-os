@@ -26,6 +26,8 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
   const [sendingReport, setSendingReport] = useState(false);
   const [reportSent, setReportSent] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+  const [sendingReminder, setSendingReminder] = useState<number | null>(null);
+  const [reminderSent, setReminderSent] = useState<number | null>(null);
   const [form, setForm] = useState({ name: "", age: "", level: "Intermediate", coach_name: "", parent_email: "", parent_name: "", monthly_fee: "", notes: "", status: "active" });
 
   useEffect(() => { load(); }, [id]);
@@ -69,6 +71,14 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
     if (!r.ok) setReportError(d.error === "no_email" ? "No parent email on file" : d.error || "Failed to send");
     else { setReportSent(true); setTimeout(() => setReportSent(false), 3000); }
     setSendingReport(false);
+  }
+
+  async function sendReminder(sessionId: number) {
+    setSendingReminder(sessionId);
+    await fetch("/api/notifications", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_id: parseInt(id), session_id: sessionId }) });
+    setSendingReminder(null);
+    setReminderSent(sessionId);
+    setTimeout(() => setReminderSent(null), 3000);
   }
 
   async function markPaid(invoiceId: number) {
@@ -209,6 +219,12 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
                   </div>
                   <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.date}{s.coach_name ? ` · ${s.coach_name}` : ""}{s.notes ? ` · ${s.notes}` : ""}</p>
                 </div>
+                {player.parent_email && (
+                  <button onClick={() => sendReminder(s.id)} disabled={sendingReminder === s.id} title="Send reminder to parent"
+                    style={{ padding: "4px 8px", background: "none", border: "none", color: reminderSent === s.id ? "#059669" : "var(--c-text-dim)", cursor: "pointer", fontSize: 13 }}>
+                    {reminderSent === s.id ? "✓" : sendingReminder === s.id ? "…" : "🔔"}
+                  </button>
+                )}
                 <button onClick={() => deleteSession(s.id)} style={{ padding: "4px 8px", background: "none", border: "none", color: "var(--c-text-dim)", cursor: "pointer", fontSize: 13 }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#ef4444")}
                   onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text-dim)")}>✕</button>
