@@ -5,6 +5,52 @@ a, button { font-family: inherit; }
 input, select, textarea { font-family: inherit; color-scheme: dark; }
 option { background: #111; }
 
+/* Dashboard theme variables */
+:root, [data-theme="dark"] {
+  --c-bg: #0a0a0a;
+  --c-header-bg: rgba(10,10,10,.97);
+  --c-sidebar: #0c0c0c;
+  --c-card: #111111;
+  --c-inner: #0c0c0c;
+  --c-row: #161616;
+  --c-border: #1a1a1a;
+  --c-border-hover: #2a2a2a;
+  --c-text: #ffffff;
+  --c-text-2: #cccccc;
+  --c-text-3: #888888;
+  --c-text-muted: #555555;
+  --c-text-dim: #444444;
+  --c-avatar-bg: #1a1a1a;
+  --c-avatar-text: #ffffff;
+  --c-input-bg: #0a0a0a;
+  --c-input-border: #1a1a1a;
+  --c-divider: #141414;
+  --c-shadow: 0 0 0 transparent;
+}
+[data-theme="light"] {
+  --c-bg: #f1f5f9;
+  --c-header-bg: rgba(248,250,252,.97);
+  --c-sidebar: #ffffff;
+  --c-card: #ffffff;
+  --c-inner: #f8fafc;
+  --c-row: #f8fafc;
+  --c-border: #e2e8f0;
+  --c-border-hover: #cbd5e1;
+  --c-text: #0f172a;
+  --c-text-2: #1e293b;
+  --c-text-3: #475569;
+  --c-text-muted: #64748b;
+  --c-text-dim: #94a3b8;
+  --c-avatar-bg: #eff6ff;
+  --c-avatar-text: #2563eb;
+  --c-input-bg: #f8fafc;
+  --c-input-border: #e2e8f0;
+  --c-divider: #e2e8f0;
+  --c-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea { color-scheme: light; }
+[data-theme="light"] option { background: #fff; color: #0f172a; }
+
 .grid-bg {
   background-image: radial-gradient(circle, #1a1a1a 1px, transparent 1px);
   background-size: 32px 32px;
