@@ -17,12 +17,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { player_id, player_name, date, duration, coach_name, type, notes } = await req.json();
-  if (!player_id || !date) return NextResponse.json({ error: "player_id and date required" }, { status: 400 });
+  const { player_id, player_name, date, duration, coach_name, type, notes, start_time } = await req.json();
+  if (!date) return NextResponse.json({ error: "date required" }, { status: 400 });
+  if (!player_id && !player_name) return NextResponse.json({ error: "player required" }, { status: 400 });
   const db = getDb();
   const result = db.prepare(
-    "INSERT INTO sessions (academy_id, player_id, player_name, date, duration, coach_name, type, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-  ).run(session.academyId, player_id, player_name || null, date, duration || 60, coach_name || null, type || "Training", notes || null);
+    "INSERT INTO sessions (academy_id, player_id, player_name, date, start_time, duration, coach_name, type, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  ).run(session.academyId, player_id || null, player_name || null, date, start_time || null, duration || 60, coach_name || null, type || "Training", notes || null);
   const s = db.prepare("SELECT * FROM sessions WHERE id = ?").get(result.lastInsertRowid);
   return NextResponse.json({ session: s });
 }

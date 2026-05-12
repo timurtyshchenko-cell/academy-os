@@ -32,6 +32,7 @@ export default function SchedulePage() {
   const [players, setPlayers] = useState<{ id: number; name: string }[]>([]);
   const [form, setForm] = useState({ player_id: "", player_name: "", date: "", start_time: "09:00", duration: "60", type: "Training", coach_name: "", notes: "" });
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     load();
@@ -57,14 +58,20 @@ export default function SchedulePage() {
   });
 
   async function addSession() {
-    if (!form.player_id || !form.date) return;
+    setFormError("");
+    const playerName = form.player_id
+      ? players.find(p => p.id === parseInt(form.player_id))?.name || form.player_name
+      : form.player_name;
+    if (!playerName) { setFormError("Enter a player name"); return; }
+    if (!form.date) { setFormError("Select a date"); return; }
     setSaving(true);
-    const player = players.find(p => p.id === parseInt(form.player_id));
-    await fetch("/api/sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, player_id: parseInt(form.player_id), player_name: player?.name || "", duration: parseInt(form.duration) || 60 }),
-    });
+    const body: Record<string, unknown> = {
+      ...form,
+      player_name: playerName,
+      duration: parseInt(form.duration) || 60,
+    };
+    if (form.player_id) body.player_id = parseInt(form.player_id);
+    await fetch("/api/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     await load();
     setShowAdd(null);
     setForm({ player_id: "", player_name: "", date: "", start_time: "09:00", duration: "60", type: "Training", coach_name: "", notes: "" });
@@ -180,13 +187,21 @@ export default function SchedulePage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 20, padding: 32, width: "100%", maxWidth: 480 }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 24 }}>Add Session</h2>
+            {formError && <div style={{ background: "#ef444418", border: "1px solid #ef444433", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#ef4444", fontWeight: 600, marginBottom: 8 }}>⚠ {formError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Player *</label>
-                <select value={form.player_id} onChange={e => setForm(f => ({ ...f, player_id: e.target.value }))} style={inp}>
-                  <option value="">Select player...</option>
-                  {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                {players.length > 0 ? (
+                  <select value={form.player_id} onChange={e => setForm(f => ({ ...f, player_id: e.target.value, player_name: "" }))} style={inp}>
+                    <option value="">Select player...</option>
+                    {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                ) : (
+                  <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value }))} placeholder="Player name" style={inp} />
+                )}
+                {players.length > 0 && !form.player_id && (
+                  <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value }))} placeholder="Or type a name manually" style={{ ...inp, marginTop: 6 }} />
+                )}
               </div>
               {[
                 { k: "date", label: "Date *", type: "date" },
@@ -208,7 +223,7 @@ export default function SchedulePage() {
               </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
-              <button onClick={() => setShowAdd(null)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+              <button onClick={() => { setShowAdd(null); setFormError(""); }} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
               <button onClick={addSession} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving..." : "Add Session"}</button>
             </div>
           </div>
