@@ -67,7 +67,7 @@ export default function CourtsPage() {
   async function addCourt() {
     if (!courtForm.name) return;
     setSaving(true);
-    await fetch("/api/courts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...courtForm, price_per_hour: parseInt(courtForm.price_per_hour) || 0 }) });
+    await fetch("/api/courts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: courtForm.name, surface: courtForm.surface, price_per_hour: 30 }) });
     await loadAll();
     setShowAddCourt(false);
     setCourtForm({ name: "", surface: "Hard", price_per_hour: "30" });
@@ -368,19 +368,9 @@ export default function CourtsPage() {
                 ))}
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Court Name *</label>
-                <input value={courtForm.name} onChange={e => setCourtForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Court 1" style={inp} autoFocus onKeyDown={e => e.key === "Enter" && addCourt()} />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Price/hour ($)</label>
-                <input type="number" value={courtForm.price_per_hour} onChange={e => setCourtForm(f => ({ ...f, price_per_hour: e.target.value }))} placeholder="0 = free" style={inp} />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Leave blank if free</label>
-                <p style={{ fontSize: 12, color: "var(--c-text-dim)", paddingTop: 12 }}>Price auto-calculates on booking</p>
-              </div>
+            <div>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Court Name *</label>
+              <input value={courtForm.name} onChange={e => setCourtForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Court 1" style={inp} autoFocus onKeyDown={e => e.key === "Enter" && addCourt()} />
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
               <button onClick={() => setShowAddCourt(false)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
