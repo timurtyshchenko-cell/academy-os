@@ -5,7 +5,8 @@ import { getDb } from "@/lib/db";
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const isAdmin = session.email.toLowerCase() === "timurtyshchenko@gmail.com";
+  const FREE_EMAILS = ["timurtyshchenko@gmail.com", "timurtyshenko@gmail.com"];
+  const isAdmin = FREE_EMAILS.includes(session.email.toLowerCase());
   let subscriptionStatus = "trial";
   if (isAdmin) {
     subscriptionStatus = "active";
