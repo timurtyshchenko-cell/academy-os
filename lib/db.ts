@@ -116,4 +116,7 @@ function initSchema(db: Database.Database) {
   `);
 
   try { db.exec(`ALTER TABLE sessions ADD COLUMN start_time TEXT`); } catch {}
+  try { db.exec(`ALTER TABLE courts ADD COLUMN price_per_hour INTEGER DEFAULT 0`); } catch {}
+  try { db.exec(`ALTER TABLE court_bookings ADD COLUMN total_price INTEGER DEFAULT 0`); } catch {}
+  try { db.exec(`ALTER TABLE court_bookings ADD COLUMN payment_status TEXT DEFAULT 'unpaid'`); } catch {}
 }

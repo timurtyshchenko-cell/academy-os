@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 
-interface Court { id: number; name: string; surface: string; status: string }
-interface Booking { id: number; court_id: number; court_name: string; player_name: string; coach_name: string; date: string; start_time: string; end_time: string; notes: string }
+interface Court { id: number; name: string; surface: string; status: string; price_per_hour: number }
+interface Booking { id: number; court_id: number; court_name: string; player_name: string; coach_name: string; date: string; start_time: string; end_time: string; notes: string; total_price: number; payment_status: string }
 
 const SURFACE: Record<string, { color: string; bg: string; icon: string; label: string }> = {
   Hard:   { color: "#2563eb", bg: "linear-gradient(135deg,#1e40af,#2563eb)", icon: "🔵", label: "Hard Court" },
@@ -41,7 +41,7 @@ export default function CourtsPage() {
   const [showAddCourt, setShowAddCourt] = useState(false);
   const [showBooking, setShowBooking] = useState<Court | null>(null);
   const [selectedDate, setSelectedDate] = useState(todayStr);
-  const [courtForm, setCourtForm] = useState({ name: "", surface: "Hard" });
+  const [courtForm, setCourtForm] = useState({ name: "", surface: "Hard", price_per_hour: "" });
   const [bookingForm, setBookingForm] = useState({ player_name: "", coach_name: "", date: "", start_time: "09:00", end_time: "10:00", notes: "" });
   const [saving, setSaving] = useState(false);
   const [bookingError, setBookingError] = useState("");
@@ -66,10 +66,10 @@ export default function CourtsPage() {
   async function addCourt() {
     if (!courtForm.name) return;
     setSaving(true);
-    await fetch("/api/courts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(courtForm) });
+    await fetch("/api/courts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...courtForm, price_per_hour: parseInt(courtForm.price_per_hour) || 0 }) });
     await loadAll();
     setShowAddCourt(false);
-    setCourtForm({ name: "", surface: "Hard" });
+    setCourtForm({ name: "", surface: "Hard", price_per_hour: "" });
     setSaving(false);
   }
 
@@ -103,6 +103,11 @@ export default function CourtsPage() {
 
   async function deleteBooking(id: number) {
     await fetch("/api/court-bookings", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    await loadBookings();
+  }
+
+  async function markPaid(id: number) {
+    await fetch("/api/court-bookings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, payment_status: "paid" }) });
     await loadBookings();
   }
 
@@ -166,13 +171,18 @@ export default function CourtsPage() {
                       {avail ? "● Available" : "✕ Maintenance"}
                     </button>
                   </div>
-                  {todayBookings > 0 && (
-                    <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
+                  <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    {court.price_per_hour > 0 && (
+                      <div style={{ background: "rgba(255,255,255,.15)", borderRadius: 8, padding: "4px 10px", fontSize: 12, color: "#fff", fontWeight: 700 }}>
+                        ${court.price_per_hour}/hr
+                      </div>
+                    )}
+                    {todayBookings > 0 && (
+                      <div style={{ background: "rgba(255,255,255,.12)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,.85)", fontWeight: 600 }}>
                         {todayBookings} booking{todayBookings !== 1 ? "s" : ""} today
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
                 {/* Footer */}
                 <div style={{ background: "var(--c-card)", padding: "14px 16px", display: "flex", gap: 8 }}>
@@ -278,14 +288,28 @@ export default function CourtsPage() {
                     <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", background: "var(--c-inner)", borderRadius: 12, border: "1px solid var(--c-border)" }}>
                       <div style={{ width: 44, height: 44, borderRadius: 10, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>🎾</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2, flexWrap: "wrap" }}>
                           <p style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{b.court_name}</p>
                           <span style={{ fontSize: 11, fontWeight: 700, color: s.color, background: s.color + "18", padding: "2px 8px", borderRadius: 100 }}>{b.start_time}–{b.end_time}</span>
                           <span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{durationLabel(b.start_time, b.end_time)}</span>
+                          {b.total_price > 0 && (
+                            <span style={{ fontSize: 12, fontWeight: 800, color: b.payment_status === "paid" ? "#059669" : "#f59e0b" }}>
+                              ${b.total_price}
+                            </span>
+                          )}
                         </div>
-                        <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: 0 }}>
-                          {b.player_name || "—"}{b.coach_name ? ` · Coach ${b.coach_name}` : ""}{b.notes ? ` · ${b.notes}` : ""}
-                        </p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: 0 }}>
+                            {b.player_name || "—"}{b.coach_name ? ` · Coach ${b.coach_name}` : ""}{b.notes ? ` · ${b.notes}` : ""}
+                          </p>
+                          {b.total_price > 0 && (
+                            b.payment_status === "paid" ? (
+                              <span style={{ fontSize: 11, fontWeight: 700, color: "#059669", background: "#05966918", padding: "2px 8px", borderRadius: 100 }}>✓ Paid</span>
+                            ) : (
+                              <button onClick={() => markPaid(b.id)} style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", background: "#f59e0b18", padding: "3px 10px", borderRadius: 100, border: "none", cursor: "pointer" }}>Mark Paid</button>
+                            )
+                          )}
+                        </div>
                       </div>
                       <button onClick={() => deleteBooking(b.id)}
                         style={{ width: 32, height: 32, background: "none", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-dim)", cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
@@ -318,9 +342,19 @@ export default function CourtsPage() {
                 ))}
               </div>
             </div>
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Court Name *</label>
-              <input value={courtForm.name} onChange={e => setCourtForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Court 1" style={inp} autoFocus onKeyDown={e => e.key === "Enter" && addCourt()} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Court Name *</label>
+                <input value={courtForm.name} onChange={e => setCourtForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Court 1" style={inp} autoFocus onKeyDown={e => e.key === "Enter" && addCourt()} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Price/hour ($)</label>
+                <input type="number" value={courtForm.price_per_hour} onChange={e => setCourtForm(f => ({ ...f, price_per_hour: e.target.value }))} placeholder="0 = free" style={inp} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Leave blank if free</label>
+                <p style={{ fontSize: 12, color: "var(--c-text-dim)", paddingTop: 12 }}>Price auto-calculates on booking</p>
+              </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
               <button onClick={() => setShowAddCourt(false)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
