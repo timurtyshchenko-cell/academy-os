@@ -21,11 +21,15 @@ export async function POST(req: NextRequest) {
   if (!date) return NextResponse.json({ error: "date required" }, { status: 400 });
   if (!player_id && !player_name) return NextResponse.json({ error: "player required" }, { status: 400 });
   const db = getDb();
-  const result = db.prepare(
-    "INSERT INTO sessions (academy_id, player_id, player_name, date, start_time, duration, coach_name, type, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-  ).run(session.academyId, player_id || null, player_name || null, date, start_time || null, duration || 60, coach_name || null, type || "Training", notes || null);
-  const s = db.prepare("SELECT * FROM sessions WHERE id = ?").get(result.lastInsertRowid);
-  return NextResponse.json({ session: s });
+  try {
+    const result = db.prepare(
+      "INSERT INTO sessions (academy_id, player_id, player_name, date, start_time, duration, coach_name, type, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ).run(session.academyId, player_id || null, player_name || null, date, start_time || null, duration || 60, coach_name || null, type || "Training", notes || null);
+    const s = db.prepare("SELECT * FROM sessions WHERE id = ?").get(result.lastInsertRowid);
+    return NextResponse.json({ session: s });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || "DB error" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
