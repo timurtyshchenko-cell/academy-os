@@ -10,8 +10,13 @@ export async function GET(req: NextRequest) {
     const users = db.prepare("SELECT u.id, u.name, u.email, a.name as academy, a.subscription_status FROM users u LEFT JOIN academies a ON a.owner_id = u.id").all();
     return NextResponse.json({ users });
   }
+  const action = req.nextUrl.searchParams.get("action");
   const user = db.prepare("SELECT id FROM users WHERE email = ?").get(email) as any;
   if (!user) return NextResponse.json({ error: "User not found" });
+  if (action === "activate") {
+    db.prepare("UPDATE academies SET subscription_status = 'active' WHERE owner_id = ?").run(user.id);
+    return NextResponse.json({ success: true, activated: email });
+  }
   db.prepare("DELETE FROM academies WHERE owner_id = ?").run(user.id);
   db.prepare("DELETE FROM users WHERE id = ?").run(user.id);
   return NextResponse.json({ success: true, deleted: email });
