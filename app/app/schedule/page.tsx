@@ -191,16 +191,15 @@ export default function SchedulePage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Player *</label>
-                {players.length > 0 ? (
-                  <select value={form.player_id} onChange={e => setForm(f => ({ ...f, player_id: e.target.value, player_name: "" }))} style={inp}>
-                    <option value="">Select player...</option>
+                <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value, player_id: "" }))} placeholder="Player name" style={inp} />
+                {players.length > 0 && (
+                  <select value={form.player_id} onChange={e => {
+                    const p = players.find(p => p.id === parseInt(e.target.value));
+                    setForm(f => ({ ...f, player_id: e.target.value, player_name: p?.name || f.player_name }));
+                  }} style={{ ...inp, marginTop: 6, color: form.player_id ? "var(--c-text)" : "var(--c-text-dim)" }}>
+                    <option value="">— or pick from list —</option>
                     {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
-                ) : (
-                  <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value }))} placeholder="Player name" style={inp} />
-                )}
-                {players.length > 0 && !form.player_id && (
-                  <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value }))} placeholder="Or type a name manually" style={{ ...inp, marginTop: 6 }} />
                 )}
               </div>
               {[
