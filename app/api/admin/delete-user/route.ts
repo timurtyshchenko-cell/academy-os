@@ -7,8 +7,9 @@ export async function GET(req: NextRequest) {
   if (secret !== "academy_os_admin_2025") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const db = getDb();
   if (!email) {
-    const users = db.prepare("SELECT u.id, u.name, u.email, a.name as academy, a.subscription_status FROM users u LEFT JOIN academies a ON a.owner_id = u.id").all();
-    return NextResponse.json({ users });
+    const users = db.prepare("SELECT u.id, u.name, u.email, a.id as academy_id, a.name as academy, a.subscription_status FROM users u LEFT JOIN academies a ON a.owner_id = u.id").all();
+    const sessions = db.prepare("SELECT id, academy_id, player_name, date, type FROM sessions ORDER BY created_at DESC LIMIT 20").all();
+    return NextResponse.json({ users, sessions });
   }
   const action = req.nextUrl.searchParams.get("action");
   const user = db.prepare("SELECT id FROM users WHERE email = ?").get(email) as any;
