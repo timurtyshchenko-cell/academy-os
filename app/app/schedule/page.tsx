@@ -66,14 +66,21 @@ export default function SchedulePage() {
     if (!form.date) { setFormError("Select a date"); return; }
     setSaving(true);
     const body: Record<string, unknown> = {
-      ...form,
       player_name: playerName,
+      date: form.date,
+      start_time: form.start_time,
       duration: parseInt(form.duration) || 60,
+      type: form.type,
+      coach_name: form.coach_name,
+      notes: form.notes,
     };
     if (form.player_id) body.player_id = parseInt(form.player_id);
-    await fetch("/api/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const resp = await fetch("/api/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await resp.json();
+    if (!resp.ok) { setFormError(data.error || "Failed to add session"); setSaving(false); return; }
     await load();
     setShowAdd(null);
+    setFormError("");
     setForm({ player_id: "", player_name: "", date: "", start_time: "09:00", duration: "60", type: "Training", coach_name: "", notes: "" });
     setSaving(false);
   }
