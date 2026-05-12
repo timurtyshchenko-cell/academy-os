@@ -87,28 +87,36 @@ export default function CourtsPage() {
   }
 
   async function addBooking() {
-    if (!showBooking || !bookingForm.date || !bookingForm.start_time || !bookingForm.end_time) return;
+    if (!showBooking || !bookingForm.date || !bookingForm.start_time || !bookingForm.end_time) {
+      setBookingError("Fill in date and time"); return;
+    }
     setSaving(true); setBookingError("");
-    const res = await fetch("/api/court-bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...bookingForm, court_id: showBooking.id, court_name: showBooking.name }),
-    });
-    const data = await res.json();
-    if (!res.ok) { setBookingError(data.error || "Failed"); setSaving(false); return; }
-    const booking = data.booking;
-    setShowBooking(null);
-    setBookingForm({ player_name: "", coach_name: "", date: selectedDate, start_time: "09:00", end_time: "10:00", notes: "" });
-    if (booking.total_price > 0) {
-      const cr = await fetch("/api/stripe/court-checkout", {
+    try {
+      const res = await fetch("/api/court-bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ booking_id: booking.id, court_name: booking.court_name, player_name: booking.player_name, date: booking.date, start_time: booking.start_time, end_time: booking.end_time, total_price: booking.total_price }),
+        body: JSON.stringify({ ...bookingForm, court_id: showBooking.id, court_name: showBooking.name }),
       });
-      const cd = await cr.json();
-      if (cd.url) { window.location.href = cd.url; return; }
+      const data = await res.json();
+      if (!res.ok) { setBookingError(data.error || "Failed to book"); setSaving(false); return; }
+      const booking = data.booking;
+      setShowBooking(null);
+      setBookingForm({ player_name: "", coach_name: "", date: selectedDate, start_time: "09:00", end_time: "10:00", notes: "" });
+      if (booking.total_price > 0) {
+        try {
+          const cr = await fetch("/api/stripe/court-checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ booking_id: booking.id, court_name: booking.court_name, player_name: booking.player_name, date: booking.date, start_time: booking.start_time, end_time: booking.end_time, total_price: booking.total_price }),
+          });
+          const cd = await cr.json();
+          if (cd.url) { window.location.href = cd.url; return; }
+        } catch {}
+      }
+      await loadBookings();
+    } catch (e: any) {
+      setBookingError("Network error, try again");
     }
-    await loadBookings();
     setSaving(false);
   }
 
