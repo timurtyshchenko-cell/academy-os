@@ -42,7 +42,7 @@ export default function CourtsPage() {
   const [showBooking, setShowBooking] = useState<Court | null>(null);
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [courtForm, setCourtForm] = useState({ name: "", surface: "Hard", price_per_hour: "30" });
-  const [bookingForm, setBookingForm] = useState({ player_name: "", coach_name: "", date: "", start_time: "09:00", end_time: "10:00", notes: "" });
+  const [bookingForm, setBookingForm] = useState({ player_name: "", player_email: "", coach_name: "", date: "", start_time: "09:00", end_time: "10:00", notes: "" });
   const [saving, setSaving] = useState(false);
   const [bookingError, setBookingError] = useState("");
   const [payingId, setPayingId] = useState<number | null>(null);
@@ -101,7 +101,7 @@ export default function CourtsPage() {
       if (!res.ok) { setBookingError(data.error || "Failed to book"); setSaving(false); return; }
       const booking = data.booking;
       setShowBooking(null);
-      setBookingForm({ player_name: "", coach_name: "", date: selectedDate, start_time: "09:00", end_time: "10:00", notes: "" });
+      setBookingForm({ player_name: "", player_email: "", coach_name: "", date: selectedDate, start_time: "09:00", end_time: "10:00", notes: "" });
       if (booking.total_price > 0) {
         try {
           const cr = await fetch("/api/stripe/court-checkout", {
@@ -438,6 +438,12 @@ export default function CourtsPage() {
                       <input value={(bookingForm as any)[k]} onChange={e => setBookingForm(f => ({ ...f, [k]: e.target.value }))} placeholder={placeholder} style={inp} />
                     </div>
                   ))}
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 5 }}>
+                    Email <span style={{ fontSize: 9, color: "var(--c-text-dim)", fontWeight: 500, textTransform: "none" }}>— confirmation will be sent</span>
+                  </label>
+                  <input type="email" value={bookingForm.player_email} onChange={e => setBookingForm(f => ({ ...f, player_email: e.target.value }))} placeholder="player@email.com" style={inp} />
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 5 }}>Notes</label>
