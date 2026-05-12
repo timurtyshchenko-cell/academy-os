@@ -17,8 +17,7 @@ export async function POST(req: NextRequest) {
     const userResult = db.prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)").run(name, email, hash);
     const userId = userResult.lastInsertRowid as number;
 
-    const FREE_EMAILS = ["sasha.tischenko.ua@gmail.com", "timurtyshchenko@gmail.com"];
-    const isOwner = FREE_EMAILS.includes(email.toLowerCase());
+    const isOwner = email.toLowerCase() === "timurtyshchenko@gmail.com";
     const academyResult = db.prepare("INSERT INTO academies (name, owner_id, subscription_status) VALUES (?, ?, ?)").run(academy, userId, isOwner ? "active" : "trial");
     const academyId = academyResult.lastInsertRowid as number;
 
