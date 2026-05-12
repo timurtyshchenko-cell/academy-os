@@ -41,10 +41,11 @@ export default function CourtsPage() {
   const [showAddCourt, setShowAddCourt] = useState(false);
   const [showBooking, setShowBooking] = useState<Court | null>(null);
   const [selectedDate, setSelectedDate] = useState(todayStr);
-  const [courtForm, setCourtForm] = useState({ name: "", surface: "Hard", price_per_hour: "" });
+  const [courtForm, setCourtForm] = useState({ name: "", surface: "Hard", price_per_hour: "30" });
   const [bookingForm, setBookingForm] = useState({ player_name: "", coach_name: "", date: "", start_time: "09:00", end_time: "10:00", notes: "" });
   const [saving, setSaving] = useState(false);
   const [bookingError, setBookingError] = useState("");
+  const [payingId, setPayingId] = useState<number | null>(null);
 
   useEffect(() => { loadAll(); }, []);
   useEffect(() => { loadBookings(); }, [selectedDate]);
@@ -69,7 +70,7 @@ export default function CourtsPage() {
     await fetch("/api/courts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...courtForm, price_per_hour: parseInt(courtForm.price_per_hour) || 0 }) });
     await loadAll();
     setShowAddCourt(false);
-    setCourtForm({ name: "", surface: "Hard", price_per_hour: "" });
+    setCourtForm({ name: "", surface: "Hard", price_per_hour: "30" });
     setSaving(false);
   }
 
@@ -95,10 +96,33 @@ export default function CourtsPage() {
     });
     const data = await res.json();
     if (!res.ok) { setBookingError(data.error || "Failed"); setSaving(false); return; }
-    await loadBookings();
+    const booking = data.booking;
     setShowBooking(null);
     setBookingForm({ player_name: "", coach_name: "", date: selectedDate, start_time: "09:00", end_time: "10:00", notes: "" });
+    if (booking.total_price > 0) {
+      const cr = await fetch("/api/stripe/court-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_id: booking.id, court_name: booking.court_name, player_name: booking.player_name, date: booking.date, start_time: booking.start_time, end_time: booking.end_time, total_price: booking.total_price }),
+      });
+      const cd = await cr.json();
+      if (cd.url) { window.location.href = cd.url; return; }
+    }
+    await loadBookings();
     setSaving(false);
+  }
+
+  async function payWithStripe(b: Booking) {
+    setPayingId(b.id);
+    const court = courts.find(c => c.id === b.court_id);
+    const cr = await fetch("/api/stripe/court-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ booking_id: b.id, court_name: b.court_name, player_name: b.player_name, date: b.date, start_time: b.start_time, end_time: b.end_time, total_price: b.total_price }),
+    });
+    const cd = await cr.json();
+    if (cd.url) { window.location.href = cd.url; return; }
+    setPayingId(null);
   }
 
   async function deleteBooking(id: number) {
@@ -306,7 +330,9 @@ export default function CourtsPage() {
                             b.payment_status === "paid" ? (
                               <span style={{ fontSize: 11, fontWeight: 700, color: "#059669", background: "#05966918", padding: "2px 8px", borderRadius: 100 }}>✓ Paid</span>
                             ) : (
-                              <button onClick={() => markPaid(b.id)} style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", background: "#f59e0b18", padding: "3px 10px", borderRadius: 100, border: "none", cursor: "pointer" }}>Mark Paid</button>
+                              <button onClick={() => payWithStripe(b)} disabled={payingId === b.id} style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "#635bff", padding: "4px 12px", borderRadius: 100, border: "none", cursor: "pointer", opacity: payingId === b.id ? .7 : 1 }}>
+                                {payingId === b.id ? "Redirecting..." : "💳 Pay with Stripe"}
+                              </button>
                             )
                           )}
                         </div>
@@ -409,11 +435,27 @@ export default function CourtsPage() {
                   <input value={bookingForm.notes} onChange={e => setBookingForm(f => ({ ...f, notes: e.target.value }))} placeholder="Optional" style={inp} />
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+              {(() => {
+                const ph = showBooking.price_per_hour || 0;
+                const [sh2, sm2] = bookingForm.start_time.split(":").map(Number);
+                const [eh2, em2] = bookingForm.end_time.split(":").map(Number);
+                const hrs = ((eh2 * 60 + em2) - (sh2 * 60 + sm2)) / 60;
+                const preview = ph > 0 && hrs > 0 ? Math.round(ph * hrs) : 0;
+                return preview > 0 ? (
+                  <div style={{ background: "#635bff18", border: "1px solid #635bff33", borderRadius: 10, padding: "10px 14px", marginTop: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>💳</span>
+                    <div>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "#635bff" }}>Total: ${preview}</p>
+                      <p style={{ margin: 0, fontSize: 11, color: "var(--c-text-muted)" }}>${ph}/hr · {hrs}h · paid via Stripe</p>
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+              <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
                 <button onClick={() => setShowBooking(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
                 <button onClick={addBooking} disabled={saving}
-                  style={{ flex: 2, padding: "13px", borderRadius: 12, border: "none", background: (SURFACE[showBooking.surface] || SURFACE.Hard).bg, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>
-                  {saving ? "Booking..." : "Confirm Booking"}
+                  style={{ flex: 2, padding: "13px", borderRadius: 12, border: "none", background: showBooking.price_per_hour > 0 ? "#635bff" : (SURFACE[showBooking.surface] || SURFACE.Hard).bg, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>
+                  {saving ? "Processing..." : showBooking.price_per_hour > 0 ? "Book & Pay with Stripe →" : "Confirm Booking"}
                 </button>
               </div>
             </div>
