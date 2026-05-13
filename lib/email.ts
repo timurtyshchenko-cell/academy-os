@@ -91,12 +91,13 @@ export async function sendTrainingReport(data: TrainingReportData) {
 </body>
 </html>`;
 
-  await getResend().emails.send({
+  const { error } = await getResend().emails.send({
     from: `${data.academyName} <onboarding@resend.dev>`,
     to: data.to,
     subject: `Training Report — ${data.playerName} — ${data.sessions.length} sessions · ${totalHours}h`,
     html,
   });
+  if (error) throw new Error(JSON.stringify(error));
 }
 
 export async function sendInvoiceEmail(data: InvoiceEmailData) {
@@ -184,10 +185,11 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
 </body>
 </html>`;
 
-  await getResend().emails.send({
+  const { error } = await getResend().emails.send({
     from: `${data.academyName} <onboarding@resend.dev>`,
     to: data.to,
     subject: `Invoice — ${data.playerName} — ${data.month} — $${data.amount}`,
     html,
   });
+  if (error) throw new Error(JSON.stringify(error));
 }

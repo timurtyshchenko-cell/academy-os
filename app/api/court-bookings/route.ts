@@ -84,12 +84,13 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
       const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
+      const { error: emailError } = await resend.emails.send({
         from: `${session.academyName} <onboarding@resend.dev>`,
         to: player_email,
         subject: `Court booking confirmed — ${court_name} — ${date}`,
         html,
       });
+      if (emailError) console.error("Court booking email error:", emailError);
     } catch {}
   }
 
