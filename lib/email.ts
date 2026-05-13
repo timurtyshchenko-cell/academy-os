@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() { return new Resend(process.env.RESEND_API_KEY); }
 
 export interface InvoiceEmailData {
   to: string;
@@ -91,7 +91,7 @@ export async function sendTrainingReport(data: TrainingReportData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: `${data.academyName} <onboarding@resend.dev>`,
     to: data.to,
     subject: `Training Report — ${data.playerName} — ${data.sessions.length} sessions · ${totalHours}h`,
@@ -184,7 +184,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: `${data.academyName} <onboarding@resend.dev>`,
     to: data.to,
     subject: `Invoice — ${data.playerName} — ${data.month} — $${data.amount}`,

@@ -3,8 +3,6 @@ import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -85,6 +83,7 @@ export async function POST(req: NextRequest) {
   </div>
 </body>
 </html>`;
+      const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
         from: `${session.academyName} <onboarding@resend.dev>`,
         to: player_email,
