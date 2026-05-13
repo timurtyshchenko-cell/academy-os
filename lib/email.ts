@@ -1,6 +1,14 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-function getResend() { return new Resend(process.env.RESEND_API_KEY); }
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+}
 
 export interface InvoiceEmailData {
   to: string;
@@ -91,13 +99,12 @@ export async function sendTrainingReport(data: TrainingReportData) {
 </body>
 </html>`;
 
-  const { error } = await getResend().emails.send({
-    from: `${data.academyName} <onboarding@resend.dev>`,
+  await getTransporter().sendMail({
+    from: `"${data.academyName}" <${process.env.GMAIL_USER}>`,
     to: data.to,
     subject: `Training Report — ${data.playerName} — ${data.sessions.length} sessions · ${totalHours}h`,
     html,
   });
-  if (error) throw new Error(JSON.stringify(error));
 }
 
 export async function sendInvoiceEmail(data: InvoiceEmailData) {
@@ -121,7 +128,6 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
 <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif">
   <div style="max-width:620px;margin:0 auto;padding:40px 20px">
 
-    <!-- Logo -->
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px">
         <div style="width:38px;height:38px;background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:17px;vertical-align:middle">A</div>
@@ -129,14 +135,12 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
       </div>
     </div>
 
-    <!-- Hero amount -->
     <div style="background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:24px;padding:40px 36px;margin-bottom:20px;text-align:center">
       <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin:0 0 12px">Invoice · ${data.month}</p>
       <p style="font-size:56px;font-weight:900;color:#fff;letter-spacing:-2px;margin:0 0 8px;line-height:1">\$${data.amount.toLocaleString()}</p>
       <p style="font-size:15px;color:rgba(255,255,255,.7);margin:0">Due by ${data.dueDate}</p>
     </div>
 
-    <!-- Player info -->
     <div style="background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
       <table style="width:100%;border-collapse:collapse">
         <tr>
@@ -153,7 +157,6 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
     </div>
 
     ${data.sessions.length > 0 ? `
-    <!-- Training report -->
     <div style="background:#fff;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
       <div style="padding:22px 28px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center">
         <div>
@@ -179,17 +182,15 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
       </table>
     </div>` : ""}
 
-    <!-- Footer -->
     <p style="font-size:13px;color:#9ca3af;text-align:center;margin:24px 0 0">Sent by <strong style="color:#6b7280">${data.academyName}</strong> via AcademyOS</p>
   </div>
 </body>
 </html>`;
 
-  const { error } = await getResend().emails.send({
-    from: `${data.academyName} <onboarding@resend.dev>`,
+  await getTransporter().sendMail({
+    from: `"${data.academyName}" <${process.env.GMAIL_USER}>`,
     to: data.to,
     subject: `Invoice — ${data.playerName} — ${data.month} — $${data.amount}`,
     html,
   });
-  if (error) throw new Error(JSON.stringify(error));
 }

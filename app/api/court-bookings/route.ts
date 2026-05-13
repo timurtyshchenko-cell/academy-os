@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -83,14 +83,16 @@ export async function POST(req: NextRequest) {
   </div>
 </body>
 </html>`;
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const { error: emailError } = await resend.emails.send({
-        from: `${session.academyName} <onboarding@resend.dev>`,
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+      });
+      await transporter.sendMail({
+        from: `"${session.academyName}" <${process.env.GMAIL_USER}>`,
         to: player_email,
         subject: `Court booking confirmed — ${court_name} — ${date}`,
         html,
       });
-      if (emailError) console.error("Court booking email error:", emailError);
     } catch {}
   }
 
