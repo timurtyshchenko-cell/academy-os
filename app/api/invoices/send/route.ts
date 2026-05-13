@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
     "SELECT * FROM sessions WHERE player_id = ? AND strftime('%Y-%m', date) = strftime('%Y-%m', ?) ORDER BY date ASC"
   ).all(invoice.player_id, invoice.due_date || new Date().toISOString()) as any[];
 
+  const apiKey = process.env.RESEND_API_KEY;
+  console.log("RESEND_API_KEY set:", !!apiKey, "| sending to:", player.parent_email);
+
   try {
     await sendInvoiceEmail({
       to: player.parent_email,
@@ -33,9 +36,10 @@ export async function POST(req: NextRequest) {
       dueDate: invoice.due_date || "—",
       sessions,
     });
+    console.log("Email sent OK to:", player.parent_email);
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("Email error:", err);
+    console.error("Email error full:", JSON.stringify(err), err.message, err.statusCode);
     return NextResponse.json({ error: err.message || "Failed to send email" }, { status: 500 });
   }
 }
