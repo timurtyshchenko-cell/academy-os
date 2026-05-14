@@ -1,8 +1,8 @@
 import { Resend } from "resend";
 
 function getResend() {
-  if (!process.env.RESEND_API_KEY) throw new Error("RESEND_API_KEY not set");
-  return new Resend(process.env.RESEND_API_KEY);
+  console.log("RESEND_API_KEY present:", !!process.env.RESEND_API_KEY, "| length:", process.env.RESEND_API_KEY?.length ?? 0);
+  return new Resend(process.env.RESEND_API_KEY || "");
 }
 
 export interface InvoiceEmailData {

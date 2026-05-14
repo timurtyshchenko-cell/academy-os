@@ -23,8 +23,7 @@ export async function POST(req: NextRequest) {
     "SELECT * FROM sessions WHERE player_id = ? AND strftime('%Y-%m', date) = strftime('%Y-%m', ?) ORDER BY date ASC"
   ).all(invoice.player_id, invoice.due_date || new Date().toISOString()) as any[];
 
-  const apiKey = process.env.RESEND_API_KEY;
-  console.log("RESEND_API_KEY set:", !!apiKey, "| sending to:", player.parent_email);
+  console.log("Sending invoice email to:", player.parent_email, "| RESEND_API_KEY length:", process.env.RESEND_API_KEY?.length ?? 0);
 
   try {
     await sendInvoiceEmail({
