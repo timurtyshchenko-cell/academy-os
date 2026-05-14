@@ -83,9 +83,13 @@ export async function POST(req: NextRequest) {
   </div>
 </body>
 </html>`;
+      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) throw new Error("Email not configured");
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
       });
       await transporter.sendMail({
         from: `"${session.academyName}" <${process.env.GMAIL_USER}>`,
