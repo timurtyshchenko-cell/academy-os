@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-function getTransporter() {
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-  });
-}
+function getResend() { return new Resend(process.env.RESEND_API_KEY); }
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -63,12 +58,13 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-  await getTransporter().sendMail({
-    from: `"${session.academyName}" <${process.env.GMAIL_USER}>`,
+  const { error } = await getResend().emails.send({
+    from: `${session.academyName} <onboarding@resend.dev>`,
     to: player.parent_email,
     subject: `Training reminder — ${player.name} — ${trainingSession.date}`,
     html,
   });
+  if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
 
   return NextResponse.json({ success: true });
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -83,18 +83,9 @@ export async function POST(req: NextRequest) {
   </div>
 </body>
 </html>`;
-      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) throw new Error("Email not configured");
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 20000,
-      });
-      await transporter.sendMail({
-        from: `"${session.academyName}" <${process.env.GMAIL_USER}>`,
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: `${session.academyName} <onboarding@resend.dev>`,
         to: player_email,
         subject: `Court booking confirmed — ${court_name} — ${date}`,
         html,
