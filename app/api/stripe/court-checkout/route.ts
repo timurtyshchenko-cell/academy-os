@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { getSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const { booking_id, court_name, player_name, date, start_time, end_time, total_price } = await req.json();
     const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3003";
 
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const checkoutSession = await getStripe().checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
       metadata: { booking_id: String(booking_id) },

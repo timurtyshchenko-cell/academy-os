@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
     let session;
     if (plan === "subscription") {
-      session = await stripe.checkout.sessions.create({
+      session = await getStripe().checkout.sessions.create({
         mode: "subscription",
         payment_method_types: ["card"],
         customer_email: customerEmail,
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         cancel_url: `${base}/cancel`,
       });
     } else {
-      session = await stripe.checkout.sessions.create({
+      session = await getStripe().checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card"],
         customer_email: customerEmail,
