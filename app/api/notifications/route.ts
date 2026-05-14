@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+  });
+}
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -42,7 +47,7 @@ export async function POST(req: NextRequest) {
           ["Duration", `${trainingSession.duration} minutes`],
           ["Coach", trainingSession.coach_name || "—"],
           ["Notes", trainingSession.notes || "—"],
-        ].map(([label, value], i) => `
+        ].map(([label, value]) => `
         <tr>
           <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;width:40%">
             <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin:0">${label}</p>
@@ -58,8 +63,8 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-  await resend.emails.send({
-    from: `${session.academyName} <onboarding@resend.dev>`,
+  await getTransporter().sendMail({
+    from: `"${session.academyName}" <${process.env.GMAIL_USER}>`,
     to: player.parent_email,
     subject: `Training reminder — ${player.name} — ${trainingSession.date}`,
     html,
