@@ -143,7 +143,7 @@ export default function BillingPage() {
                         {sending === inv.id ? "Sending..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
                       </button>
                     </div>
-                    {sendError && sending === null && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{sendError}</p>}
+                    {sendError && sending === null && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4, maxWidth: 300, wordBreak: "break-word" }}>{sendError}</p>}
                   </td>
                 </tr>
               ))}
