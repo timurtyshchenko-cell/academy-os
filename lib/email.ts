@@ -47,7 +47,7 @@ export async function sendTrainingReport(data: TrainingReportData) {
   <div style="max-width:620px;margin:0 auto;padding:40px 20px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px">
-        <div style="width:38px;height:38px;background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:17px;vertical-align:middle">A</div>
+        <div style="width:38px;height:38px;background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:17px;vertical-align:middle">${data.academyName?.[0]?.toUpperCase() || "A"}</div>
         <span style="font-weight:800;color:#111827;font-size:18px;letter-spacing:-.3px;vertical-align:middle">${data.academyName}</span>
       </div>
     </div>
@@ -122,7 +122,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
   <div style="max-width:620px;margin:0 auto;padding:40px 20px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px">
-        <div style="width:38px;height:38px;background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:17px;vertical-align:middle">A</div>
+        <div style="width:38px;height:38px;background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:17px;vertical-align:middle">${data.academyName?.[0]?.toUpperCase() || "A"}</div>
         <span style="font-weight:800;color:#111827;font-size:18px;letter-spacing:-.3px;vertical-align:middle">${data.academyName}</span>
       </div>
     </div>
