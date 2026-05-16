@@ -15,6 +15,7 @@ export interface InvoiceEmailData {
   amount: number;
   dueDate: string;
   sessions: { date: string; duration: number; type: string; coach_name: string; notes: string }[];
+  paymentUrl?: string;
 }
 
 export interface TrainingReportData {
@@ -129,6 +130,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
       <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin:0 0 12px">Invoice · ${data.month}</p>
       <p style="font-size:56px;font-weight:900;color:#fff;letter-spacing:-2px;margin:0 0 8px;line-height:1">\$${data.amount.toLocaleString()}</p>
       <p style="font-size:15px;color:rgba(255,255,255,.7);margin:0">Due by ${data.dueDate}</p>
+      ${data.paymentUrl ? `<a href="${data.paymentUrl}" style="display:inline-block;margin-top:24px;padding:14px 36px;background:#fff;color:#4f46e5;font-weight:800;font-size:16px;border-radius:14px;text-decoration:none;letter-spacing:-.2px">Pay Now →</a>` : ""}
     </div>
     <div style="background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
       <table style="width:100%;border-collapse:collapse">
