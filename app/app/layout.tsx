@@ -100,6 +100,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {menuOpen ? "✕" : "☰"}
             </button>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+              <div style={{ width: 30, height: 30, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 14, boxShadow: "0 2px 8px rgba(79,70,229,.4)", flexShrink: 0 }}>
+                {academyName?.[0]?.toUpperCase() || "A"}
+              </div>
               <span style={{ fontWeight: 800, color: "var(--c-text)", fontSize: 14 }}>AcademyOS</span>
             </Link>
             <div style={{ width: 1, height: 16, background: "var(--c-border)" }} />
