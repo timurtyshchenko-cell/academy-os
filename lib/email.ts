@@ -176,3 +176,49 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
   });
   if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
 }
+
+export interface ReminderEmailData {
+  to: string;
+  playerName: string;
+  academyName: string;
+  month: string;
+  amount: number;
+  dueDate: string;
+  paymentUrl?: string;
+}
+
+export async function sendReminderEmail(data: ReminderEmailData) {
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif">
+  <div style="max-width:560px;margin:0 auto;padding:40px 20px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="display:inline-flex;align-items:center;gap:10px">
+        <span style="font-size:28px">🎾</span>
+        <span style="font-weight:800;color:#111827;font-size:18px;letter-spacing:-.3px">${data.academyName}</span>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:24px;padding:40px 36px;margin-bottom:20px;text-align:center">
+      <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.12em;margin:0 0 12px">Payment Reminder</p>
+      <p style="font-size:56px;font-weight:900;color:#fff;letter-spacing:-2px;margin:0 0 8px;line-height:1">$${data.amount.toLocaleString()}</p>
+      <p style="font-size:15px;color:rgba(255,255,255,.8);margin:0 0 4px">${data.month} · Due by ${data.dueDate}</p>
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 24px">This invoice is still unpaid</p>
+      ${data.paymentUrl ? `<a href="${data.paymentUrl}" style="display:inline-block;padding:14px 36px;background:#fff;color:#ef4444;font-weight:800;font-size:16px;border-radius:14px;text-decoration:none;letter-spacing:-.2px">Pay Now →</a>` : ""}
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <p style="font-size:13px;color:#374151;margin:0">Hi! This is a friendly reminder that the invoice for <strong>${data.playerName}</strong> for <strong>${data.month}</strong> is still outstanding. Please pay at your earliest convenience.</p>
+    </div>
+    <p style="font-size:13px;color:#9ca3af;text-align:center;margin:0">Sent by <strong style="color:#6b7280">${data.academyName}</strong> via AcademyOS</p>
+  </div>
+</body>
+</html>`;
+
+  const { error } = await getResend().emails.send({
+    from: `${data.academyName} <onboarding@resend.dev>`,
+    to: data.to,
+    subject: `Payment Reminder — ${data.playerName} — ${data.month} — $${data.amount}`,
+    html,
+  });
+  if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
+}

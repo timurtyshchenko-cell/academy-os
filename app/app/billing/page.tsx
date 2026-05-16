@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-interface Invoice { id: number; player_name: string; amount: number; status: string; month: string; due_date: string; paid_at: string; created_at: string }
+interface Invoice { id: number; player_name: string; player_id: number; amount: number; status: string; month: string; due_date: string; paid_at: string; created_at: string }
 
 export default function BillingPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -9,7 +9,9 @@ export default function BillingPage() {
   const [generating, setGenerating] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "paid">("all");
   const [sending, setSending] = useState<number | null>(null);
+  const [reminding, setReminding] = useState<number | null>(null);
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
+  const [remindedIds, setRemindedIds] = useState<Set<number>>(new Set());
   const [sendError, setSendError] = useState<string | null>(null);
 
   useEffect(() => { load(); }, []);
@@ -40,6 +42,47 @@ export default function BillingPage() {
     if (!r.ok) setSendError(d.error || "Failed to send");
     else setSentIds(prev => new Set([...prev, id]));
     setSending(null);
+  }
+
+  async function sendReminder(id: number) {
+    setReminding(id); setSendError(null);
+    const r = await fetch("/api/invoices/remind", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ invoiceId: id }) });
+    const d = await r.json();
+    if (!r.ok) setSendError(d.error || "Failed to send reminder");
+    else setRemindedIds(prev => new Set([...prev, id]));
+    setReminding(null);
+  }
+
+  function printInvoice(inv: Invoice) {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice — ${inv.player_name}</title>
+    <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:40px;color:#111827;background:#fff}
+    .header{text-align:center;margin-bottom:32px}.logo{font-size:24px;font-weight:900;letter-spacing:-1px}
+    .hero{background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:16px;padding:36px;text-align:center;color:#fff;margin-bottom:24px}
+    .hero-label{font-size:11px;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.12em;margin:0 0 8px}
+    .hero-amount{font-size:52px;font-weight:900;margin:0 0 6px;letter-spacing:-2px}
+    .hero-sub{opacity:.7;margin:0}
+    .row{display:flex;gap:16px;margin-bottom:24px}.card{flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+    .card-label{font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 4px}
+    .card-value{font-size:16px;font-weight:700;margin:0}
+    .badge{display:inline-block;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;background:${inv.status === "paid" ? "#d1fae5" : "#fef3c7"};color:${inv.status === "paid" ? "#059669" : "#b45309"}}
+    @media print{body{padding:20px}}</style></head>
+    <body>
+    <div class="header"><div class="logo">🎾 AcademyOS</div></div>
+    <div class="hero">
+      <p class="hero-label">Invoice · ${inv.month || "—"}</p>
+      <p class="hero-amount">$${inv.amount.toLocaleString()}</p>
+      <p class="hero-sub">Due by ${inv.due_date || "—"}</p>
+    </div>
+    <div class="row">
+      <div class="card"><p class="card-label">Player</p><p class="card-value">${inv.player_name}</p></div>
+      <div class="card"><p class="card-label">Status</p><p class="card-value"><span class="badge">${inv.status === "paid" ? "Paid" : "Pending"}</span></p></div>
+      ${inv.paid_at ? `<div class="card"><p class="card-label">Paid on</p><p class="card-value">${inv.paid_at.split("T")[0]}</p></div>` : ""}
+    </div>
+    </body></html>`);
+    win.document.close();
+    win.print();
   }
 
   const filtered = filter === "all" ? invoices : invoices.filter(i => filter === "paid" ? i.status === "paid" : i.status !== "paid");
@@ -128,22 +171,30 @@ export default function BillingPage() {
                     </span>
                   </td>
                   <td style={{ padding: "14px 16px" }}>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                       {inv.status !== "paid" && (
-                        <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "none", border: "1px solid rgba(37,99,235,.3)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontWeight: 600 }}
+                        <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "none", border: "1px solid rgba(37,99,235,.3)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
                           onMouseEnter={e => { e.currentTarget.style.background = "rgba(37,99,235,.1)"; }}
                           onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
                           Mark Paid
                         </button>
                       )}
                       <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
-                        style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "var(--c-border)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}
-                        onMouseEnter={e => { if (sending !== inv.id) { const el = e.currentTarget; el.style.color = "var(--c-text)"; el.style.borderColor = "var(--c-border-hover)"; } }}
-                        onMouseLeave={e => { const el = e.currentTarget; el.style.color = sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)"; el.style.borderColor = sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "var(--c-border)"; }}>
-                        {sending === inv.id ? "Sending..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
+                        style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}>
+                        {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
+                      </button>
+                      {inv.status !== "paid" && (
+                        <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
+                          style={{ fontSize: 12, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: remindedIds.has(inv.id) ? "rgba(245,158,11,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: reminding === inv.id ? .6 : 1 }}>
+                          {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "🔔 Remind"}
+                        </button>
+                      )}
+                      <button onClick={() => printInvoice(inv)}
+                        style={{ fontSize: 12, color: "var(--c-text-3)", background: "none", border: "1px solid var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}>
+                        🖨️ PDF
                       </button>
                     </div>
-                    {sendError && sending === null && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4, maxWidth: 300, wordBreak: "break-word" }}>{sendError}</p>}
+                    {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4, maxWidth: 300, wordBreak: "break-word" }}>{sendError}</p>}
                   </td>
                 </tr>
               ))}

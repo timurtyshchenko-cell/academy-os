@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface Player { id: number; name: string; monthly_fee: number; status: string }
-interface Invoice { id: number; amount: number; status: string }
+interface Invoice { id: number; amount: number; status: string; month: string; created_at: string }
 interface Session { id: number; player_name: string; date: string; duration: number; type: string; coach_name: string }
 
 export default function Overview() {
@@ -41,6 +41,21 @@ export default function Overview() {
   const totalHoursAll = (sessions.reduce((s, r) => s + (r.duration || 0), 0) / 60).toFixed(1);
   const SESSION_EMOJI: Record<string, string> = { Match: "🎾", Fitness: "💪", "Video Analysis": "📹", Training: "🎯", "Serve Practice": "🏆", Doubles: "👥" };
 
+  // Last 6 months revenue chart data
+  const monthlyRevenue = (() => {
+    const months: { label: string; key: string }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({ label: d.toLocaleString("en-US", { month: "short" }), key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` });
+    }
+    return months.map(m => ({
+      label: m.label,
+      collected: invoices.filter(i => i.status === "paid" && (i.created_at || "").startsWith(m.key)).reduce((s, i) => s + i.amount, 0),
+      pending: invoices.filter(i => i.status !== "paid" && (i.created_at || "").startsWith(m.key)).reduce((s, i) => s + i.amount, 0),
+    }));
+  })();
+  const maxRevenue = Math.max(...monthlyRevenue.map(m => m.collected + m.pending), 1);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
       <div>
@@ -70,6 +85,27 @@ export default function Overview() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Revenue chart */}
+      <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 20 }}>Monthly Revenue — Last 6 Months</p>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 100 }}>
+          {monthlyRevenue.map(m => (
+            <div key={m.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, height: 80, justifyContent: "flex-end" }}>
+                {m.pending > 0 && <div title={`Pending $${m.pending}`} style={{ width: "100%", height: `${(m.pending / maxRevenue) * 80}px`, background: "#f59e0b40", borderRadius: "4px 4px 0 0", minHeight: 4 }} />}
+                {m.collected > 0 && <div title={`Collected $${m.collected}`} style={{ width: "100%", height: `${(m.collected / maxRevenue) * 80}px`, background: "linear-gradient(180deg,#2563eb,#4f46e5)", borderRadius: m.pending > 0 ? 0 : "4px 4px 0 0", minHeight: 4 }} />}
+                {m.collected === 0 && m.pending === 0 && <div style={{ width: "100%", height: 4, background: "var(--c-border)", borderRadius: 4 }} />}
+              </div>
+              <span style={{ fontSize: 11, color: "var(--c-text-dim)", fontWeight: 600 }}>{m.label}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#2563eb", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#f59e0b40", borderRadius: 2, border: "1px solid #f59e0b" }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Pending</span></div>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>

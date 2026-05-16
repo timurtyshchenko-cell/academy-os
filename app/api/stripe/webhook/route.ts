@@ -11,10 +11,17 @@ export async function POST(req: NextRequest) {
 
     if (event.type === "checkout.session.completed") {
       const checkoutSession = event.data.object as any;
+      const db = getDb();
+
       const bookingId = checkoutSession.metadata?.booking_id;
       if (bookingId) {
-        const db = getDb();
         db.prepare("UPDATE court_bookings SET payment_status = 'paid' WHERE id = ?").run(Number(bookingId));
+      }
+
+      const invoiceId = checkoutSession.metadata?.invoiceId;
+      if (invoiceId) {
+        db.prepare("UPDATE invoices SET status = 'paid', paid_at = datetime('now') WHERE id = ?").run(Number(invoiceId));
+        console.log("Invoice auto-marked paid:", invoiceId);
       }
     }
 
