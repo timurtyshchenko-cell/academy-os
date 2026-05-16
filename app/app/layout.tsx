@@ -95,13 +95,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-header-bg)", backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 40, flexShrink: 0 }}>
         <div style={{ padding: "0 16px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {/* Mobile hamburger */}
             <button className="mobile-menu-btn" onClick={() => setMenuOpen(o => !o)}
               style={{ display: "none", width: 36, height: 36, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 9, alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 16 }}>
               {menuOpen ? "✕" : "☰"}
             </button>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-              <div style={{ width: 28, height: 28, background: "#2563eb", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 13 }}>A</div>
               <span style={{ fontWeight: 800, color: "var(--c-text)", fontSize: 14 }}>AcademyOS</span>
             </Link>
             <div style={{ width: 1, height: 16, background: "var(--c-border)" }} />
@@ -130,7 +128,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Mobile slide-in menu */}
       {menuOpen && (
         <div className="mobile-nav-overlay" style={{ display: "none", position: "fixed", inset: 0, zIndex: 50 }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.5)" }} onClick={() => setMenuOpen(false)} />
@@ -146,7 +143,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="main-content-wrap" style={{ display: "flex", flex: 1, paddingBottom: 0 }}>
-        {/* Desktop sidebar */}
         <aside className="desktop-sidebar" style={{ width: 220, borderRight: "1px solid var(--c-divider)", background: "var(--c-sidebar)", padding: "20px 12px", flexShrink: 0, position: "sticky", top: 56, height: "calc(100vh - 56px)", overflowY: "auto" }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 8, padding: "0 8px" }}>Menu</p>
           <SideNav />
@@ -172,7 +168,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* Mobile bottom navigation */}
       <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, height: 60, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40, justifyContent: "space-around", alignItems: "center", padding: "0 4px" }}>
         {NAV.slice(0, 5).map(item => {
           const active = isActive(item);
