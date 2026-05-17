@@ -105,8 +105,8 @@ export default function LandingPage() {
           </div>
 
           <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.05, letterSpacing: "-3.5px", marginBottom: 28 }}>
-            <span style={{ background: "linear-gradient(180deg,#f8fafc 20%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", display: "block", paddingBottom: 6 }}>Run your academy</span>
-            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", display: "block", paddingBottom: 6 }}>like a business.</span>
+            <span style={{ color: "#f8fafc", display: "block" }}>Run your academy</span>
+            <span style={{ color: "#818cf8", display: "block" }}>like a business.</span>
           </h1>
 
           <p className="hero-sub" style={{ fontSize: 20, color: "#475569", lineHeight: 1.7, marginBottom: 48, maxWidth: 540, margin: "0 auto 48px" }}>
