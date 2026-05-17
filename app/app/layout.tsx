@@ -116,11 +116,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
               <span style={{ fontWeight: 800, color: "var(--c-text)", fontSize: 14 }}>AcademyOS</span>
             </Link>
-            <div style={{ width: 1, height: 16, background: "var(--c-border)" }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--c-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 120 }}>{academyName}</span>
+            <div className="mobile-hide" style={{ width: 1, height: 16, background: "var(--c-border)" }} />
+            <span className="mobile-hide" style={{ fontSize: 13, fontWeight: 600, color: "var(--c-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 120 }}>{academyName}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#059669" }} />
               <span style={{ fontSize: 12, color: "var(--c-text-muted)" }}>Live</span>
             </div>
@@ -130,10 +130,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--c-border)")}>
               {theme === "dark" ? "☀️" : "🌙"}
             </button>
-            <div style={{ width: 32, height: 32, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "var(--c-avatar-text)" }}>
+            <button onClick={signOut} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, transition: "all .2s" }}
+              title="Sign out"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--c-border-hover)")}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--c-border)")}>
+              🚪
+            </button>
+            <div className="mobile-hide" style={{ width: 32, height: 32, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "var(--c-avatar-text)" }}>
               {userName?.[0]?.toUpperCase() || "U"}
             </div>
-            <button onClick={signOut} style={{ fontSize: 12, color: "var(--c-text-muted)", background: "none", border: "none", cursor: "pointer", transition: "color .2s" }}
+            <button onClick={signOut} className="mobile-hide" style={{ fontSize: 12, color: "var(--c-text-muted)", background: "none", border: "none", cursor: "pointer", transition: "color .2s" }}
               onMouseEnter={e => (e.currentTarget.style.color = "var(--c-text)")}
               onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text-muted)")}>
               Sign out
