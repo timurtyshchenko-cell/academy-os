@@ -54,7 +54,7 @@ export default function PlayersPage() {
         <button onClick={() => setShowAdd(true)} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(37,99,235,.3)" }}>+ Add Player</button>
       </div>
 
-      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search players or coaches..." style={{ ...inp, width: 280 }} />
+      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search players or coaches..." style={{ ...inp, width: "min(280px, 100%)" }} />
 
       {filtered.length === 0 ? (
         <div style={{ background: "var(--c-card)", border: "1px dashed var(--c-border)", borderRadius: 16, padding: 60, textAlign: "center", boxShadow: "var(--c-shadow)" }}>

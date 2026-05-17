@@ -98,13 +98,13 @@ export default function BillingPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div className="mobile-wrap" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} pending · {invoices.length} total invoices</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} pending · {invoices.length} total</p>
         </div>
-        <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(37,99,235,.3)" }}>
-          {generating ? "Generating..." : "⚡ Generate Invoices"}
+        <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(37,99,235,.3)", whiteSpace: "nowrap" }}>
+          {generating ? "Generating..." : "⚡ Generate"}
         </button>
       </div>
 
@@ -143,7 +143,8 @@ export default function BillingPage() {
         </div>
       ) : (
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--c-shadow)" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="mobile-scroll">
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-inner)" }}>
                 {["Player", "Month", "Amount", "Due Date", "Status", "Actions"].map(h => (
@@ -200,6 +201,7 @@ export default function BillingPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

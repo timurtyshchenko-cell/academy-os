@@ -80,9 +80,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         @media (max-width: 768px) {
           .desktop-sidebar { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
-          .main-content { padding: 16px !important; }
+          .main-content { padding: 12px !important; padding-bottom: 72px !important; }
           .mobile-nav-overlay { display: flex !important; }
           .mobile-bottom-nav { display: flex !important; }
+          .mobile-scroll { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+          .mobile-stack { flex-direction: column !important; }
+          .mobile-full { width: 100% !important; max-width: 100% !important; }
+          .mobile-hide { display: none !important; }
+          .mobile-grid-1 { grid-template-columns: 1fr !important; }
+          .mobile-grid-2 { grid-template-columns: 1fr 1fr !important; }
+          .mobile-wrap { flex-wrap: wrap !important; }
+          .mobile-text-sm { font-size: 12px !important; }
+          h1 { font-size: 20px !important; }
         }
         @media (min-width: 769px) {
           .mobile-menu-btn { display: none !important; }
@@ -90,6 +99,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           .mobile-bottom-nav { display: none !important; }
           .main-content-wrap { padding-bottom: 0 !important; }
         }
+        * { box-sizing: border-box; }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       <header style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-header-bg)", backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 40, flexShrink: 0 }}>

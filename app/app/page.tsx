@@ -63,7 +63,7 @@ export default function Overview() {
         <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>Your academy at a glance</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+      <div className="mobile-grid-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
         {[
           { emoji: "👥", label: "Active Players", value: activePlayers.length, sub: `${players.length} total`, color: "#2563eb", href: "/app/players" },
           { emoji: "💰", label: "Monthly MRR", value: `$${mrr.toLocaleString()}`, sub: "recurring revenue", color: "#059669", href: "/app/billing" },
@@ -108,7 +108,7 @@ export default function Overview() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 16 }}>Recent Sessions</p>
           {sessions.length === 0 ? (
