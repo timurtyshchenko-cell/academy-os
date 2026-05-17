@@ -55,7 +55,7 @@ export default function LandingPage() {
         .nav-link { color:#475569; text-decoration:none; font-size:14px; font-weight:500; transition:color .15s }
         .nav-link:hover { color:#e2e8f0 }
         @media(max-width:768px){
-          .hero-h1{font-size:36px !important;letter-spacing:-1px !important}
+          .hero-h1{font-size:36px !important;letter-spacing:-1px !important;line-height:1.1 !important;padding:0 4px !important}
           .hero-sub{font-size:16px !important}
           .hero-btns{flex-direction:column !important;align-items:stretch !important}
           .hero-btns a, .hero-btns button{text-align:center !important}
@@ -103,9 +103,9 @@ export default function LandingPage() {
             <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Built exclusively for tennis academies</span>
           </div>
 
-          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.0, letterSpacing: "-3.5px", marginBottom: 28 }}>
-            <span style={{ background: "linear-gradient(180deg,#f8fafc 20%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block" }}>Run your academy</span>
-            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block" }}>like a business.</span>
+          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.05, letterSpacing: "-3.5px", marginBottom: 28, padding: "0 8px" }}>
+            <span style={{ background: "linear-gradient(180deg,#f8fafc 20%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block", paddingBottom: 4 }}>Run your academy</span>
+            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block", paddingBottom: 4 }}>like a business.</span>
           </h1>
 
           <p className="hero-sub" style={{ fontSize: 20, color: "#475569", lineHeight: 1.7, marginBottom: 48, maxWidth: 540, margin: "0 auto 48px" }}>
