@@ -182,16 +182,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, height: 60, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40, justifyContent: "space-around", alignItems: "center", padding: "0 4px" }}>
-        {NAV.slice(0, 5).map(item => {
-          const active = isActive(item);
-          return (
-            <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "4px 8px", textDecoration: "none", flex: 1 }}>
-              <span style={{ fontSize: 20 }}>{item.emoji}</span>
-              <span style={{ fontSize: 9, fontWeight: active ? 700 : 500, color: active ? "#60a5fa" : "var(--c-text-muted)" }}>{item.label}</span>
-            </Link>
-          );
-        })}
+      <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40, overflowX: "auto", padding: "0 4px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", width: "100%", justifyContent: "space-around" }}>
+          {NAV.map(item => {
+            const active = isActive(item);
+            return (
+              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "8px 10px", textDecoration: "none", minWidth: 52, borderTop: active ? "2px solid #60a5fa" : "2px solid transparent", transition: "all .15s" }}>
+                <span style={{ fontSize: 18 }}>{item.emoji}</span>
+                <span style={{ fontSize: 9, fontWeight: active ? 700 : 500, color: active ? "#60a5fa" : "var(--c-text-muted)", whiteSpace: "nowrap" }}>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
