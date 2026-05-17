@@ -55,7 +55,7 @@ export default function LandingPage() {
         .nav-link { color:#475569; text-decoration:none; font-size:14px; font-weight:500; transition:color .15s }
         .nav-link:hover { color:#e2e8f0 }
         @media(max-width:768px){
-          .hero-h1{font-size:34px !important;letter-spacing:-0.5px !important;line-height:1.15 !important;padding:0 !important}
+          .hero-h1{font-size:28px !important;letter-spacing:0px !important;line-height:1.2 !important;padding:0 !important;word-break:break-word}
           .hero-sub{font-size:16px !important}
           .hero-btns{flex-direction:column !important;align-items:stretch !important}
           .hero-btns a, .hero-btns button{text-align:center !important}
@@ -70,7 +70,7 @@ export default function LandingPage() {
           .section-h2{font-size:28px !important;letter-spacing:-1px !important}
           .nav-signin{display:none !important}
           .section{padding:60px 20px !important}
-          .hero-inner{padding:0 20px !important}
+          .hero-inner{padding:0 24px !important;overflow:visible !important}
           .compare-grid{grid-template-columns:1fr !important}
           .footer-inner{flex-direction:column !important;gap:16px !important;text-align:center !important}
         }
