@@ -5,12 +5,12 @@ import { useState } from "react";
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 14, overflow: "hidden", cursor: "pointer" }} onClick={() => setOpen(!open)}>
+    <div style={{ background: "#07070f", border: `1px solid ${open ? "rgba(99,102,241,.3)" : "#0f0f1e"}`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "border-color .2s" }} onClick={() => setOpen(!open)}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px" }}>
         <p style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", letterSpacing: "-.2px" }}>{q}</p>
         <span style={{ fontSize: 18, color: "#6366f1", fontWeight: 700, flexShrink: 0, marginLeft: 16, transform: open ? "rotate(45deg)" : "none", transition: "transform .2s" }}>+</span>
       </div>
-      {open && <div style={{ padding: "0 24px 20px", fontSize: 14, color: "#475569", lineHeight: 1.75, borderTop: "1px solid #0f0f1e", paddingTop: 16 }}>{a}</div>}
+      {open && <div style={{ padding: "0 24px 20px", fontSize: 14, color: "#64748b", lineHeight: 1.75, borderTop: "1px solid #0f0f1e", paddingTop: 16 }}>{a}</div>}
     </div>
   );
 }
@@ -39,58 +39,52 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ background: "#030305", minHeight: "100vh", color: "#fff", fontFamily: "inherit", overflowX: "hidden" }}>
+    <div style={{ background: "#030305", minHeight: "100vh", color: "#fff", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", overflowX: "hidden" }}>
       <style>{`
-        @keyframes spin { to { transform: rotate(360deg) } }
         @keyframes pulse-ring { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:.15;transform:scale(1.15)} }
-        @keyframes fadein { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
-        .btn-primary { transition:all .2s; background:linear-gradient(135deg,#2563eb,#4f46e5) !important }
-        .btn-primary:hover { transform:translateY(-2px) !important; box-shadow:0 12px 40px rgba(79,70,229,.55) !important }
-        .btn-ghost:hover { border-color:#333 !important; color:#e2e8f0 !important; background:rgba(255,255,255,.04) !important }
-        .btn-ghost { transition:all .2s }
-        .feat-card:hover { border-color:rgba(99,102,241,.25) !important; transform:translateY(-2px) }
-        .feat-card { transition:all .25s }
-        .stat-item:not(:last-child) { border-right:1px solid #111 }
-        .nav-a:hover { color:#e2e8f0 !important }
-        .nav-a { transition:color .15s }
-        .pricing-card-pro:hover { box-shadow:0 0 80px rgba(99,102,241,.12) !important }
-        .pricing-card-pro { transition:box-shadow .3s }
-        * { box-sizing:border-box }
+        @keyframes fadein { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        * { box-sizing:border-box; margin:0; padding:0 }
+        .btn-main { background:linear-gradient(135deg,#4f46e5,#2563eb); color:#fff; font-weight:800; border:none; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block }
+        .btn-main:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(79,70,229,.5) !important }
+        .btn-ghost { border:1px solid #1a1a2e; color:#475569; background:transparent; font-weight:600; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block }
+        .btn-ghost:hover { border-color:#333; color:#e2e8f0; background:rgba(255,255,255,.04) }
+        .card-hover { transition:all .25s }
+        .card-hover:hover { border-color:rgba(99,102,241,.3) !important; transform:translateY(-3px); box-shadow:0 20px 60px rgba(0,0,0,.4) !important }
+        .nav-link { color:#475569; text-decoration:none; font-size:14px; font-weight:500; transition:color .15s }
+        .nav-link:hover { color:#e2e8f0 }
         @media(max-width:768px){
-          .hero-h1 { font-size:38px !important; letter-spacing:-1.5px !important; }
-          .hero-section { padding-top:110px !important; padding-bottom:40px !important; }
-          .hero-sub { font-size:16px !important; }
-          .hero-btns { flex-direction:column !important; align-items:stretch !important; }
-          .hero-btns a { text-align:center; }
-          .dashboard-preview { display:none !important; }
-          .stats-grid { grid-template-columns:1fr 1fr !important; }
-          .stat-item:not(:last-child) { border-right:none !important; }
-          .stat-item:nth-child(odd) { border-right:1px solid #111 !important; }
-          .features-grid { grid-template-columns:1fr !important; }
-          .feat-big { grid-column:1 !important; }
-          .steps-grid { grid-template-columns:1fr !important; }
-          .steps-line { display:none !important; }
-          .testimonials-grid { grid-template-columns:1fr !important; }
-          .pricing-grid { grid-template-columns:1fr !important; }
-          .section-h2 { font-size:30px !important; letter-spacing:-1px !important; }
-          .nav-signin { display:none !important; }
-          .nav-pad { padding:0 16px !important; }
-          .section-pad { padding:60px 16px !important; }
-          .cta-h2 { font-size:36px !important; letter-spacing:-1.5px !important; }
+          .hero-h1{font-size:36px !important;letter-spacing:-1px !important}
+          .hero-sub{font-size:16px !important}
+          .hero-btns{flex-direction:column !important;align-items:stretch !important}
+          .hero-btns a, .hero-btns button{text-align:center !important}
+          .dashboard-preview{display:none !important}
+          .stats-grid{grid-template-columns:1fr 1fr !important}
+          .features-grid{grid-template-columns:1fr !important}
+          .feat-big{grid-column:1 !important}
+          .steps-grid{grid-template-columns:1fr !important}
+          .steps-line{display:none !important}
+          .testimonials-grid{grid-template-columns:1fr !important}
+          .pricing-grid{grid-template-columns:1fr !important}
+          .section-h2{font-size:28px !important;letter-spacing:-1px !important}
+          .nav-signin{display:none !important}
+          .section{padding:60px 20px !important}
+          .compare-grid{grid-template-columns:1fr !important}
+          .footer-inner{flex-direction:column !important;gap:16px !important;text-align:center !important}
         }
       `}</style>
 
       {/* Navbar */}
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(3,3,5,.85)", backdropFilter: "blur(28px)", borderBottom: "1px solid rgba(255,255,255,.04)" }}>
-        <div className="nav-pad" style={{ maxWidth: 1140, margin: "0 auto", padding: "0 28px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(3,3,5,.9)", backdropFilter: "blur(32px)", borderBottom: "1px solid rgba(255,255,255,.05)" }}>
+        <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 15, boxShadow: "0 4px 16px rgba(79,70,229,.5)" }}>A</div>
+            <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 15, boxShadow: "0 4px 16px rgba(79,70,229,.5)", flexShrink: 0 }}>A</div>
             <span style={{ fontWeight: 800, color: "#f8fafc", fontSize: 17, letterSpacing: "-.4px" }}>AcademyOS</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Link href="/login" className="nav-a nav-signin" style={{ fontSize: 14, color: "#555", textDecoration: "none", padding: "8px 18px", fontWeight: 500, borderRadius: 8 }}>Sign in</Link>
-            <Link href="/signup" className="btn-primary" style={{ fontSize: 14, fontWeight: 700, color: "#fff", padding: "10px 22px", borderRadius: 10, textDecoration: "none", boxShadow: "0 4px 20px rgba(79,70,229,.4)", letterSpacing: "-.2px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Link href="/login" className="nav-link nav-signin" style={{ padding: "8px 16px", borderRadius: 8 }}>Sign in</Link>
+            <Link href="/signup" className="btn-main" style={{ fontSize: 14, padding: "10px 22px", borderRadius: 10, boxShadow: "0 4px 20px rgba(79,70,229,.35)", letterSpacing: "-.2px" }}>
               Get started →
             </Link>
           </div>
@@ -98,215 +92,215 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="hero-section" style={{ position: "relative", paddingTop: 170, paddingBottom: 80, textAlign: "center", overflow: "hidden" }}>
-        {/* bg glows */}
-        <div style={{ position: "absolute", top: -100, left: "50%", transform: "translateX(-50%)", width: 800, height: 600, background: "radial-gradient(ellipse,rgba(79,70,229,.13) 0%,transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 80, left: "20%", width: 300, height: 300, background: "radial-gradient(ellipse,rgba(37,99,235,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 120, right: "18%", width: 250, height: 250, background: "radial-gradient(ellipse,rgba(124,58,237,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
+      <section style={{ position: "relative", paddingTop: 160, paddingBottom: 80, textAlign: "center", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 900, height: 700, background: "radial-gradient(ellipse,rgba(79,70,229,.15) 0%,transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: 200, left: "10%", width: 400, height: 400, background: "radial-gradient(ellipse,rgba(37,99,235,.06) 0%,transparent 70%)", pointerEvents: "none", animation: "float 6s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", top: 150, right: "8%", width: 300, height: 300, background: "radial-gradient(ellipse,rgba(124,58,237,.07) 0%,transparent 70%)", pointerEvents: "none", animation: "float 8s ease-in-out infinite reverse" }} />
 
-        <div style={{ maxWidth: 780, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1, animation: "fadein .8s ease both" }}>
-          {/* Badge */}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(99,102,241,.08)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 100, padding: "7px 18px", marginBottom: 40 }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1, animation: "fadein .9s ease both" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(99,102,241,.08)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 100, padding: "7px 18px", marginBottom: 36 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#818cf8", display: "inline-block", boxShadow: "0 0 8px #818cf8", animation: "pulse-ring 2s ease infinite" }} />
-            <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Purpose-built for tennis academies</span>
+            <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Built exclusively for tennis academies</span>
           </div>
 
-          <h1 className="hero-h1" style={{ fontSize: 72, fontWeight: 900, lineHeight: 1.02, letterSpacing: "-3px", marginBottom: 28 }}>
-            <span style={{ background: "linear-gradient(180deg,#f8fafc 30%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Manage your academy.</span><br />
-            <span style={{ background: "linear-gradient(135deg,#818cf8,#4f46e5,#2563eb)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Stop the chaos.</span>
+          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.0, letterSpacing: "-3.5px", marginBottom: 28 }}>
+            <span style={{ background: "linear-gradient(180deg,#f8fafc 20%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block" }}>Run your academy</span>
+            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block" }}>like a business.</span>
           </h1>
-          <p style={{ fontSize: 20, color: "#475569", lineHeight: 1.65, marginBottom: 52, maxWidth: 520, margin: "0 auto 52px" }}>
-            Players, coaches, billing, invoices — all in one place. Built for academy directors who are serious about growing.
+
+          <p className="hero-sub" style={{ fontSize: 20, color: "#475569", lineHeight: 1.7, marginBottom: 48, maxWidth: 540, margin: "0 auto 48px" }}>
+            Players, coaches, schedules, billing, and parent emails — all in one place. Stop wasting hours on admin work.
           </p>
+
           <div className="hero-btns" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-            <Link href="/book-demo" className="btn-primary" style={{ fontSize: 16, fontWeight: 800, color: "#fff", padding: "16px 40px", borderRadius: 13, textDecoration: "none", boxShadow: "0 8px 32px rgba(79,70,229,.5)", letterSpacing: "-.2px" }}>
+            <Link href="/book-demo" className="btn-main" style={{ fontSize: 16, padding: "16px 40px", borderRadius: 13, boxShadow: "0 8px 32px rgba(79,70,229,.5)", letterSpacing: "-.2px" }}>
               Book a Free Demo →
             </Link>
-            <Link href="/app" className="btn-ghost" style={{ fontSize: 16, fontWeight: 600, color: "#475569", padding: "16px 28px", borderRadius: 13, textDecoration: "none", border: "1px solid #1a1a2e", background: "transparent" }}>
-              View dashboard
+            <Link href="/signup" className="btn-ghost" style={{ fontSize: 16, padding: "16px 28px", borderRadius: 13 }}>
+              Start free trial
             </Link>
           </div>
-          <p style={{ fontSize: 13, color: "#1e1e3a", marginTop: 22, letterSpacing: ".02em" }}>14-day free trial · No credit card · Cancel anytime</p>
+          <p style={{ fontSize: 13, color: "#1e293b", marginTop: 20 }}>14-day free trial · No credit card · Cancel anytime</p>
         </div>
 
-        {/* Dashboard preview */}
-        <div className="dashboard-preview" style={{ maxWidth: 1000, margin: "72px auto 0", padding: "0 28px", position: "relative", zIndex: 1 }}>
-          {/* Gradient border wrapper */}
-          <div style={{ background: "linear-gradient(160deg,rgba(99,102,241,.3),rgba(37,99,235,.1),rgba(124,58,237,.15))", padding: 1, borderRadius: 22, boxShadow: "0 50px 140px rgba(0,0,0,.9)" }}>
-            <div style={{ background: "#07070f", borderRadius: 21, overflow: "hidden" }}>
-              {/* Browser chrome */}
-              <div style={{ background: "#0a0a14", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "13px 18px", display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", gap: 7 }}>
-                  {["#ff5f57","#febc2e","#28c840"].map(c => <div key={c} style={{ width: 11, height: 11, borderRadius: "50%", background: c, opacity: .7 }} />)}
+        {/* Dashboard mockup */}
+        <div className="dashboard-preview" style={{ maxWidth: 1020, margin: "72px auto 0", padding: "0 28px", position: "relative", zIndex: 1 }}>
+          <div style={{ background: "linear-gradient(160deg,rgba(99,102,241,.35),rgba(37,99,235,.12),rgba(124,58,237,.2))", padding: 1, borderRadius: 24, boxShadow: "0 60px 160px rgba(0,0,0,.95)" }}>
+            <div style={{ background: "#07070f", borderRadius: 23, overflow: "hidden" }}>
+              <div style={{ background: "#0a0a14", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "12px 18px", display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["#ff5f57","#febc2e","#28c840"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c, opacity: .8 }} />)}
                 </div>
-                <div style={{ flex: 1, maxWidth: 280, margin: "0 auto", background: "rgba(255,255,255,.04)", borderRadius: 7, padding: "5px 14px", fontSize: 11, color: "#2a2a4a", textAlign: "center" }}>academyos.com/app</div>
+                <div style={{ flex: 1, maxWidth: 260, margin: "0 auto", background: "rgba(255,255,255,.04)", borderRadius: 6, padding: "4px 12px", fontSize: 11, color: "#1e1e3a", textAlign: "center" }}>academy-os.app/app</div>
               </div>
-              {/* App UI */}
               <div style={{ display: "flex", height: 380 }}>
-                {/* Sidebar */}
-                <div style={{ width: 190, borderRight: "1px solid rgba(255,255,255,.04)", padding: "22px 14px", background: "#07070f", flexShrink: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", marginBottom: 20 }}>
-                    <div style={{ width: 24, height: 24, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 7 }} />
-                    <div style={{ width: 70, height: 7, background: "#1a1a2e", borderRadius: 4 }} />
+                <div style={{ width: 185, borderRight: "1px solid rgba(255,255,255,.04)", padding: "20px 12px", background: "#07070f", flexShrink: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", marginBottom: 18 }}>
+                    <div style={{ width: 22, height: 22, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 6 }} />
+                    <div style={{ width: 65, height: 6, background: "#1a1a2e", borderRadius: 4 }} />
                   </div>
-                  {[
-                    { label: "Overview", emoji: "📊", active: true },
-                    { label: "Players", emoji: "👥", active: false },
-                    { label: "Billing", emoji: "💳", active: false },
-                    { label: "Coaches", emoji: "🎾", active: false },
-                    { label: "Settings", emoji: "⚙️", active: false },
-                  ].map(item => (
-                    <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 9, padding: "9px 12px", borderRadius: 9, marginBottom: 2, background: item.active ? "rgba(99,102,241,.12)" : "transparent", border: item.active ? "1px solid rgba(99,102,241,.18)" : "1px solid transparent" }}>
-                      <span style={{ fontSize: 13 }}>{item.emoji}</span>
-                      <span style={{ fontSize: 12, color: item.active ? "#a5b4fc" : "#2a2a4a", fontWeight: item.active ? 700 : 400 }}>{item.label}</span>
+                  {[{l:"Overview",e:"📊",a:true},{l:"Players",e:"👥"},{l:"Billing",e:"💳"},{l:"Schedule",e:"📅"},{l:"Settings",e:"⚙️"}].map(item => (
+                    <div key={item.l} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, marginBottom: 2, background: item.a ? "rgba(99,102,241,.12)" : "transparent", border: item.a ? "1px solid rgba(99,102,241,.18)" : "1px solid transparent" }}>
+                      <span style={{ fontSize: 12 }}>{item.e}</span>
+                      <span style={{ fontSize: 12, color: item.a ? "#a5b4fc" : "#1e1e3a", fontWeight: item.a ? 700 : 400 }}>{item.l}</span>
                     </div>
                   ))}
                 </div>
-                {/* Main content */}
-                <div style={{ flex: 1, padding: "24px 22px", background: "#050510", overflowY: "hidden" }}>
-                  <div style={{ width: 110, height: 9, background: "#111128", borderRadius: 5, marginBottom: 7 }} />
-                  <div style={{ width: 170, height: 6, background: "#0d0d1e", borderRadius: 4, marginBottom: 24 }} />
-                  {/* Stats row */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
-                    {[
-                      { v: "24", l: "Active Players", c: "#6366f1" },
-                      { v: "$48k", l: "MRR", c: "#10b981" },
-                      { v: "$32k", l: "Collected", c: "#10b981" },
-                      { v: "$16k", l: "Pending", c: "#f59e0b" },
-                    ].map(s => (
-                      <div key={s.l} style={{ background: "#0a0a1a", border: "1px solid #111128", borderRadius: 11, padding: "13px 14px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                          <div style={{ width: 46, height: 5, background: "#111128", borderRadius: 3 }} />
-                          <div style={{ width: 16, height: 16, borderRadius: 5, background: s.c + "18" }} />
-                        </div>
-                        <div style={{ fontSize: 22, fontWeight: 900, color: "#e2e8f0", letterSpacing: "-.5px", marginBottom: 6 }}>{s.v}</div>
-                        <div style={{ width: "55%", height: 3, background: s.c + "40", borderRadius: 2 }} />
+                <div style={{ flex: 1, padding: "22px 20px", background: "#050510", overflowY: "hidden" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                    <div>
+                      <div style={{ width: 100, height: 8, background: "#111128", borderRadius: 5, marginBottom: 6 }} />
+                      <div style={{ width: 160, height: 5, background: "#0d0d1e", borderRadius: 4 }} />
+                    </div>
+                    <div style={{ width: 90, height: 28, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 8, opacity: .8 }} />
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 14 }}>
+                    {[{v:"28",c:"#6366f1"},{v:"$52k",c:"#10b981"},{v:"$38k",c:"#10b981"},{v:"$14k",c:"#f59e0b"}].map((s,i) => (
+                      <div key={i} style={{ background: "#0a0a1a", border: "1px solid #111128", borderRadius: 10, padding: "12px 13px" }}>
+                        <div style={{ width: 40, height: 4, background: "#111128", borderRadius: 3, marginBottom: 8 }} />
+                        <div style={{ fontSize: 20, fontWeight: 900, color: "#e2e8f0", letterSpacing: "-.5px", marginBottom: 4 }}>{s.v}</div>
+                        <div style={{ width: "60%", height: 2, background: s.c + "50", borderRadius: 2 }} />
                       </div>
                     ))}
                   </div>
-                  {/* Bottom row */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                    <div style={{ background: "#0a0a1a", border: "1px solid #111128", borderRadius: 11, padding: "14px 14px" }}>
-                      <div style={{ width: 90, height: 6, background: "#111128", borderRadius: 3, marginBottom: 14 }} />
-                      {[1,2,3].map(i => (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #0d0d1e" }}>
-                          <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#111128", flexShrink: 0 }} />
-                          <div style={{ flex: 1 }}>
-                            <div style={{ width: "65%", height: 5, background: "#111128", borderRadius: 3, marginBottom: 4 }} />
-                            <div style={{ width: "40%", height: 4, background: "#0d0d1e", borderRadius: 3 }} />
+                    {[0,1].map(i => (
+                      <div key={i} style={{ background: "#0a0a1a", border: "1px solid #111128", borderRadius: 10, padding: "13px" }}>
+                        <div style={{ width: 80, height: 5, background: "#111128", borderRadius: 3, marginBottom: 12 }} />
+                        {[0,1,2].map(j => (
+                          <div key={j} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: j<2?"1px solid #0d0d1e":"none" }}>
+                            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#111128", flexShrink: 0 }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ width: "60%", height: 4, background: "#111128", borderRadius: 3, marginBottom: 3 }} />
+                              <div style={{ width: "35%", height: 3, background: "#0d0d1e", borderRadius: 3 }} />
+                            </div>
+                            <div style={{ width: 36, height: 14, borderRadius: 100, background: ["#10b98118","#f59e0b18","#10b98118"][j] }} />
                           </div>
-                          <div style={{ width: 42, height: 5, background: "#111128", borderRadius: 3 }} />
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ background: "#0a0a1a", border: "1px solid #111128", borderRadius: 11, padding: "14px 14px" }}>
-                      <div style={{ width: 80, height: 6, background: "#111128", borderRadius: 3, marginBottom: 14 }} />
-                      {[
-                        { c: "#10b981" }, { c: "#f59e0b" }, { c: "#f59e0b" }, { c: "#10b981" },
-                      ].map((row, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #0d0d1e" }}>
-                          <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#111128", flexShrink: 0 }} />
-                          <div style={{ flex: 1, width: "50%", height: 5, background: "#111128", borderRadius: 3 }} />
-                          <div style={{ padding: "3px 10px", borderRadius: 100, background: row.c + "18", width: 40, height: 16 }} />
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* Bottom glow */}
-          <div style={{ position: "absolute", bottom: -20, left: "50%", transform: "translateX(-50%)", width: "50%", height: 50, background: "rgba(79,70,229,.15)", filter: "blur(50px)", borderRadius: "50%", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: "60%", height: 60, background: "rgba(79,70,229,.18)", filter: "blur(60px)", borderRadius: "50%", pointerEvents: "none" }} />
         </div>
       </section>
 
-      {/* Stats bar */}
+      {/* Stats */}
       <div style={{ borderTop: "1px solid #0a0a14", borderBottom: "1px solid #0a0a14", background: "#040408" }}>
-        <div className="stats-grid" style={{ maxWidth: 860, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
+        <div className="stats-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
           {[
-            { v: "$10k", l: "setup investment" },
-            { v: "$4k", l: "per month" },
-            { v: "∞", l: "players & invoices" },
-            { v: "24/7", l: "support" },
-          ].map(s => (
-            <div key={s.l} className="stat-item" style={{ padding: "28px 24px", textAlign: "center" }}>
-              <p style={{ fontSize: 28, fontWeight: 900, color: "#6366f1", letterSpacing: "-1px", marginBottom: 4 }}>{s.v}</p>
-              <p style={{ fontSize: 12, color: "#2a2a4a", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 600 }}>{s.l}</p>
+            { v: "$10k", l: "One-time setup" },
+            { v: "$4k", l: "Per month" },
+            { v: "∞", l: "Players & invoices" },
+            { v: "24/7", l: "Support included" },
+          ].map((s, i) => (
+            <div key={i} style={{ padding: "30px 24px", textAlign: "center", borderRight: i < 3 ? "1px solid #0f0f1a" : "none" }}>
+              <p style={{ fontSize: 30, fontWeight: 900, color: "#6366f1", letterSpacing: "-1px", marginBottom: 6 }}>{s.v}</p>
+              <p style={{ fontSize: 12, color: "#1e293b", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>{s.l}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Features — bento grid */}
-      <section style={{ padding: "110px 24px" }}>
+      {/* Problem → Solution */}
+      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 70 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>Features</p>
-            <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 18, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Everything you need.<br />Nothing you don't.
+          <div style={{ textAlign: "center", marginBottom: 72 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>The problem</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Running an academy is chaos.<br />It doesn't have to be.
             </h2>
-            <p style={{ fontSize: 17, color: "#334155", maxWidth: 440, margin: "0 auto" }}>Stop juggling spreadsheets, WhatsApp groups, and paper invoices.</p>
           </div>
+          <div className="compare-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            <div style={{ background: "#07070f", border: "1px solid #1a0a0a", borderRadius: 20, padding: 36 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 24 }}>❌ Without AcademyOS</p>
+              {["3+ hours/month sending invoices manually","Chasing parents on WhatsApp for payments","Excel spreadsheets for player tracking","Missing sessions, losing revenue","No visibility on what's actually happening"].map(item => (
+                <div key={item} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
+                  <span style={{ color: "#ef4444", fontSize: 16, flexShrink: 0, marginTop: 2 }}>✕</span>
+                  <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.5 }}>{item}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: "linear-gradient(160deg,#0f0f20,#090916)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 20, padding: 36, boxShadow: "0 0 60px rgba(99,102,241,.06)" }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 24 }}>✅ With AcademyOS</p>
+              {["Invoices generated & emailed in one click","Parents pay online via Stripe link","All players, sessions, coaches in one dashboard","Automated reminders for unpaid invoices","Live revenue & attendance at a glance"].map(item => (
+                <div key={item} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
+                  <span style={{ color: "#10b981", fontSize: 16, flexShrink: 0, marginTop: 2 }}>✓</span>
+                  <p style={{ fontSize: 15, color: "#94a3b8", lineHeight: 1.5 }}>{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-          {/* Bento */}
-          <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gridTemplateRows: "auto auto", gap: 14 }}>
-            {/* Big card */}
-            <div className="feat-card feat-big" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, gridColumn: "1 / 3" }}>
-              <div style={{ width: 48, height: 48, background: "rgba(99,102,241,.12)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, marginBottom: 22 }}>👥</div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.4px" }}>Player Management</h3>
-              <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.7, maxWidth: 420 }}>Complete profiles — age, level, coach assignment, parent contacts, notes, payment status, and full invoice history per player. Everything in one view.</p>
+      {/* Features */}
+      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 72 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Features</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Everything your academy needs
+            </h2>
+            <p style={{ fontSize: 17, color: "#334155", maxWidth: 460, margin: "0 auto" }}>One platform. No spreadsheets. No chaos.</p>
+          </div>
+          <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+            <div className="card-hover feat-big" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, gridColumn: "1 / 3" }}>
+              <div style={{ width: 52, height: 52, background: "rgba(99,102,241,.1)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 24 }}>👥</div>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.4px" }}>Player Management</h3>
+              <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.75, maxWidth: 440 }}>Complete profiles — age, level, coach, parent contacts, training history, payment status. Everything about every player, instantly accessible.</p>
             </div>
-            {/* Small card */}
-            <div className="feat-card" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
-              <div style={{ width: 44, height: 44, background: "rgba(16,185,129,.1)", border: "1px solid rgba(16,185,129,.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18 }}>💳</div>
-              <h3 style={{ fontSize: 17, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Instant Billing</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Generate invoices for every active player in one click.</p>
+            <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
+              <div style={{ width: 46, height: 46, background: "rgba(16,185,129,.1)", border: "1px solid rgba(16,185,129,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>💳</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Smart Billing</h3>
+              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Generate invoices for all players in one click. Email them with a Stripe payment link. Auto-mark paid when they pay.</p>
             </div>
-            {/* Small card */}
-            <div className="feat-card" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
-              <div style={{ width: 44, height: 44, background: "rgba(245,158,11,.1)", border: "1px solid rgba(245,158,11,.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18 }}>📊</div>
-              <h3 style={{ fontSize: 17, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Revenue Dashboard</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Live MRR, collected, and pending — no Excel needed.</p>
+            <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
+              <div style={{ width: 46, height: 46, background: "rgba(245,158,11,.1)", border: "1px solid rgba(245,158,11,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>📧</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Parent Emails</h3>
+              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Beautiful invoice and training report emails sent directly to parents. Reminders for unpaid invoices.</p>
             </div>
-            <div className="feat-card" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
-              <div style={{ width: 44, height: 44, background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18 }}>🎾</div>
-              <h3 style={{ fontSize: 17, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Coach Roster</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Staff profiles with specialties and contacts.</p>
+            <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
+              <div style={{ width: 46, height: 46, background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>📅</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Schedule & Sessions</h3>
+              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Log training sessions, track hours, view attendance. Full history per player.</p>
             </div>
-            <div className="feat-card" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
-              <div style={{ width: 44, height: 44, background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18 }}>🔒</div>
-              <h3 style={{ fontSize: 17, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Isolated Data</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Multi-tenant. Your data is 100% yours.</p>
+            <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
+              <div style={{ width: 46, height: 46, background: "rgba(6,182,212,.1)", border: "1px solid rgba(6,182,212,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>📊</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Revenue Dashboard</h3>
+              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Live MRR, collected vs pending, monthly chart. Know your numbers at a glance.</p>
             </div>
-            <div className="feat-card" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
-              <div style={{ width: 44, height: 44, background: "rgba(6,182,212,.1)", border: "1px solid rgba(6,182,212,.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18 }}>⚡</div>
-              <h3 style={{ fontSize: 17, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Zero Setup</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>No external services. Works immediately.</p>
+            <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
+              <div style={{ width: 46, height: 46, background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>🔒</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Your Data, Isolated</h3>
+              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Multi-tenant architecture. Your academy data is 100% private and secure.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="section-pad" style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 70 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>How it works</p>
-            <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Up and running in 3 days</h2>
+      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 72 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Process</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Up and running in 3 days</h2>
           </div>
-          <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, position: "relative" }}>
-            <div className="steps-line" style={{ position: "absolute", top: 32, left: "17%", right: "17%", height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,.3),transparent)", pointerEvents: "none" }} />
+          <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, position: "relative" }}>
+            <div className="steps-line" style={{ position: "absolute", top: 36, left: "18%", right: "18%", height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,.4),transparent)", pointerEvents: "none" }} />
             {[
-              { n: "01", icon: "📋", title: "We set everything up", desc: "Send us your player list and we configure the entire system — coaches, billing rates, parent contacts." },
-              { n: "02", icon: "🎓", title: "Team gets trained", desc: "30-minute onboarding call with your staff. Everyone learns to log sessions, generate invoices, and send reports." },
-              { n: "03", icon: "🚀", title: "Go live", desc: "Your academy runs on AcademyOS. Invoices go out automatically, parents get training reports, you track everything." },
+              { n: "01", icon: "📋", title: "Send us your data", desc: "Share your player list, billing rates, and coach info. We set up everything in 24 hours." },
+              { n: "02", icon: "🎓", title: "Team onboarding", desc: "30-minute call with your staff. Everyone is ready to log sessions and send invoices." },
+              { n: "03", icon: "🚀", title: "Go live", desc: "Your academy runs on AcademyOS. Invoices go out, parents pay online, you see everything." },
             ].map(s => (
-              <div key={s.n} style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, textAlign: "center", position: "relative" }}>
-                <div style={{ width: 56, height: 56, background: "rgba(99,102,241,.1)", border: "1px solid rgba(99,102,241,.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 20px" }}>{s.icon}</div>
+              <div key={s.n} className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, textAlign: "center", position: "relative" }}>
                 <div style={{ position: "absolute", top: 18, right: 20, fontSize: 11, fontWeight: 800, color: "#1e1e3a", letterSpacing: ".06em" }}>{s.n}</div>
-                <h3 style={{ fontSize: 17, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.3px" }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>{s.desc}</p>
+                <div style={{ width: 58, height: 58, background: "rgba(99,102,241,.1)", border: "1px solid rgba(99,102,241,.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 22px" }}>{s.icon}</div>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.3px" }}>{s.title}</h3>
+                <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.75 }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -314,25 +308,25 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 60 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>What academies say</p>
-            <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Directors love it</h2>
+      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+        <div style={{ maxWidth: 1060, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Testimonials</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Academy directors love it</h2>
           </div>
           <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             {[
-              { quote: "We used to spend 3 hours every month sending invoices manually. Now it takes one click. The parents actually get real training reports too — they love it.", name: "Carlos M.", role: "Director, Elite Tennis Academy", stars: 5 },
+              { quote: "We used to spend 3 hours every month sending invoices manually. Now it takes one click. Parents actually get real training reports — they love it.", name: "Carlos M.", role: "Director, Elite Tennis Academy", stars: 5 },
               { quote: "Finally a system built for tennis academies, not a generic CRM. The billing dashboard alone saved us from so many missed payments.", name: "Sarah K.", role: "Owner, ProTennis Club", stars: 5 },
-              { quote: "Setup took 2 days. The onboarding was smooth and the team picked it up immediately. Worth every penny.", name: "David R.", role: "Head Coach & Director", stars: 5 },
+              { quote: "Setup took 2 days. The team picked it up immediately. The invoice emails with the Pay Now button are a game-changer.", name: "David R.", role: "Head Coach & Director", stars: 5 },
             ].map(t => (
-              <div key={t.name} style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
+              <div key={t.name} className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
                 <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
-                  {Array(t.stars).fill(0).map((_, i) => <span key={i} style={{ color: "#f59e0b", fontSize: 14 }}>★</span>)}
+                  {Array(t.stars).fill(0).map((_, i) => <span key={i} style={{ color: "#f59e0b", fontSize: 15 }}>★</span>)}
                 </div>
-                <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.75, marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
+                <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, marginBottom: 28, fontStyle: "italic" }}>"{t.quote}"</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{t.name[0]}</div>
+                  <div style={{ width: 40, height: 40, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{t.name[0]}</div>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>{t.name}</p>
                     <p style={{ fontSize: 12, color: "#334155" }}>{t.role}</p>
@@ -345,20 +339,20 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14" }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 60 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>FAQ</p>
-            <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Common questions</h2>
+      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>FAQ</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Common questions</h2>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
-              { q: "How long does setup take?", a: "Typically 2–3 business days. We handle everything — you just send us your player list and billing details." },
-              { q: "Can I cancel the subscription?", a: "Yes, cancel anytime. Your data remains accessible for 30 days after cancellation so you can export everything." },
-              { q: "How many players and coaches can I add?", a: "Unlimited. No caps on players, coaches, invoices, or training sessions." },
-              { q: "Do parents need to create accounts?", a: "No. They receive invoice and training report emails directly — no login required on their end." },
-              { q: "Is my data secure?", a: "Yes. Each academy's data is fully isolated. We use encrypted connections and regular backups." },
-              { q: "What payment methods does invoicing support?", a: "The billing module tracks who has paid — you collect payments however you prefer (bank transfer, cash, card). We don't process parent payments directly." },
+              { q: "How long does setup take?", a: "Typically 2–3 business days. We handle everything — just send us your player list and billing details." },
+              { q: "Can I cancel anytime?", a: "Yes. Cancel anytime. Your data stays accessible for 30 days after cancellation so you can export everything." },
+              { q: "How many players can I add?", a: "Unlimited. No caps on players, coaches, invoices, or sessions." },
+              { q: "Do parents need accounts?", a: "No. They receive invoice and report emails directly — no login required on their end." },
+              { q: "Does it work on mobile?", a: "Yes. The dashboard works on all devices. You can also install it as an app on your phone home screen." },
+              { q: "Is my data secure?", a: "Yes. Each academy's data is fully isolated. Encrypted connections and regular backups." },
             ].map((item, i) => (
               <FaqItem key={i} q={item.q} a={item.a} />
             ))}
@@ -367,45 +361,44 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14" }}>
-        <div style={{ maxWidth: 840, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 70 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>Pricing</p>
-            <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 18, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Simple, honest pricing</h2>
-            <p style={{ fontSize: 17, color: "#334155" }}>One setup. One subscription. No hidden fees.</p>
+      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 72 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Pricing</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Simple, honest pricing</h2>
+            <p style={{ fontSize: 17, color: "#334155" }}>One setup fee. One monthly subscription. No surprises.</p>
           </div>
-          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {/* Setup */}
-            <div style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 22, padding: 40 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#334155", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 22 }}>One-Time Setup</p>
-              <div style={{ marginBottom: 32 }}>
-                <span style={{ fontSize: 54, fontWeight: 900, color: "#f8fafc", letterSpacing: "-2px" }}>$10k</span>
-                <span style={{ fontSize: 15, color: "#334155", marginLeft: 8 }}>once</span>
+          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 22, padding: 44 }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: "#334155", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>One-Time Setup</p>
+              <div style={{ marginBottom: 36 }}>
+                <span style={{ fontSize: 56, fontWeight: 900, color: "#f8fafc", letterSpacing: "-2px" }}>$10k</span>
+                <span style={{ fontSize: 16, color: "#334155", marginLeft: 8 }}>once</span>
               </div>
-              <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                {["Custom installation", "Data migration", "Staff onboarding", "Priority support setup"].map(i => (
+              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
+                {["Custom installation & config","Data migration from spreadsheets","Staff onboarding call","30-day priority support"].map(i => (
                   <li key={i} style={{ fontSize: 14, color: "#475569", display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ color: "#10b981", fontWeight: 800, fontSize: 13 }}>✓</span>{i}
+                    <span style={{ color: "#10b981", fontWeight: 800 }}>✓</span>{i}
                   </li>
                 ))}
               </ul>
+              <Link href="/book-demo" className="btn-ghost" style={{ display: "block", width: "100%", textAlign: "center", fontSize: 15, fontWeight: 700, padding: "14px", borderRadius: 12 }}>Book a demo →</Link>
             </div>
-            {/* Subscription */}
-            <div className="pricing-card-pro" style={{ background: "linear-gradient(160deg,#0f0f20,#09091a)", border: "1px solid rgba(99,102,241,.25)", borderRadius: 22, padding: 40, position: "relative", boxShadow: "0 0 60px rgba(99,102,241,.07)" }}>
-              <div style={{ position: "absolute", top: -14, left: 32, background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "5px 16px", borderRadius: 100, letterSpacing: ".04em", boxShadow: "0 4px 12px rgba(99,102,241,.4)" }}>MONTHLY PLAN</div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 22 }}>Subscription</p>
-              <div style={{ marginBottom: 32 }}>
-                <span style={{ fontSize: 54, fontWeight: 900, color: "#f8fafc", letterSpacing: "-2px" }}>$4k</span>
-                <span style={{ fontSize: 15, color: "#334155", marginLeft: 8 }}>/month</span>
+            <div className="card-hover" style={{ background: "linear-gradient(160deg,#0f0f22,#09091c)", border: "1px solid rgba(99,102,241,.3)", borderRadius: 22, padding: 44, position: "relative", boxShadow: "0 0 80px rgba(99,102,241,.08)" }}>
+              <div style={{ position: "absolute", top: -14, left: 32, background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "5px 16px", borderRadius: 100, letterSpacing: ".04em", boxShadow: "0 4px 12px rgba(99,102,241,.4)" }}>MONTHLY</div>
+              <p style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>Subscription</p>
+              <div style={{ marginBottom: 36 }}>
+                <span style={{ fontSize: 56, fontWeight: 900, color: "#f8fafc", letterSpacing: "-2px" }}>$4k</span>
+                <span style={{ fontSize: 16, color: "#334155", marginLeft: 8 }}>/month</span>
               </div>
-              <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
-                {["Unlimited players", "Unlimited invoices", "All features included", "Updates & new features", "24/7 support"].map(i => (
-                  <li key={i} style={{ fontSize: 14, color: "#475569", display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ color: "#6366f1", fontWeight: 800, fontSize: 13 }}>✓</span>{i}
+              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
+                {["Unlimited players & coaches","Unlimited invoices & emails","All features included","Monthly updates","24/7 support"].map(i => (
+                  <li key={i} style={{ fontSize: 14, color: "#94a3b8", display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ color: "#6366f1", fontWeight: 800 }}>✓</span>{i}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => setModal(true)} className="btn-primary" style={{ display: "block", width: "100%", textAlign: "center", color: "#fff", fontWeight: 800, fontSize: 15, padding: "15px", borderRadius: 13, border: "none", cursor: "pointer", boxShadow: "0 8px 28px rgba(79,70,229,.45)", letterSpacing: "-.2px" }}>
+              <button onClick={() => setModal(true)} className="btn-main" style={{ display: "block", width: "100%", textAlign: "center", fontSize: 15, fontWeight: 800, padding: "15px", borderRadius: 12, border: "none", boxShadow: "0 8px 32px rgba(79,70,229,.45)", letterSpacing: "-.2px" }}>
                 Get started →
               </button>
             </div>
@@ -414,55 +407,46 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 400, background: "radial-gradient(ellipse,rgba(99,102,241,.1) 0%,transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-          <h2 style={{ fontSize: 50, fontWeight: 900, letterSpacing: "-2px", marginBottom: 22, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+      <section className="section" style={{ padding: "120px 24px", borderTop: "1px solid #0a0a14", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 700, height: 500, background: "radial-gradient(ellipse,rgba(99,102,241,.12) 0%,transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <h2 style={{ fontSize: 52, fontWeight: 900, letterSpacing: "-2.5px", marginBottom: 24, background: "linear-gradient(180deg,#f8fafc 30%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Ready to run a<br />real business?
           </h2>
-          <p style={{ fontSize: 18, color: "#334155", lineHeight: 1.7, marginBottom: 44 }}>
-            Join academy directors who stopped drowning in admin work and started focusing on what matters — coaching.
+          <p style={{ fontSize: 18, color: "#334155", lineHeight: 1.75, marginBottom: 48 }}>
+            Join directors who stopped drowning in admin and started focusing on what matters — coaching.
           </p>
-          <Link href="/signup" className="btn-primary" style={{ display: "inline-block", fontSize: 16, fontWeight: 800, color: "#fff", padding: "17px 48px", borderRadius: 14, textDecoration: "none", boxShadow: "0 10px 40px rgba(79,70,229,.55)", letterSpacing: "-.2px" }}>
-            Start free trial →
-          </Link>
-          <p style={{ fontSize: 13, color: "#1e1e3a", marginTop: 24 }}>14 days free · No credit card · Cancel anytime</p>
+          <div className="hero-btns" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+            <Link href="/signup" className="btn-main" style={{ fontSize: 17, fontWeight: 800, padding: "18px 52px", borderRadius: 14, boxShadow: "0 10px 44px rgba(79,70,229,.55)", letterSpacing: "-.2px" }}>
+              Start free trial →
+            </Link>
+            <Link href="/book-demo" className="btn-ghost" style={{ fontSize: 16, padding: "18px 32px", borderRadius: 14 }}>
+              Book a demo
+            </Link>
+          </div>
+          <p style={{ fontSize: 13, color: "#1e293b", marginTop: 24 }}>14 days free · No credit card · Cancel anytime</p>
         </div>
       </section>
 
       {/* Checkout Modal */}
       {modal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 999, background: "rgba(0,0,0,.75)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+        <div style={{ position: "fixed", inset: 0, zIndex: 999, background: "rgba(0,0,0,.8)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
           onClick={e => { if (e.target === e.currentTarget) setModal(false); }}>
-          <div style={{ background: "#0c0c18", border: "1px solid rgba(99,102,241,.25)", borderRadius: 22, padding: "44px 40px", width: "100%", maxWidth: 440, boxShadow: "0 40px 120px rgba(0,0,0,.8)" }}>
-            <div style={{ marginBottom: 28 }}>
-              <p style={{ fontSize: 22, fontWeight: 900, color: "#f8fafc", letterSpacing: "-.5px", marginBottom: 8 }}>Subscribe to AcademyOS</p>
-              <p style={{ fontSize: 14, color: "#475569" }}>$4,000/month — unlimited players, all features</p>
-            </div>
+          <div style={{ background: "#0c0c18", border: "1px solid rgba(99,102,241,.25)", borderRadius: 24, padding: "44px 40px", width: "100%", maxWidth: 440, boxShadow: "0 40px 120px rgba(0,0,0,.8)" }}>
+            <p style={{ fontSize: 22, fontWeight: 900, color: "#f8fafc", letterSpacing: "-.5px", marginBottom: 8 }}>Subscribe to AcademyOS</p>
+            <p style={{ fontSize: 14, color: "#475569", marginBottom: 28 }}>$4,000/month — unlimited players, all features</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: ".06em", display: "block", marginBottom: 8 }}>Academy Name</label>
-                <input
-                  value={academy}
-                  onChange={e => setAcademy(e.target.value)}
-                  placeholder="Miami Tennis Academy"
-                  style={{ width: "100%", background: "#111127", border: "1px solid #1e1e3a", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#f8fafc", outline: "none", boxSizing: "border-box" }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: ".06em", display: "block", marginBottom: 8 }}>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="you@academy.com"
-                  style={{ width: "100%", background: "#111127", border: "1px solid #1e1e3a", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#f8fafc", outline: "none", boxSizing: "border-box" }}
-                />
-              </div>
+              {[{label:"Academy Name",val:academy,set:setAcademy,ph:"Miami Tennis Academy",type:"text"},{label:"Email",val:email,set:setEmail,ph:"you@academy.com",type:"email"}].map(f => (
+                <div key={f.label}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: ".06em", display: "block", marginBottom: 8 }}>{f.label}</label>
+                  <input type={f.type} value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
+                    style={{ width: "100%", background: "#111127", border: "1px solid #1e1e3a", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#f8fafc", outline: "none" }} />
+                </div>
+              ))}
             </div>
             {err && <p style={{ fontSize: 13, color: "#f87171", marginBottom: 14 }}>{err}</p>}
-            <button onClick={handleCheckout} disabled={loading}
-              style={{ width: "100%", background: "linear-gradient(135deg,#4f46e5,#2563eb)", color: "#fff", fontWeight: 800, fontSize: 15, padding: "15px", borderRadius: 13, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? .7 : 1, boxShadow: "0 8px 28px rgba(79,70,229,.45)", letterSpacing: "-.2px" }}>
+            <button onClick={handleCheckout} disabled={loading} className="btn-main"
+              style={{ width: "100%", fontSize: 15, padding: "15px", borderRadius: 13, boxShadow: "0 8px 28px rgba(79,70,229,.45)", letterSpacing: "-.2px", opacity: loading ? .7 : 1 }}>
               {loading ? "Redirecting..." : "Continue to payment →"}
             </button>
             <p style={{ fontSize: 12, color: "#1e1e3a", textAlign: "center", marginTop: 14 }}>Powered by Stripe · Secure checkout</p>
@@ -471,16 +455,16 @@ export default function LandingPage() {
       )}
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid #0a0a14", padding: "36px 28px", background: "#040408" }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+      <footer style={{ borderTop: "1px solid #0a0a14", padding: "40px 28px", background: "#040408" }}>
+        <div className="footer-inner" style={{ maxWidth: 1160, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 12 }}>A</div>
-            <span style={{ fontWeight: 700, color: "#1e1e3a", fontSize: 14 }}>AcademyOS</span>
+            <span style={{ fontWeight: 700, color: "#1e293b", fontSize: 14 }}>AcademyOS</span>
           </div>
           <p style={{ fontSize: 13, color: "#1a1a2e" }}>© 2025 AcademyOS. All rights reserved.</p>
           <div style={{ display: "flex", gap: 24 }}>
-            <Link href="/login" className="nav-a" style={{ fontSize: 13, color: "#1e1e3a", textDecoration: "none" }}>Sign in</Link>
-            <Link href="/signup" className="nav-a" style={{ fontSize: 13, color: "#1e1e3a", textDecoration: "none" }}>Sign up</Link>
+            <Link href="/login" className="nav-link" style={{ fontSize: 13, color: "#1e293b" }}>Sign in</Link>
+            <Link href="/signup" className="nav-link" style={{ fontSize: 13, color: "#1e293b" }}>Sign up</Link>
           </div>
         </div>
       </footer>
