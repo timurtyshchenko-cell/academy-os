@@ -56,17 +56,40 @@ export default function LandingPage() {
         .nav-a { transition:color .15s }
         .pricing-card-pro:hover { box-shadow:0 0 80px rgba(99,102,241,.12) !important }
         .pricing-card-pro { transition:box-shadow .3s }
+        * { box-sizing:border-box }
+        @media(max-width:768px){
+          .hero-h1 { font-size:38px !important; letter-spacing:-1.5px !important; }
+          .hero-section { padding-top:110px !important; padding-bottom:40px !important; }
+          .hero-sub { font-size:16px !important; }
+          .hero-btns { flex-direction:column !important; align-items:stretch !important; }
+          .hero-btns a { text-align:center; }
+          .dashboard-preview { display:none !important; }
+          .stats-grid { grid-template-columns:1fr 1fr !important; }
+          .stat-item:not(:last-child) { border-right:none !important; }
+          .stat-item:nth-child(odd) { border-right:1px solid #111 !important; }
+          .features-grid { grid-template-columns:1fr !important; }
+          .feat-big { grid-column:1 !important; }
+          .steps-grid { grid-template-columns:1fr !important; }
+          .steps-line { display:none !important; }
+          .testimonials-grid { grid-template-columns:1fr !important; }
+          .pricing-grid { grid-template-columns:1fr !important; }
+          .section-h2 { font-size:30px !important; letter-spacing:-1px !important; }
+          .nav-signin { display:none !important; }
+          .nav-pad { padding:0 16px !important; }
+          .section-pad { padding:60px 16px !important; }
+          .cta-h2 { font-size:36px !important; letter-spacing:-1.5px !important; }
+        }
       `}</style>
 
       {/* Navbar */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(3,3,5,.85)", backdropFilter: "blur(28px)", borderBottom: "1px solid rgba(255,255,255,.04)" }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto", padding: "0 28px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="nav-pad" style={{ maxWidth: 1140, margin: "0 auto", padding: "0 28px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 15, boxShadow: "0 4px 16px rgba(79,70,229,.5)" }}>A</div>
             <span style={{ fontWeight: 800, color: "#f8fafc", fontSize: 17, letterSpacing: "-.4px" }}>AcademyOS</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Link href="/login" className="nav-a" style={{ fontSize: 14, color: "#555", textDecoration: "none", padding: "8px 18px", fontWeight: 500, borderRadius: 8 }}>Sign in</Link>
+            <Link href="/login" className="nav-a nav-signin" style={{ fontSize: 14, color: "#555", textDecoration: "none", padding: "8px 18px", fontWeight: 500, borderRadius: 8 }}>Sign in</Link>
             <Link href="/signup" className="btn-primary" style={{ fontSize: 14, fontWeight: 700, color: "#fff", padding: "10px 22px", borderRadius: 10, textDecoration: "none", boxShadow: "0 4px 20px rgba(79,70,229,.4)", letterSpacing: "-.2px" }}>
               Get started →
             </Link>
@@ -75,7 +98,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section style={{ position: "relative", paddingTop: 170, paddingBottom: 80, textAlign: "center", overflow: "hidden" }}>
+      <section className="hero-section" style={{ position: "relative", paddingTop: 170, paddingBottom: 80, textAlign: "center", overflow: "hidden" }}>
         {/* bg glows */}
         <div style={{ position: "absolute", top: -100, left: "50%", transform: "translateX(-50%)", width: 800, height: 600, background: "radial-gradient(ellipse,rgba(79,70,229,.13) 0%,transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 80, left: "20%", width: 300, height: 300, background: "radial-gradient(ellipse,rgba(37,99,235,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
@@ -88,14 +111,14 @@ export default function LandingPage() {
             <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Purpose-built for tennis academies</span>
           </div>
 
-          <h1 style={{ fontSize: 72, fontWeight: 900, lineHeight: 1.02, letterSpacing: "-3px", marginBottom: 28 }}>
+          <h1 className="hero-h1" style={{ fontSize: 72, fontWeight: 900, lineHeight: 1.02, letterSpacing: "-3px", marginBottom: 28 }}>
             <span style={{ background: "linear-gradient(180deg,#f8fafc 30%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Manage your academy.</span><br />
             <span style={{ background: "linear-gradient(135deg,#818cf8,#4f46e5,#2563eb)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Stop the chaos.</span>
           </h1>
           <p style={{ fontSize: 20, color: "#475569", lineHeight: 1.65, marginBottom: 52, maxWidth: 520, margin: "0 auto 52px" }}>
             Players, coaches, billing, invoices — all in one place. Built for academy directors who are serious about growing.
           </p>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+          <div className="hero-btns" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
             <Link href="/book-demo" className="btn-primary" style={{ fontSize: 16, fontWeight: 800, color: "#fff", padding: "16px 40px", borderRadius: 13, textDecoration: "none", boxShadow: "0 8px 32px rgba(79,70,229,.5)", letterSpacing: "-.2px" }}>
               Book a Free Demo →
             </Link>
@@ -107,7 +130,7 @@ export default function LandingPage() {
         </div>
 
         {/* Dashboard preview */}
-        <div style={{ maxWidth: 1000, margin: "72px auto 0", padding: "0 28px", position: "relative", zIndex: 1 }}>
+        <div className="dashboard-preview" style={{ maxWidth: 1000, margin: "72px auto 0", padding: "0 28px", position: "relative", zIndex: 1 }}>
           {/* Gradient border wrapper */}
           <div style={{ background: "linear-gradient(160deg,rgba(99,102,241,.3),rgba(37,99,235,.1),rgba(124,58,237,.15))", padding: 1, borderRadius: 22, boxShadow: "0 50px 140px rgba(0,0,0,.9)" }}>
             <div style={{ background: "#07070f", borderRadius: 21, overflow: "hidden" }}>
@@ -200,7 +223,7 @@ export default function LandingPage() {
 
       {/* Stats bar */}
       <div style={{ borderTop: "1px solid #0a0a14", borderBottom: "1px solid #0a0a14", background: "#040408" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
+        <div className="stats-grid" style={{ maxWidth: 860, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
           {[
             { v: "$10k", l: "setup investment" },
             { v: "$4k", l: "per month" },
@@ -227,9 +250,9 @@ export default function LandingPage() {
           </div>
 
           {/* Bento */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gridTemplateRows: "auto auto", gap: 14 }}>
+          <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gridTemplateRows: "auto auto", gap: 14 }}>
             {/* Big card */}
-            <div className="feat-card" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, gridColumn: "1 / 3" }}>
+            <div className="feat-card feat-big" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, gridColumn: "1 / 3" }}>
               <div style={{ width: 48, height: 48, background: "rgba(99,102,241,.12)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, marginBottom: 22 }}>👥</div>
               <h3 style={{ fontSize: 20, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.4px" }}>Player Management</h3>
               <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.7, maxWidth: 420 }}>Complete profiles — age, level, coach assignment, parent contacts, notes, payment status, and full invoice history per player. Everything in one view.</p>
@@ -266,14 +289,14 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section className="section-pad" style={{ padding: "100px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 70 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>How it works</p>
             <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Up and running in 3 days</h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, position: "relative" }}>
-            <div style={{ position: "absolute", top: 32, left: "17%", right: "17%", height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,.3),transparent)", pointerEvents: "none" }} />
+          <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, position: "relative" }}>
+            <div className="steps-line" style={{ position: "absolute", top: 32, left: "17%", right: "17%", height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,.3),transparent)", pointerEvents: "none" }} />
             {[
               { n: "01", icon: "📋", title: "We set everything up", desc: "Send us your player list and we configure the entire system — coaches, billing rates, parent contacts." },
               { n: "02", icon: "🎓", title: "Team gets trained", desc: "30-minute onboarding call with your staff. Everyone learns to log sessions, generate invoices, and send reports." },
@@ -297,7 +320,7 @@ export default function LandingPage() {
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 16 }}>What academies say</p>
             <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Directors love it</h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+          <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             {[
               { quote: "We used to spend 3 hours every month sending invoices manually. Now it takes one click. The parents actually get real training reports too — they love it.", name: "Carlos M.", role: "Director, Elite Tennis Academy", stars: 5 },
               { quote: "Finally a system built for tennis academies, not a generic CRM. The billing dashboard alone saved us from so many missed payments.", name: "Sarah K.", role: "Owner, ProTennis Club", stars: 5 },
@@ -351,7 +374,7 @@ export default function LandingPage() {
             <h2 style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 18, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Simple, honest pricing</h2>
             <p style={{ fontSize: 17, color: "#334155" }}>One setup. One subscription. No hidden fees.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {/* Setup */}
             <div style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 22, padding: 40 }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: "#334155", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 22 }}>One-Time Setup</p>
