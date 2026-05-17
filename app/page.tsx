@@ -55,7 +55,7 @@ export default function LandingPage() {
         .nav-link { color:#475569; text-decoration:none; font-size:14px; font-weight:500; transition:color .15s }
         .nav-link:hover { color:#e2e8f0 }
         @media(max-width:768px){
-          .hero-h1{font-size:36px !important;letter-spacing:-1px !important;line-height:1.1 !important;padding:0 4px !important}
+          .hero-h1{font-size:34px !important;letter-spacing:-0.5px !important;line-height:1.15 !important;padding:0 !important}
           .hero-sub{font-size:16px !important}
           .hero-btns{flex-direction:column !important;align-items:stretch !important}
           .hero-btns a, .hero-btns button{text-align:center !important}
@@ -70,6 +70,7 @@ export default function LandingPage() {
           .section-h2{font-size:28px !important;letter-spacing:-1px !important}
           .nav-signin{display:none !important}
           .section{padding:60px 20px !important}
+          .hero-inner{padding:0 20px !important}
           .compare-grid{grid-template-columns:1fr !important}
           .footer-inner{flex-direction:column !important;gap:16px !important;text-align:center !important}
         }
@@ -92,20 +93,20 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section style={{ position: "relative", paddingTop: 160, paddingBottom: 80, textAlign: "center", overflow: "hidden" }}>
+      <section style={{ position: "relative", paddingTop: 160, paddingBottom: 80, textAlign: "center" }}>
         <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 900, height: 700, background: "radial-gradient(ellipse,rgba(79,70,229,.15) 0%,transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 200, left: "10%", width: 400, height: 400, background: "radial-gradient(ellipse,rgba(37,99,235,.06) 0%,transparent 70%)", pointerEvents: "none", animation: "float 6s ease-in-out infinite" }} />
         <div style={{ position: "absolute", top: 150, right: "8%", width: 300, height: 300, background: "radial-gradient(ellipse,rgba(124,58,237,.07) 0%,transparent 70%)", pointerEvents: "none", animation: "float 8s ease-in-out infinite reverse" }} />
 
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1, animation: "fadein .9s ease both" }}>
+        <div className="hero-inner" style={{ maxWidth: 800, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1, animation: "fadein .9s ease both" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(99,102,241,.08)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 100, padding: "7px 18px", marginBottom: 36 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#818cf8", display: "inline-block", boxShadow: "0 0 8px #818cf8", animation: "pulse-ring 2s ease infinite" }} />
             <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Built exclusively for tennis academies</span>
           </div>
 
-          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.05, letterSpacing: "-3.5px", marginBottom: 28, padding: "0 8px" }}>
-            <span style={{ background: "linear-gradient(180deg,#f8fafc 20%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block", paddingBottom: 4 }}>Run your academy</span>
-            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "block", paddingBottom: 4 }}>like a business.</span>
+          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.05, letterSpacing: "-3.5px", marginBottom: 28 }}>
+            <span style={{ background: "linear-gradient(180deg,#f8fafc 20%,#94a3b8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", display: "block", paddingBottom: 6 }}>Run your academy</span>
+            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", display: "block", paddingBottom: 6 }}>like a business.</span>
           </h1>
 
           <p className="hero-sub" style={{ fontSize: 20, color: "#475569", lineHeight: 1.7, marginBottom: 48, maxWidth: 540, margin: "0 auto 48px" }}>
