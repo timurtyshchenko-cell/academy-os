@@ -39,7 +39,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ background: "#030305", minHeight: "100vh", color: "#fff", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", overflowX: "hidden" }}>
+    <div style={{ background: "#030305", minHeight: "100vh", color: "#fff", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
       <style>{`
         @keyframes pulse-ring { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:.15;transform:scale(1.15)} }
         @keyframes fadein { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
