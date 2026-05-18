@@ -100,6 +100,13 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .player-2col { grid-template-columns: 1fr !important; }
+          .training-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .training-btns { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+        }
+      `}</style>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Link href="/app/players" style={{ fontSize: 13, color: "var(--c-text-muted)", textDecoration: "none" }}
           onMouseEnter={e => (e.currentTarget.style.color = "var(--c-text)")}
@@ -137,7 +144,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div className="player-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>Player Info</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -189,12 +196,12 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
       </div>
 
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div className="training-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4 }}>Training Log</p>
             <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>{sessions.length} sessions · {totalSessionHours} hours total</p>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div className="training-btns" style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {reportError && <span style={{ fontSize: 12, color: "#ef4444" }}>{reportError}</span>}
             {reportSent && <span style={{ fontSize: 12, color: "#059669", fontWeight: 700 }}>✓ Sent!</span>}
             <button onClick={sendReport} disabled={sendingReport || sessions.length === 0} style={{ background: "none", color: sendingReport ? "var(--c-text-dim)" : "#7c3aed", fontWeight: 600, fontSize: 12, padding: "8px 14px", borderRadius: 8, border: "1px solid var(--c-border)", cursor: sessions.length === 0 ? "not-allowed" : "pointer", opacity: sessions.length === 0 ? .4 : 1 }}>
