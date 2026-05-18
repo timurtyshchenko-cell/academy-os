@@ -56,7 +56,7 @@ export default function LandingPage() {
         .nav-link { color:#475569; text-decoration:none; font-size:14px; font-weight:500; transition:color .15s }
         .nav-link:hover { color:#e2e8f0 }
         @media(max-width:768px){
-          .hero-h1{font-size:28px !important;letter-spacing:0px !important;line-height:1.2 !important;padding:0 !important;word-break:break-word}
+          .hero-h1{font-size:42px !important;letter-spacing:-1px !important;line-height:1.1 !important;padding:0 !important;word-break:break-word}
           .hero-sub{font-size:16px !important}
           .hero-btns{flex-direction:column !important;align-items:stretch !important}
           .hero-btns a, .hero-btns button{text-align:center !important}
@@ -105,7 +105,7 @@ export default function LandingPage() {
             <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Built exclusively for tennis academies</span>
           </div>
 
-          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-2px", marginBottom: 28, overflow: "visible" }}>
+          <h1 className="hero-h1" style={{ fontSize: 96, fontWeight: 900, lineHeight: 1.05, letterSpacing: "-3px", marginBottom: 28, overflow: "visible" }}>
             <span style={{ color: "#f8fafc", display: "block", overflow: "visible" }}>Run your academy</span>
             <span style={{ color: "#818cf8", display: "block", overflow: "visible" }}>like a business.</span>
           </h1>
