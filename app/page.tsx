@@ -81,8 +81,8 @@ export default function LandingPage() {
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(3,3,5,.9)", backdropFilter: "blur(32px)", borderBottom: "1px solid rgba(255,255,255,.05)" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 15, boxShadow: "0 4px 16px rgba(79,70,229,.5)", flexShrink: 0 }}>A</div>
-            <span style={{ fontWeight: 800, color: "#f8fafc", fontSize: 17, letterSpacing: "-.4px" }}>AcademyOS</span>
+            <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 17, boxShadow: "0 4px 16px rgba(79,70,229,.5)", flexShrink: 0 }}>A</div>
+            <span style={{ fontWeight: 800, color: "#f8fafc", fontSize: 20, letterSpacing: "-.4px" }}>AcademyOS</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <Link href="/login" className="nav-link nav-signin" style={{ padding: "8px 16px", borderRadius: 8 }}>Sign in</Link>
