@@ -111,13 +111,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {menuOpen ? "✕" : "☰"}
             </button>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-              <div style={{ width: 30, height: 30, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 14, boxShadow: "0 2px 8px rgba(79,70,229,.4)", flexShrink: 0 }}>
+              <div style={{ width: 32, height: 32, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 14, boxShadow: "0 2px 8px rgba(79,70,229,.4)", flexShrink: 0 }}>
                 {academyName?.[0]?.toUpperCase() || "A"}
               </div>
-              <span style={{ fontWeight: 800, color: "var(--c-text)", fontSize: 14 }}>AcademyOS</span>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                <span style={{ fontWeight: 800, color: "var(--c-text)", fontSize: 15 }}>{academyName || "AcademyOS"}</span>
+                <span className="mobile-hide" style={{ fontSize: 11, color: "var(--c-text-muted)", fontWeight: 500 }}>AcademyOS</span>
+              </div>
             </Link>
             <div className="mobile-hide" style={{ width: 1, height: 16, background: "var(--c-border)" }} />
-            <span className="mobile-hide" style={{ fontSize: 13, fontWeight: 600, color: "var(--c-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 120 }}>{academyName}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 6 }}>
