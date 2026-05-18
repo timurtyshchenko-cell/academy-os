@@ -46,6 +46,7 @@ export default function LandingPage() {
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
         @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         * { box-sizing:border-box; margin:0; padding:0 }
+        h1 { overflow:visible !important }
         .btn-main { background:linear-gradient(135deg,#4f46e5,#2563eb); color:#fff; font-weight:800; border:none; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block }
         .btn-main:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(79,70,229,.5) !important }
         .btn-ghost { border:1px solid #1a1a2e; color:#475569; background:transparent; font-weight:600; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block }
@@ -104,9 +105,9 @@ export default function LandingPage() {
             <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 600, letterSpacing: ".05em" }}>Built exclusively for tennis academies</span>
           </div>
 
-          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.05, letterSpacing: "-3.5px", marginBottom: 28 }}>
-            <span style={{ color: "#f8fafc", display: "block" }}>Run your academy</span>
-            <span style={{ color: "#818cf8", display: "block" }}>like a business.</span>
+          <h1 className="hero-h1" style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-2px", marginBottom: 28, overflow: "visible" }}>
+            <span style={{ color: "#f8fafc", display: "block", overflow: "visible" }}>Run your academy</span>
+            <span style={{ color: "#818cf8", display: "block", overflow: "visible" }}>like a business.</span>
           </h1>
 
           <p className="hero-sub" style={{ fontSize: 20, color: "#475569", lineHeight: 1.7, marginBottom: 48, maxWidth: 540, margin: "0 auto 48px" }}>
