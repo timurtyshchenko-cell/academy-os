@@ -104,25 +104,33 @@ export default function SchedulePage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .schedule-grid { display: none !important; }
+          .mobile-schedule { display: flex !important; }
+          .schedule-nav-label { font-size: 12px !important; }
+        }
+      `}</style>
+
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Schedule</h1>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{weekLabel}</p>
+          <p className="schedule-nav-label" style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{weekLabel}</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => setWeekOf(d => { const n = new Date(d); n.setDate(n.getDate() - 7); return n; })}
-            style={{ padding: "8px 16px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>← Prev</button>
+            style={{ padding: "8px 12px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>←</button>
           <button onClick={() => setWeekOf(weekStart(new Date()))}
-            style={{ padding: "8px 16px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>Today</button>
+            style={{ padding: "8px 12px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>Today</button>
           <button onClick={() => setWeekOf(d => { const n = new Date(d); n.setDate(n.getDate() + 7); return n; })}
-            style={{ padding: "8px 16px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>Next →</button>
+            style={{ padding: "8px 12px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>→</button>
           <button onClick={() => { setForm(f => ({ ...f, date: today })); setShowAdd(today); }}
-            style={{ padding: "8px 16px", background: "#2563eb", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>+ Session</button>
+            style={{ padding: "8px 14px", background: "#2563eb", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>+ Add</button>
         </div>
       </div>
 
       {/* Desktop grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
+      <div className="schedule-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
         {days.map((day, i) => {
           const isToday = fmt(day) === today;
           const daySessions = sessionsByDay[i];
@@ -161,7 +169,7 @@ export default function SchedulePage() {
       </div>
 
       {/* Mobile list view */}
-      <div style={{ display: "none" }} className="mobile-schedule">
+      <div style={{ display: "none", flexDirection: "column", gap: 12 }} className="mobile-schedule">
         {days.map((day, i) => {
           const daySessions = sessionsByDay[i];
           if (daySessions.length === 0) return null;
