@@ -122,7 +122,7 @@ export default function LandingPage() {
               Start free trial
             </Link>
           </div>
-          <p style={{ fontSize: 13, color: "#1e293b", marginTop: 20 }}>14-day free trial · No credit card · Cancel anytime</p>
+          <p style={{ fontSize: 13, color: "#475569", marginTop: 20 }}>14-day free trial · No credit card · Cancel anytime</p>
         </div>
 
         {/* Dashboard mockup */}
@@ -133,7 +133,7 @@ export default function LandingPage() {
                 <div style={{ display: "flex", gap: 6 }}>
                   {["#ff5f57","#febc2e","#28c840"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c, opacity: .8 }} />)}
                 </div>
-                <div style={{ flex: 1, maxWidth: 260, margin: "0 auto", background: "rgba(255,255,255,.04)", borderRadius: 6, padding: "4px 12px", fontSize: 11, color: "#1e1e3a", textAlign: "center" }}>academy-os.app/app</div>
+                <div style={{ flex: 1, maxWidth: 260, margin: "0 auto", background: "rgba(255,255,255,.04)", borderRadius: 6, padding: "4px 12px", fontSize: 11, color: "#334155", textAlign: "center" }}>academy-os.app/app</div>
               </div>
               <div style={{ display: "flex", height: 380 }}>
                 <div style={{ width: 185, borderRight: "1px solid rgba(255,255,255,.04)", padding: "20px 12px", background: "#07070f", flexShrink: 0 }}>
@@ -201,7 +201,7 @@ export default function LandingPage() {
           ].map((s, i) => (
             <div key={i} style={{ padding: "30px 24px", textAlign: "center", borderRight: i < 3 ? "1px solid #0f0f1a" : "none" }}>
               <p style={{ fontSize: 30, fontWeight: 900, color: "#6366f1", letterSpacing: "-1px", marginBottom: 6 }}>{s.v}</p>
-              <p style={{ fontSize: 12, color: "#1e293b", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>{s.l}</p>
+              <p style={{ fontSize: 12, color: "#475569", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>{s.l}</p>
             </div>
           ))}
         </div>
@@ -212,7 +212,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>The problem</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#f8fafc" }}>
               Running an academy is chaos.<br />It doesn't have to be.
             </h2>
           </div>
@@ -244,41 +244,41 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Features</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#f8fafc" }}>
               Everything your academy needs
             </h2>
-            <p style={{ fontSize: 17, color: "#334155", maxWidth: 460, margin: "0 auto" }}>One platform. No spreadsheets. No chaos.</p>
+            <p style={{ fontSize: 17, color: "#64748b", maxWidth: 460, margin: "0 auto" }}>One platform. No spreadsheets. No chaos.</p>
           </div>
           <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
             <div className="card-hover feat-big" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, gridColumn: "1 / 3" }}>
               <div style={{ width: 52, height: 52, background: "rgba(99,102,241,.1)", border: "1px solid rgba(99,102,241,.2)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 24 }}>👥</div>
               <h3 style={{ fontSize: 22, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.4px" }}>Player Management</h3>
-              <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.75, maxWidth: 440 }}>Complete profiles — age, level, coach, parent contacts, training history, payment status. Everything about every player, instantly accessible.</p>
+              <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.75, maxWidth: 440 }}>Complete profiles — age, level, coach, parent contacts, training history, payment status. Everything about every player, instantly accessible.</p>
             </div>
             <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
               <div style={{ width: 46, height: 46, background: "rgba(16,185,129,.1)", border: "1px solid rgba(16,185,129,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>💳</div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Smart Billing</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Generate invoices for all players in one click. Email them with a Stripe payment link. Auto-mark paid when they pay.</p>
+              <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.65 }}>Generate invoices for all players in one click. Email them with a Stripe payment link. Auto-mark paid when they pay.</p>
             </div>
             <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
               <div style={{ width: 46, height: 46, background: "rgba(245,158,11,.1)", border: "1px solid rgba(245,158,11,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>📧</div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Parent Emails</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Beautiful invoice and training report emails sent directly to parents. Reminders for unpaid invoices.</p>
+              <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.65 }}>Beautiful invoice and training report emails sent directly to parents. Reminders for unpaid invoices.</p>
             </div>
             <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
               <div style={{ width: 46, height: 46, background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>📅</div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Schedule & Sessions</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Log training sessions, track hours, view attendance. Full history per player.</p>
+              <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.65 }}>Log training sessions, track hours, view attendance. Full history per player.</p>
             </div>
             <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
               <div style={{ width: 46, height: 46, background: "rgba(6,182,212,.1)", border: "1px solid rgba(6,182,212,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>📊</div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Revenue Dashboard</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Live MRR, collected vs pending, monthly chart. Know your numbers at a glance.</p>
+              <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.65 }}>Live MRR, collected vs pending, monthly chart. Know your numbers at a glance.</p>
             </div>
             <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 32 }}>
               <div style={{ width: 46, height: 46, background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, marginBottom: 20 }}>🔒</div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, letterSpacing: "-.3px" }}>Your Data, Isolated</h3>
-              <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.65 }}>Multi-tenant architecture. Your academy data is 100% private and secure.</p>
+              <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.65 }}>Multi-tenant architecture. Your academy data is 100% private and secure.</p>
             </div>
           </div>
         </div>
@@ -289,7 +289,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Process</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Up and running in 3 days</h2>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#f8fafc" }}>Up and running in 3 days</h2>
           </div>
           <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, position: "relative" }}>
             <div className="steps-line" style={{ position: "absolute", top: 36, left: "18%", right: "18%", height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,.4),transparent)", pointerEvents: "none" }} />
@@ -299,10 +299,10 @@ export default function LandingPage() {
               { n: "03", icon: "🚀", title: "Go live", desc: "Your academy runs on AcademyOS. Invoices go out, parents pay online, you see everything." },
             ].map(s => (
               <div key={s.n} className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 20, padding: 36, textAlign: "center", position: "relative" }}>
-                <div style={{ position: "absolute", top: 18, right: 20, fontSize: 11, fontWeight: 800, color: "#1e1e3a", letterSpacing: ".06em" }}>{s.n}</div>
+                <div style={{ position: "absolute", top: 18, right: 20, fontSize: 11, fontWeight: 800, color: "#334155", letterSpacing: ".06em" }}>{s.n}</div>
                 <div style={{ width: 58, height: 58, background: "rgba(99,102,241,.1)", border: "1px solid rgba(99,102,241,.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 22px" }}>{s.icon}</div>
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: "-.3px" }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.75 }}>{s.desc}</p>
+                <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.75 }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -314,7 +314,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1060, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Testimonials</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Academy directors love it</h2>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#f8fafc" }}>Academy directors love it</h2>
           </div>
           <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             {[
@@ -331,7 +331,7 @@ export default function LandingPage() {
                   <div style={{ width: 40, height: 40, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{t.name[0]}</div>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>{t.name}</p>
-                    <p style={{ fontSize: 12, color: "#334155" }}>{t.role}</p>
+                    <p style={{ fontSize: 12, color: "#64748b" }}>{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -345,7 +345,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>FAQ</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Common questions</h2>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#f8fafc" }}>Common questions</h2>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
@@ -367,15 +367,15 @@ export default function LandingPage() {
         <div style={{ maxWidth: 880, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Pricing</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, background: "linear-gradient(180deg,#f8fafc 40%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Simple, honest pricing</h2>
-            <p style={{ fontSize: 17, color: "#334155" }}>One setup fee. One monthly subscription. No surprises.</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#f8fafc" }}>Simple, honest pricing</h2>
+            <p style={{ fontSize: 17, color: "#64748b" }}>One setup fee. One monthly subscription. No surprises.</p>
           </div>
           <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             <div className="card-hover" style={{ background: "#07070f", border: "1px solid #0f0f1e", borderRadius: 22, padding: 44 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: "#334155", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>One-Time Setup</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>One-Time Setup</p>
               <div style={{ marginBottom: 36 }}>
                 <span style={{ fontSize: 56, fontWeight: 900, color: "#f8fafc", letterSpacing: "-2px" }}>$10k</span>
-                <span style={{ fontSize: 16, color: "#334155", marginLeft: 8 }}>once</span>
+                <span style={{ fontSize: 16, color: "#64748b", marginLeft: 8 }}>once</span>
               </div>
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
                 {["Custom installation & config","Data migration from spreadsheets","Staff onboarding call","30-day priority support"].map(i => (
@@ -391,7 +391,7 @@ export default function LandingPage() {
               <p style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>Subscription</p>
               <div style={{ marginBottom: 36 }}>
                 <span style={{ fontSize: 56, fontWeight: 900, color: "#f8fafc", letterSpacing: "-2px" }}>$4k</span>
-                <span style={{ fontSize: 16, color: "#334155", marginLeft: 8 }}>/month</span>
+                <span style={{ fontSize: 16, color: "#64748b", marginLeft: 8 }}>/month</span>
               </div>
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
                 {["Unlimited players & coaches","Unlimited invoices & emails","All features included","Monthly updates","24/7 support"].map(i => (
@@ -412,10 +412,10 @@ export default function LandingPage() {
       <section className="section" style={{ padding: "120px 24px", borderTop: "1px solid #0a0a14", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 700, height: 500, background: "radial-gradient(ellipse,rgba(99,102,241,.12) 0%,transparent 65%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-          <h2 style={{ fontSize: 52, fontWeight: 900, letterSpacing: "-2.5px", marginBottom: 24, background: "linear-gradient(180deg,#f8fafc 30%,#475569 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h2 style={{ fontSize: 52, fontWeight: 900, letterSpacing: "-2.5px", marginBottom: 24, color: "#f8fafc" }}>
             Ready to run a<br />real business?
           </h2>
-          <p style={{ fontSize: 18, color: "#334155", lineHeight: 1.75, marginBottom: 48 }}>
+          <p style={{ fontSize: 18, color: "#64748b", lineHeight: 1.75, marginBottom: 48 }}>
             Join directors who stopped drowning in admin and started focusing on what matters — coaching.
           </p>
           <div className="hero-btns" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
@@ -426,7 +426,7 @@ export default function LandingPage() {
               Book a demo
             </Link>
           </div>
-          <p style={{ fontSize: 13, color: "#1e293b", marginTop: 24 }}>14 days free · No credit card · Cancel anytime</p>
+          <p style={{ fontSize: 13, color: "#475569", marginTop: 24 }}>14 days free · No credit card · Cancel anytime</p>
         </div>
       </section>
 
@@ -451,7 +451,7 @@ export default function LandingPage() {
               style={{ width: "100%", fontSize: 15, padding: "15px", borderRadius: 13, boxShadow: "0 8px 28px rgba(79,70,229,.45)", letterSpacing: "-.2px", opacity: loading ? .7 : 1 }}>
               {loading ? "Redirecting..." : "Continue to payment →"}
             </button>
-            <p style={{ fontSize: 12, color: "#1e1e3a", textAlign: "center", marginTop: 14 }}>Powered by Stripe · Secure checkout</p>
+            <p style={{ fontSize: 12, color: "#334155", textAlign: "center", marginTop: 14 }}>Powered by Stripe · Secure checkout</p>
           </div>
         </div>
       )}
@@ -461,12 +461,12 @@ export default function LandingPage() {
         <div className="footer-inner" style={{ maxWidth: 1160, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 12 }}>A</div>
-            <span style={{ fontWeight: 700, color: "#1e293b", fontSize: 14 }}>AcademyOS</span>
+            <span style={{ fontWeight: 700, color: "#475569", fontSize: 14 }}>AcademyOS</span>
           </div>
-          <p style={{ fontSize: 13, color: "#1a1a2e" }}>© 2025 AcademyOS. All rights reserved.</p>
+          <p style={{ fontSize: 13, color: "#334155" }}>© 2025 AcademyOS. All rights reserved.</p>
           <div style={{ display: "flex", gap: 24 }}>
-            <Link href="/login" className="nav-link" style={{ fontSize: 13, color: "#1e293b" }}>Sign in</Link>
-            <Link href="/signup" className="nav-link" style={{ fontSize: 13, color: "#1e293b" }}>Sign up</Link>
+            <Link href="/login" className="nav-link" style={{ fontSize: 13, color: "#475569" }}>Sign in</Link>
+            <Link href="/signup" className="nav-link" style={{ fontSize: 13, color: "#475569" }}>Sign up</Link>
           </div>
         </div>
       </footer>
