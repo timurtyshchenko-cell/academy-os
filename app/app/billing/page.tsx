@@ -134,75 +134,131 @@ export default function BillingPage() {
         ))}
       </div>
 
+      <style>{`
+        @media (max-width: 768px) {
+          .billing-table { display: none !important; }
+          .billing-cards { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .billing-cards { display: none !important; }
+        }
+      `}</style>
+
       {filtered.length === 0 ? (
         <div style={{ background: "var(--c-card)", border: "1px dashed var(--c-border)", borderRadius: 16, padding: 60, textAlign: "center", boxShadow: "var(--c-shadow)" }}>
           <p style={{ fontSize: 32, marginBottom: 12 }}>💳</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "var(--c-text)", marginBottom: 8 }}>{invoices.length === 0 ? "No invoices yet" : "No invoices match this filter"}</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>{invoices.length === 0 ? "Click Generate Invoices to bill all active players" : "Try a different filter"}</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>{invoices.length === 0 ? "Click Generate to bill all active players" : "Try a different filter"}</p>
           {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Generate First Invoices →</button>}
         </div>
       ) : (
-        <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--c-shadow)" }}>
-          <div className="mobile-scroll">
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-inner)" }}>
-                {["Player", "Month", "Amount", "Due Date", "Status", "Actions"].map(h => (
-                  <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".08em" }}>{h}</th>
+        <>
+          {/* Desktop table */}
+          <div className="billing-table" style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--c-shadow)" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-inner)" }}>
+                  {["Player", "Month", "Amount", "Due Date", "Status", "Actions"].map(h => (
+                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".08em" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(inv => (
+                  <tr key={inv.id} style={{ borderBottom: "1px solid var(--c-border)" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "var(--c-row)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 30, height: 30, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "var(--c-avatar-text)" }}>{(inv.player_name || "?")[0]}</div>
+                        <span style={{ fontSize: 14, color: "var(--c-text-2)", fontWeight: 600 }}>{inv.player_name}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--c-text-3)" }}>{inv.month || "—"}</td>
+                    <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "var(--c-text)" }}>${inv.amount.toLocaleString()}</td>
+                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--c-text-muted)" }}>{inv.due_date || "—"}</td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100, color: inv.status === "paid" ? "#059669" : "#f59e0b", background: inv.status === "paid" ? "#05966918" : "#f59e0b18" }}>
+                        {inv.status === "paid" ? "Paid" : "Pending"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                        {inv.status !== "paid" && (
+                          <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "none", border: "1px solid rgba(37,99,235,.3)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
+                            onMouseEnter={e => { e.currentTarget.style.background = "rgba(37,99,235,.1)"; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                            Mark Paid
+                          </button>
+                        )}
+                        <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
+                          style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}>
+                          {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
+                        </button>
+                        {inv.status !== "paid" && (
+                          <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
+                            style={{ fontSize: 12, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: remindedIds.has(inv.id) ? "rgba(245,158,11,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: reminding === inv.id ? .6 : 1 }}>
+                            {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "🔔 Remind"}
+                          </button>
+                        )}
+                        <button onClick={() => printInvoice(inv)}
+                          style={{ fontSize: 12, color: "var(--c-text-3)", background: "none", border: "1px solid var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}>
+                          🖨️ PDF
+                        </button>
+                      </div>
+                      {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{sendError}</p>}
+                    </td>
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(inv => (
-                <tr key={inv.id} style={{ borderBottom: "1px solid var(--c-border)" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "var(--c-row)")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <td style={{ padding: "14px 16px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 30, height: 30, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "var(--c-avatar-text)" }}>{(inv.player_name || "?")[0]}</div>
-                      <span style={{ fontSize: 14, color: "var(--c-text-2)", fontWeight: 600 }}>{inv.player_name}</span>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="billing-cards" style={{ display: "none", flexDirection: "column", gap: 12 }}>
+            {filtered.map(inv => (
+              <div key={inv.id} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 16, boxShadow: "var(--c-shadow)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 36, height: 36, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "var(--c-avatar-text)", flexShrink: 0 }}>{(inv.player_name || "?")[0]}</div>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: "var(--c-text)" }}>{inv.player_name}</p>
+                      <p style={{ fontSize: 12, color: "var(--c-text-muted)" }}>{inv.month || "—"} · Due {inv.due_date || "—"}</p>
                     </div>
-                  </td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--c-text-3)" }}>{inv.month || "—"}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "var(--c-text)" }}>${inv.amount.toLocaleString()}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--c-text-muted)" }}>{inv.due_date || "—"}</td>
-                  <td style={{ padding: "14px 16px" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100, color: inv.status === "paid" ? "#059669" : "#f59e0b", background: inv.status === "paid" ? "#05966918" : "#f59e0b18" }}>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: "var(--c-text)" }}>${inv.amount.toLocaleString()}</p>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 100, color: inv.status === "paid" ? "#059669" : "#f59e0b", background: inv.status === "paid" ? "#05966918" : "#f59e0b18" }}>
                       {inv.status === "paid" ? "Paid" : "Pending"}
                     </span>
-                  </td>
-                  <td style={{ padding: "14px 16px" }}>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                      {inv.status !== "paid" && (
-                        <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "none", border: "1px solid rgba(37,99,235,.3)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(37,99,235,.1)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
-                          Mark Paid
-                        </button>
-                      )}
-                      <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
-                        style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}>
-                        {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
-                      </button>
-                      {inv.status !== "paid" && (
-                        <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
-                          style={{ fontSize: 12, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: remindedIds.has(inv.id) ? "rgba(245,158,11,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: reminding === inv.id ? .6 : 1 }}>
-                          {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "🔔 Remind"}
-                        </button>
-                      )}
-                      <button onClick={() => printInvoice(inv)}
-                        style={{ fontSize: 12, color: "var(--c-text-3)", background: "none", border: "1px solid var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}>
-                        🖨️ PDF
-                      </button>
-                    </div>
-                    {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4, maxWidth: 300, wordBreak: "break-word" }}>{sendError}</p>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {inv.status !== "paid" && (
+                    <button onClick={() => markPaid(inv.id)} style={{ flex: 1, minWidth: 90, fontSize: 12, color: "#2563eb", background: "rgba(37,99,235,.08)", border: "1px solid rgba(37,99,235,.2)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 700 }}>
+                      ✓ Mark Paid
+                    </button>
+                  )}
+                  <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
+                    style={{ flex: 1, minWidth: 80, fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}>
+                    {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
+                  </button>
+                  {inv.status !== "paid" && (
+                    <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
+                      style={{ flex: 1, minWidth: 80, fontSize: 12, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600, opacity: reminding === inv.id ? .6 : 1 }}>
+                      {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "🔔 Remind"}
+                    </button>
+                  )}
+                  <button onClick={() => printInvoice(inv)}
+                    style={{ fontSize: 12, color: "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600 }}>
+                    🖨️
+                  </button>
+                </div>
+                {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 8 }}>{sendError}</p>}
+              </div>
+            ))}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
