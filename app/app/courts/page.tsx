@@ -158,6 +158,13 @@ export default function CourtsPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .booking-time-grid { grid-template-columns: 1fr !important; }
+          .booking-player-grid { grid-template-columns: 1fr !important; }
+          .courts-date-nav { flex-direction: column !important; align-items: flex-start !important; }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
@@ -238,7 +245,7 @@ export default function CourtsPage() {
       {courts.length > 0 && (
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 20, overflow: "hidden", boxShadow: "var(--c-shadow)" }}>
           {/* Date nav */}
-          <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div className="courts-date-nav" style={{ padding: "18px 24px", borderBottom: "1px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
             <div>
               <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: "0 0 2px" }}>Daily Schedule</p>
               <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{fmtDate(selectedDate)}{isToday ? <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: "#059669", background: "#05966918", padding: "2px 8px", borderRadius: 100 }}>Today</span> : null}</p>
@@ -415,7 +422,7 @@ export default function CourtsPage() {
               )}
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {/* Date + Time row */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                <div className="booking-time-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                   {[
                     { k: "date", label: "Date", type: "date" },
                     { k: "start_time", label: "From", type: "time" },
@@ -428,7 +435,7 @@ export default function CourtsPage() {
                   ))}
                 </div>
                 {/* Player + Coach */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="booking-player-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {[
                     { k: "player_name", label: "Player", placeholder: "Alex Martinez" },
                     { k: "coach_name", label: "Coach", placeholder: "Coach Rivera" },

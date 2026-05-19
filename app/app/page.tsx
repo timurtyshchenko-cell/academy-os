@@ -63,6 +63,28 @@ export default function Overview() {
         <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>Your academy at a glance</p>
       </div>
 
+      {players.length === 0 && (
+        <div style={{ background: "linear-gradient(135deg,rgba(37,99,235,.08),rgba(79,70,229,.06))", border: "1px solid rgba(37,99,235,.2)", borderRadius: 18, padding: 28 }}>
+          <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>👋 Welcome to AcademyOS!</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20, lineHeight: 1.6 }}>Get started in 3 steps:</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[
+              { n: "1", text: "Add your players", href: "/app/players", btn: "Add Players →" },
+              { n: "2", text: "Generate invoices and send to parents", href: "/app/billing", btn: "Go to Billing →" },
+              { n: "3", text: "Log training sessions", href: "/app/schedule", btn: "Open Schedule →" },
+            ].map(s => (
+              <div key={s.n} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 12, padding: "14px 18px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 28, height: 28, background: "#2563eb", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{s.n}</div>
+                  <span style={{ fontSize: 14, color: "var(--c-text-2)" }}>{s.text}</span>
+                </div>
+                <Link href={s.href} style={{ fontSize: 12, fontWeight: 700, color: "#60a5fa", textDecoration: "none", whiteSpace: "nowrap" }}>{s.btn}</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mobile-grid-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
         {[
           { emoji: "👥", label: "Active Players", value: activePlayers.length, sub: `${players.length} total`, color: "#2563eb", href: "/app/players" },
