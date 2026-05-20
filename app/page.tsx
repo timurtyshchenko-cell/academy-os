@@ -1,6 +1,18 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+function useReveal() {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.classList.add("revealed"); obs.disconnect(); } }, { threshold: 0.12 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return ref;
+}
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
@@ -16,6 +28,15 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function LandingPage() {
+  const revealStats = useReveal();
+  const revealProblem = useReveal();
+  const revealFeatures = useReveal();
+  const revealProcess = useReveal();
+  const revealTestimonials = useReveal();
+  const revealFaq = useReveal();
+  const revealPricing = useReveal();
+  const revealCta = useReveal();
+
   const [modal, setModal] = useState(false);
   const [email, setEmail] = useState("");
   const [academy, setAcademy] = useState("");
@@ -75,6 +96,11 @@ export default function LandingPage() {
           .compare-grid{grid-template-columns:1fr !important}
           .footer-inner{flex-direction:column !important;gap:16px !important;text-align:center !important}
         }
+        .reveal-section { opacity:0; transform:translateY(32px); transition:opacity .65s ease,transform .65s ease }
+        .reveal-section.revealed { opacity:1; transform:translateY(0) }
+        .reveal-section.revealed .stagger-1 { transition-delay:.08s }
+        .reveal-section.revealed .stagger-2 { transition-delay:.16s }
+        .reveal-section.revealed .stagger-3 { transition-delay:.24s }
       `}</style>
 
       {/* Navbar */}
@@ -191,7 +217,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats */}
-      <div style={{ borderTop: "1px solid #0a0a14", borderBottom: "1px solid #0a0a14", background: "#040408" }}>
+      <div ref={revealStats} className="reveal-section" style={{ borderTop: "1px solid #0a0a14", borderBottom: "1px solid #0a0a14", background: "#040408" }}>
         <div className="stats-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
           {[
             { v: "$10k", l: "One-time setup" },
@@ -208,7 +234,7 @@ export default function LandingPage() {
       </div>
 
       {/* Problem → Solution */}
-      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section ref={revealProblem} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>The problem</p>
@@ -240,7 +266,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section ref={revealFeatures} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Features</p>
@@ -285,7 +311,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section ref={revealProcess} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Process</p>
@@ -310,7 +336,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section ref={revealTestimonials} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 1060, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Testimonials</p>
@@ -341,7 +367,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section ref={revealFaq} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>FAQ</p>
@@ -363,7 +389,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
+      <section ref={revealPricing} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid #0a0a14" }}>
         <div style={{ maxWidth: 880, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: ".16em", marginBottom: 14 }}>Pricing</p>
@@ -409,7 +435,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="section" style={{ padding: "120px 24px", borderTop: "1px solid #0a0a14", position: "relative", overflow: "hidden" }}>
+      <section ref={revealCta} className="section reveal-section" style={{ padding: "120px 24px", borderTop: "1px solid #0a0a14", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 700, height: 500, background: "radial-gradient(ellipse,rgba(99,102,241,.12) 0%,transparent 65%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
           <h2 style={{ fontSize: 52, fontWeight: 900, letterSpacing: "-2.5px", marginBottom: 24, color: "#f8fafc" }}>
