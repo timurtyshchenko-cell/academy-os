@@ -4,7 +4,7 @@ import Link from "next/link";
 
 interface Player { id: number; name: string; age: number; level: string; coach_name: string; monthly_fee: number; status: string; parent_email: string }
 
-const LEVEL_COLORS: Record<string, string> = { Beginner: "#059669", Intermediate: "#2563eb", Advanced: "#7c3aed", Competitive: "#dc2626" };
+const LEVEL_COLORS: Record<string, string> = { Beginner: "#059669", Intermediate: "#1F6B45", Advanced: "#FFD447", Competitive: "#dc2626" };
 const inp: React.CSSProperties = { width: "100%", background: "var(--c-input-bg)", border: "1px solid var(--c-input-border)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--c-text)", outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
 
 export default function PlayersPage() {
@@ -42,7 +42,7 @@ export default function PlayersPage() {
 
   const filtered = players.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || (p.coach_name || "").toLowerCase().includes(search.toLowerCase()));
 
-  if (loading) return <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}><div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} /></div>;
+  if (loading) return <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}><div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} /></div>;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -51,7 +51,7 @@ export default function PlayersPage() {
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Players</h1>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{players.filter(p => p.status === "active").length} active · {players.length} total</p>
         </div>
-        <button onClick={() => setShowAdd(true)} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(37,99,235,.3)" }}>+ Add Player</button>
+        <button onClick={() => setShowAdd(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(31,107,69,.3)" }}>+ Add Player</button>
       </div>
 
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search players or coaches..." style={{ ...inp, width: "min(280px, 100%)" }} />
@@ -61,7 +61,7 @@ export default function PlayersPage() {
           <p style={{ fontSize: 36, marginBottom: 12 }}>👥</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "var(--c-text)", marginBottom: 8 }}>{search ? "No players found" : "No players yet"}</p>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>{search ? "Try a different search" : "Add your first player to get started"}</p>
-          {!search && <button onClick={() => setShowAdd(true)} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Add First Player →</button>}
+          {!search && <button onClick={() => setShowAdd(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Add First Player →</button>}
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
@@ -74,7 +74,7 @@ export default function PlayersPage() {
                   <div style={{ width: 44, height: 44, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: "var(--c-avatar-text)" }}>{p.name[0]}</div>
                   <div>
                     <Link href={`/app/players/${p.id}`} style={{ fontSize: 15, fontWeight: 700, color: "var(--c-text)", textDecoration: "none" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "#60a5fa")}
+                      onMouseEnter={e => (e.currentTarget.style.color = "#18B3A4")}
                       onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text)")}>
                       {p.name}
                     </Link>
@@ -95,7 +95,7 @@ export default function PlayersPage() {
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <Link href={`/app/players/${p.id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, fontSize: 12, color: "var(--c-text-3)", textDecoration: "none", fontWeight: 600, transition: "all .15s" }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--c-text)"; el.style.borderColor = "#2563eb"; }}
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--c-text)"; el.style.borderColor = "#1F6B45"; }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--c-text-3)"; el.style.borderColor = "var(--c-border)"; }}>
                   View Profile →
                 </Link>
@@ -134,7 +134,7 @@ export default function PlayersPage() {
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={addPlayer} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Adding..." : "Add Player"}</button>
+              <button onClick={addPlayer} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Adding..." : "Add Player"}</button>
             </div>
           </div>
         </div>

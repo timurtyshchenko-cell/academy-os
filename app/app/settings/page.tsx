@@ -32,7 +32,7 @@ export default function SettingsPage() {
 
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -59,7 +59,7 @@ export default function SettingsPage() {
               <p style={{ fontSize: 14, fontWeight: 700, color: subColors[subStatus] || "var(--c-text-muted)", textTransform: "capitalize" }}>{subStatus}</p>
             </div>
             {subStatus === "trial" && (
-              <a href="/subscribe" style={{ fontSize: 13, fontWeight: 700, color: "#fff", background: "#2563eb", padding: "8px 18px", borderRadius: 8, textDecoration: "none" }}>Upgrade →</a>
+              <a href="/subscribe" style={{ fontSize: 13, fontWeight: 700, color: "#fff", background: "#1F6B45", padding: "8px 18px", borderRadius: 8, textDecoration: "none" }}>Upgrade →</a>
             )}
           </div>
           <div style={{ padding: "10px 14px", background: "var(--c-inner)", borderRadius: 10, border: "1px solid var(--c-border)" }}>
@@ -84,7 +84,7 @@ export default function SettingsPage() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <button onClick={save} disabled={saving} style={{ padding: "12px 28px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>
+        <button onClick={save} disabled={saving} style={{ padding: "12px 28px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>
           {saving ? "Saving..." : "Save Changes"}
         </button>
         {saved && <span style={{ fontSize: 13, color: "#059669", fontWeight: 600 }}>✓ Saved</span>}

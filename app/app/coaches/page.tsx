@@ -40,7 +40,7 @@ export default function CoachesPage() {
 
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -51,7 +51,7 @@ export default function CoachesPage() {
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Coaches</h1>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{coaches.filter(c => c.status === "active").length} active · {coaches.length} total</p>
         </div>
-        <button onClick={() => setShowAdd(true)} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(37,99,235,.3)" }}>
+        <button onClick={() => setShowAdd(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(31,107,69,.3)" }}>
           + Add Coach
         </button>
       </div>
@@ -61,7 +61,7 @@ export default function CoachesPage() {
           <p style={{ fontSize: 36, marginBottom: 12 }}>🎾</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "var(--c-text)", marginBottom: 8 }}>No coaches yet</p>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>Add your coaching staff to get started</p>
-          <button onClick={() => setShowAdd(true)} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Add First Coach →</button>
+          <button onClick={() => setShowAdd(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Add First Coach →</button>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
@@ -114,7 +114,7 @@ export default function CoachesPage() {
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={addCoach} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Adding..." : "Add Coach"}</button>
+              <button onClick={addCoach} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Adding..." : "Add Coach"}</button>
             </div>
           </div>
         </div>

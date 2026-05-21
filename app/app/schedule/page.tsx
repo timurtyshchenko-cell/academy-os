@@ -7,7 +7,7 @@ interface Session {
 }
 
 const SESSION_COLORS: Record<string, string> = {
-  Training: "#2563eb", Match: "#059669", Fitness: "#7c3aed",
+  Training: "#1F6B45", Match: "#059669", Fitness: "#18B3A4",
   "Video Analysis": "#f59e0b", "Serve Practice": "#dc2626", Doubles: "#0891b2",
 };
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -98,7 +98,7 @@ export default function SchedulePage() {
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -125,7 +125,7 @@ export default function SchedulePage() {
           <button onClick={() => setWeekOf(d => { const n = new Date(d); n.setDate(n.getDate() + 7); return n; })}
             style={{ padding: "8px 12px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13 }}>→</button>
           <button onClick={() => { setForm(f => ({ ...f, date: today })); setShowAdd(today); }}
-            style={{ padding: "8px 14px", background: "#2563eb", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>+ Add</button>
+            style={{ padding: "8px 14px", background: "#1F6B45", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>+ Add</button>
         </div>
       </div>
 
@@ -135,18 +135,18 @@ export default function SchedulePage() {
           const isToday = fmt(day) === today;
           const daySessions = sessionsByDay[i];
           return (
-            <div key={i} style={{ background: "var(--c-card)", border: `1px solid ${isToday ? "#2563eb55" : "var(--c-border)"}`, borderRadius: 12, overflow: "hidden", boxShadow: "var(--c-shadow)", minHeight: 180 }}>
-              <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--c-border)", background: isToday ? "rgba(37,99,235,.08)" : "transparent", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div key={i} style={{ background: "var(--c-card)", border: `1px solid ${isToday ? "#1F6B4555" : "var(--c-border)"}`, borderRadius: 12, overflow: "hidden", boxShadow: "var(--c-shadow)", minHeight: 180 }}>
+              <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--c-border)", background: isToday ? "rgba(31,107,69,.08)" : "transparent", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: isToday ? "#60a5fa" : "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: 0 }}>{DAYS[day.getDay()]}</p>
-                  <p style={{ fontSize: 18, fontWeight: 900, color: isToday ? "#60a5fa" : "var(--c-text)", margin: 0, lineHeight: 1.2 }}>{day.getDate()}</p>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: isToday ? "#18B3A4" : "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: 0 }}>{DAYS[day.getDay()]}</p>
+                  <p style={{ fontSize: 18, fontWeight: 900, color: isToday ? "#18B3A4" : "var(--c-text)", margin: 0, lineHeight: 1.2 }}>{day.getDate()}</p>
                 </div>
                 <button onClick={() => { setForm(f => ({ ...f, date: fmt(day) })); setShowAdd(fmt(day)); }}
                   style={{ width: 22, height: 22, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 6, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>+</button>
               </div>
               <div style={{ padding: 6, display: "flex", flexDirection: "column", gap: 4 }}>
                 {daySessions.map(s => {
-                  const color = SESSION_COLORS[s.type] || "#2563eb";
+                  const color = SESSION_COLORS[s.type] || "#1F6B45";
                   return (
                     <div key={s.id} style={{ background: color + "18", border: `1px solid ${color}33`, borderRadius: 6, padding: "5px 8px", cursor: "pointer" }}
                       title={`${s.player_name} · ${s.type} · ${s.duration}m${s.notes ? `\n${s.notes}` : ""}`}>
@@ -175,13 +175,13 @@ export default function SchedulePage() {
           if (daySessions.length === 0) return null;
           return (
             <div key={i} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 12, overflow: "hidden" }}>
-              <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--c-border)", background: fmt(day) === today ? "rgba(37,99,235,.08)" : "transparent" }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: fmt(day) === today ? "#60a5fa" : "var(--c-text)" }}>
+              <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--c-border)", background: fmt(day) === today ? "rgba(31,107,69,.08)" : "transparent" }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: fmt(day) === today ? "#18B3A4" : "var(--c-text)" }}>
                   {DAYS[day.getDay()]}, {MONTHS[day.getMonth()]} {day.getDate()}
                 </p>
               </div>
               {daySessions.map(s => {
-                const color = SESSION_COLORS[s.type] || "#2563eb";
+                const color = SESSION_COLORS[s.type] || "#1F6B45";
                 return (
                   <div key={s.id} style={{ padding: "12px 16px", borderBottom: "1px solid var(--c-border)", display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 4, height: 36, background: color, borderRadius: 4, flexShrink: 0 }} />
@@ -238,7 +238,7 @@ export default function SchedulePage() {
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => { setShowAdd(null); setFormError(""); }} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={addSession} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving..." : "Add Session"}</button>
+              <button onClick={addSession} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving..." : "Add Session"}</button>
             </div>
           </div>
         </div>

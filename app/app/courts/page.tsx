@@ -5,10 +5,10 @@ interface Court { id: number; name: string; surface: string; status: string; pri
 interface Booking { id: number; court_id: number; court_name: string; player_name: string; coach_name: string; date: string; start_time: string; end_time: string; notes: string; total_price: number; payment_status: string }
 
 const SURFACE: Record<string, { color: string; bg: string; icon: string; label: string }> = {
-  Hard:   { color: "#2563eb", bg: "linear-gradient(135deg,#1e40af,#2563eb)", icon: "🔵", label: "Hard Court" },
+  Hard:   { color: "#1F6B45", bg: "linear-gradient(135deg,#186038,#1F6B45)", icon: "🔵", label: "Hard Court" },
   Clay:   { color: "#d97706", bg: "linear-gradient(135deg,#92400e,#d97706)", icon: "🟤", label: "Clay Court" },
   Grass:  { color: "#059669", bg: "linear-gradient(135deg,#065f46,#059669)", icon: "🟢", label: "Grass Court" },
-  Indoor: { color: "#7c3aed", bg: "linear-gradient(135deg,#4c1d95,#7c3aed)", icon: "🟣", label: "Indoor Court" },
+  Indoor: { color: "#18B3A4", bg: "linear-gradient(135deg,#0d7a72,#18B3A4)", icon: "🟣", label: "Indoor Court" },
 };
 
 const inp: React.CSSProperties = { width: "100%", background: "var(--c-input-bg)", border: "1px solid var(--c-input-border)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--c-text)", outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
@@ -145,7 +145,7 @@ export default function CourtsPage() {
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -174,7 +174,7 @@ export default function CourtsPage() {
           </p>
         </div>
         <button onClick={() => setShowAddCourt(true)}
-          style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(37,99,235,.3)", display: "flex", alignItems: "center", gap: 6 }}>
+          style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(31,107,69,.3)", display: "flex", alignItems: "center", gap: 6 }}>
           + Add Court
         </button>
       </div>
@@ -185,7 +185,7 @@ export default function CourtsPage() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎾</div>
           <p style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>No courts yet</p>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 24 }}>Add your courts to start managing bookings</p>
-          <button onClick={() => setShowAddCourt(true)} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>Add First Court →</button>
+          <button onClick={() => setShowAddCourt(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>Add First Court →</button>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
@@ -252,7 +252,7 @@ export default function CourtsPage() {
             </div>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <button onClick={() => setSelectedDate(d => addDays(d, -1))} style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--c-text-muted)", display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
-              <button onClick={() => setSelectedDate(todayStr())} style={{ padding: "6px 14px", background: isToday ? "rgba(37,99,235,.1)" : "var(--c-inner)", border: `1px solid ${isToday ? "rgba(37,99,235,.3)" : "var(--c-border)"}`, borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, color: isToday ? "#60a5fa" : "var(--c-text-muted)" }}>Today</button>
+              <button onClick={() => setSelectedDate(todayStr())} style={{ padding: "6px 14px", background: isToday ? "rgba(37,99,235,.1)" : "var(--c-inner)", border: `1px solid ${isToday ? "rgba(31,107,69,.3)" : "var(--c-border)"}`, borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, color: isToday ? "#18B3A4" : "var(--c-text-muted)" }}>Today</button>
               <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={{ ...inp, width: "auto", padding: "6px 12px", fontSize: 12 }} />
               <button onClick={() => setSelectedDate(d => addDays(d, 1))} style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--c-text-muted)", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
             </div>

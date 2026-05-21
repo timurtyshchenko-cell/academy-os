@@ -65,7 +65,7 @@ export default function BillingPage() {
     win.document.write(`<!DOCTYPE html><html><head><title>Invoice — ${inv.player_name}</title>
     <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:40px;color:#111827;background:#fff}
     .header{text-align:center;margin-bottom:32px}.logo{font-size:24px;font-weight:900;letter-spacing:-1px}
-    .hero{background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:16px;padding:36px;text-align:center;color:#fff;margin-bottom:24px}
+    .hero{background:linear-gradient(135deg,#1F6B45,#1F6B45);border-radius:16px;padding:36px;text-align:center;color:#fff;margin-bottom:24px}
     .hero-label{font-size:11px;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.12em;margin:0 0 8px}
     .hero-amount{font-size:52px;font-weight:900;margin:0 0 6px;letter-spacing:-2px}
     .hero-sub{opacity:.7;margin:0}
@@ -98,7 +98,7 @@ export default function BillingPage() {
 
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -109,7 +109,7 @@ export default function BillingPage() {
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} pending · {invoices.length} total</p>
         </div>
-        <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(37,99,235,.3)", whiteSpace: "nowrap" }}>
+        <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(31,107,69,.3)", whiteSpace: "nowrap" }}>
           {generating ? "Generating..." : "⚡ Generate"}
         </button>
       </div>
@@ -132,9 +132,9 @@ export default function BillingPage() {
         {(["all", "pending", "paid"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
             padding: "8px 16px", borderRadius: 8, border: "1px solid",
-            borderColor: filter === f ? "#2563eb" : "var(--c-border)",
-            background: filter === f ? "rgba(37,99,235,.12)" : "transparent",
-            color: filter === f ? "#60a5fa" : "var(--c-text-muted)",
+            borderColor: filter === f ? "#1F6B45" : "var(--c-border)",
+            background: filter === f ? "rgba(31,107,69,.12)" : "transparent",
+            color: filter === f ? "#18B3A4" : "var(--c-text-muted)",
             fontSize: 13, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
           }}>{f}</button>
         ))}
@@ -155,7 +155,7 @@ export default function BillingPage() {
           <p style={{ fontSize: 32, marginBottom: 12 }}>💳</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "var(--c-text)", marginBottom: 8 }}>{invoices.length === 0 ? "No invoices yet" : "No invoices match this filter"}</p>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>{invoices.length === 0 ? "Click Generate to bill all active players" : "Try a different filter"}</p>
-          {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Generate First Invoices →</button>}
+          {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Generate First Invoices →</button>}
         </div>
       ) : (
         <>
@@ -191,8 +191,8 @@ export default function BillingPage() {
                     <td style={{ padding: "14px 16px" }}>
                       <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                         {inv.status !== "paid" && (
-                          <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#2563eb", background: "none", border: "1px solid rgba(37,99,235,.3)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
-                            onMouseEnter={e => { e.currentTarget.style.background = "rgba(37,99,235,.1)"; }}
+                          <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#1F6B45", background: "none", border: "1px solid rgba(31,107,69,.3)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
+                            onMouseEnter={e => { e.currentTarget.style.background = "rgba(31,107,69,.1)"; }}
                             onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
                             Mark Paid
                           </button>
@@ -247,7 +247,7 @@ export default function BillingPage() {
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {inv.status !== "paid" && (
-                    <button onClick={() => markPaid(inv.id)} style={{ flex: 1, minWidth: 90, fontSize: 12, color: "#2563eb", background: "rgba(37,99,235,.08)", border: "1px solid rgba(37,99,235,.2)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 700 }}>
+                    <button onClick={() => markPaid(inv.id)} style={{ flex: 1, minWidth: 90, fontSize: 12, color: "#1F6B45", background: "rgba(31,107,69,.08)", border: "1px solid rgba(31,107,69,.2)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 700 }}>
                       ✓ Mark Paid
                     </button>
                   )}

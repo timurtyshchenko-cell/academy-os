@@ -7,7 +7,7 @@ interface Player { id: number; name: string; age: number; level: string; coach_n
 interface Invoice { id: number; amount: number; status: string; month: string; due_date: string; paid_at: string }
 interface Session { id: number; date: string; duration: number; type: string; coach_name: string; notes: string }
 
-const LEVEL_COLORS: Record<string, string> = { Beginner: "#059669", Intermediate: "#2563eb", Advanced: "#7c3aed", Competitive: "#dc2626" };
+const LEVEL_COLORS: Record<string, string> = { Beginner: "#059669", Intermediate: "#1F6B45", Advanced: "#18B3A4", Competitive: "#dc2626" };
 const inp: React.CSSProperties = { width: "100%", background: "var(--c-input-bg)", border: "1px solid var(--c-input-border)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--c-text)", outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
 const SESSION_TYPES = ["Training", "Match", "Fitness", "Serve Practice", "Doubles", "Video Analysis"];
 
@@ -88,7 +88,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
 
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -135,7 +135,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
           { label: "Total Paid", value: `$${totalPaid.toLocaleString()}`, color: "#059669" },
           { label: "Pending", value: `$${totalPending.toLocaleString()}`, color: totalPending > 0 ? "#f59e0b" : "var(--c-text-muted)" },
           { label: "Sessions", value: sessions.length, color: "var(--c-text)" },
-          { label: "Hours Trained", value: `${totalSessionHours}h`, color: "#7c3aed" },
+          { label: "Hours Trained", value: `${totalSessionHours}h`, color: "#18B3A4" },
         ].map(({ label, value, color }) => (
           <div key={label} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 14, padding: "16px 20px", boxShadow: "var(--c-shadow)" }}>
             <p style={{ fontSize: 11, color: "var(--c-text-dim)", fontWeight: 600, marginBottom: 6 }}>{label}</p>
@@ -204,7 +204,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
           <div className="training-btns" style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {reportError && <span style={{ fontSize: 12, color: "#ef4444" }}>{reportError}</span>}
             {reportSent && <span style={{ fontSize: 12, color: "#059669", fontWeight: 700 }}>✓ Sent!</span>}
-            <button onClick={sendReport} disabled={sendingReport || sessions.length === 0} style={{ background: "none", color: sendingReport ? "var(--c-text-dim)" : "#7c3aed", fontWeight: 600, fontSize: 12, padding: "8px 14px", borderRadius: 8, border: "1px solid var(--c-border)", cursor: sessions.length === 0 ? "not-allowed" : "pointer", opacity: sessions.length === 0 ? .4 : 1 }}>
+            <button onClick={sendReport} disabled={sendingReport || sessions.length === 0} style={{ background: "none", color: sendingReport ? "var(--c-text-dim)" : "#18B3A4", fontWeight: 600, fontSize: 12, padding: "8px 14px", borderRadius: 8, border: "1px solid var(--c-border)", cursor: sessions.length === 0 ? "not-allowed" : "pointer", opacity: sessions.length === 0 ? .4 : 1 }}>
               {sendingReport ? "Sending..." : "📧 Send to Parent"}
             </button>
             <button onClick={() => setShowAddSession(true)} style={{ background: "var(--c-inner)", color: "var(--c-text)", fontWeight: 600, fontSize: 12, padding: "8px 16px", borderRadius: 8, border: "1px solid var(--c-border)", cursor: "pointer" }}>+ Log Session</button>
@@ -222,7 +222,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text-2)" }}>{s.type}</span>
-                    <span style={{ fontSize: 11, color: "#7c3aed", background: "#7c3aed18", padding: "2px 8px", borderRadius: 100, fontWeight: 700 }}>{s.duration} min</span>
+                    <span style={{ fontSize: 11, color: "#18B3A4", background: "#18B3A418", padding: "2px 8px", borderRadius: 100, fontWeight: 700 }}>{s.duration} min</span>
                   </div>
                   <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.date}{s.coach_name ? ` · ${s.coach_name}` : ""}{s.notes ? ` · ${s.notes}` : ""}</p>
                 </div>
@@ -266,7 +266,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => setShowAddSession(false)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={addSession} disabled={savingSession} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: savingSession ? .7 : 1 }}>{savingSession ? "Saving..." : "Log Session"}</button>
+              <button onClick={addSession} disabled={savingSession} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: savingSession ? .7 : 1 }}>{savingSession ? "Saving..." : "Log Session"}</button>
             </div>
           </div>
         </div>
@@ -311,7 +311,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => setEditing(false)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={save} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving..." : "Save Changes"}</button>
+              <button onClick={save} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving..." : "Save Changes"}</button>
             </div>
           </div>
         </div>

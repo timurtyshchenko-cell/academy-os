@@ -25,7 +25,7 @@ export default function Overview() {
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
@@ -64,7 +64,7 @@ export default function Overview() {
       </div>
 
       {players.length === 0 && (
-        <div style={{ background: "linear-gradient(135deg,rgba(37,99,235,.08),rgba(79,70,229,.06))", border: "1px solid rgba(37,99,235,.2)", borderRadius: 18, padding: 28 }}>
+        <div style={{ background: "linear-gradient(135deg,rgba(31,107,69,.08),rgba(31,107,69,.06))", border: "1px solid rgba(31,107,69,.2)", borderRadius: 18, padding: 28 }}>
           <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>👋 Welcome to AcademyOS!</p>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20, lineHeight: 1.6 }}>Get started in 3 steps:</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -75,10 +75,10 @@ export default function Overview() {
             ].map(s => (
               <div key={s.n} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 12, padding: "14px 18px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 28, height: 28, background: "#2563eb", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{s.n}</div>
+                  <div style={{ width: 28, height: 28, background: "#1F6B45", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{s.n}</div>
                   <span style={{ fontSize: 14, color: "var(--c-text-2)" }}>{s.text}</span>
                 </div>
-                <Link href={s.href} style={{ fontSize: 12, fontWeight: 700, color: "#60a5fa", textDecoration: "none", whiteSpace: "nowrap" }}>{s.btn}</Link>
+                <Link href={s.href} style={{ fontSize: 12, fontWeight: 700, color: "#18B3A4", textDecoration: "none", whiteSpace: "nowrap" }}>{s.btn}</Link>
               </div>
             ))}
           </div>
@@ -87,12 +87,12 @@ export default function Overview() {
 
       <div className="mobile-grid-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
         {[
-          { emoji: "👥", label: "Active Players", value: activePlayers.length, sub: `${players.length} total`, color: "#2563eb", href: "/app/players" },
+          { emoji: "👥", label: "Active Players", value: activePlayers.length, sub: `${players.length} total`, color: "#1F6B45", href: "/app/players" },
           { emoji: "💰", label: "Monthly MRR", value: `$${mrr.toLocaleString()}`, sub: "recurring revenue", color: "#059669", href: "/app/billing" },
           { emoji: "✅", label: "Collected", value: `$${collected.toLocaleString()}`, sub: "invoices paid", color: "#059669", href: "/app/billing" },
           { emoji: "⏳", label: "Pending", value: `$${pending.toLocaleString()}`, sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""}`, color: "#f59e0b", href: "/app/billing" },
-          { emoji: "🎯", label: "Sessions This Month", value: sessionsThisMonth.length, sub: `${totalHoursThisMonth}h trained`, color: "#7c3aed", href: "/app/players" },
-          { emoji: "⏱️", label: "Total Hours", value: `${totalHoursAll}h`, sub: `${sessions.length} sessions all time`, color: "#7c3aed", href: "/app/players" },
+          { emoji: "🎯", label: "Sessions This Month", value: sessionsThisMonth.length, sub: `${totalHoursThisMonth}h trained`, color: "#18B3A4", href: "/app/players" },
+          { emoji: "⏱️", label: "Total Hours", value: `${totalHoursAll}h`, sub: `${sessions.length} sessions all time`, color: "#18B3A4", href: "/app/players" },
         ].map(({ emoji, label, value, sub, color, href }) => (
           <Link key={label} href={href} style={{ textDecoration: "none" }}>
             <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 18, cursor: "pointer", transition: "border-color .2s", boxShadow: "var(--c-shadow)" }}
@@ -117,7 +117,7 @@ export default function Overview() {
             <div key={m.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
               <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, height: 80, justifyContent: "flex-end" }}>
                 {m.pending > 0 && <div title={`Pending $${m.pending}`} style={{ width: "100%", height: `${(m.pending / maxRevenue) * 80}px`, background: "#f59e0b40", borderRadius: "4px 4px 0 0", minHeight: 4 }} />}
-                {m.collected > 0 && <div title={`Collected $${m.collected}`} style={{ width: "100%", height: `${(m.collected / maxRevenue) * 80}px`, background: "linear-gradient(180deg,#2563eb,#4f46e5)", borderRadius: m.pending > 0 ? 0 : "4px 4px 0 0", minHeight: 4 }} />}
+                {m.collected > 0 && <div title={`Collected $${m.collected}`} style={{ width: "100%", height: `${(m.collected / maxRevenue) * 80}px`, background: "linear-gradient(180deg,#1F6B45,#1F6B45)", borderRadius: m.pending > 0 ? 0 : "4px 4px 0 0", minHeight: 4 }} />}
                 {m.collected === 0 && m.pending === 0 && <div style={{ width: "100%", height: 4, background: "var(--c-border)", borderRadius: 4 }} />}
               </div>
               <span style={{ fontSize: 11, color: "var(--c-text-dim)", fontWeight: 600 }}>{m.label}</span>
@@ -125,7 +125,7 @@ export default function Overview() {
           ))}
         </div>
         <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#2563eb", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#1F6B45", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span></div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#f59e0b40", borderRadius: 2, border: "1px solid #f59e0b" }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Pending</span></div>
         </div>
       </div>
@@ -147,7 +147,7 @@ export default function Overview() {
                     <p style={{ fontSize: 13, color: "var(--c-text-2)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.player_name}</p>
                     <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.type} · {s.date}</p>
                   </div>
-                  <span style={{ fontSize: 12, color: "#7c3aed", background: "#7c3aed18", padding: "2px 8px", borderRadius: 100, fontWeight: 700, flexShrink: 0 }}>{s.duration}m</span>
+                  <span style={{ fontSize: 12, color: "#18B3A4", background: "#18B3A418", padding: "2px 8px", borderRadius: 100, fontWeight: 700, flexShrink: 0 }}>{s.duration}m</span>
                 </div>
               ))}
               {sessions.length > 6 && <p style={{ fontSize: 12, color: "var(--c-text-dim)", paddingTop: 4 }}>{sessions.length - 6} more sessions</p>}
@@ -159,7 +159,7 @@ export default function Overview() {
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, flex: 1, boxShadow: "var(--c-shadow)" }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 14 }}>Recent Players</p>
             {players.length === 0 ? (
-              <Link href="/app/players" style={{ fontSize: 13, color: "#2563eb", textDecoration: "none" }}>Add your first player →</Link>
+              <Link href="/app/players" style={{ fontSize: 13, color: "#1F6B45", textDecoration: "none" }}>Add your first player →</Link>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {players.slice(0, 4).map(p => (
