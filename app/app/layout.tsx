@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const NAV = [
-  { href: "/app", icon: "○", label: "Overview", exact: true },
-  { href: "/app/players", icon: "○", label: "Players" },
-  { href: "/app/schedule", icon: "○", label: "Schedule" },
-  { href: "/app/courts", icon: "○", label: "Courts" },
-  { href: "/app/billing", icon: "○", label: "Billing" },
-  { href: "/app/coaches", icon: "○", label: "Coaches" },
-  { href: "/app/settings", icon: "○", label: "Settings" },
+  { href: "/app", label: "Overview", exact: true },
+  { href: "/app/players", label: "Players" },
+  { href: "/app/schedule", label: "Schedule" },
+  { href: "/app/courts", label: "Courts" },
+  { href: "/app/billing", label: "Billing" },
+  { href: "/app/coaches", label: "Coaches" },
+  { href: "/app/settings", label: "Settings" },
 ];
 
 const NAV_ICONS: Record<string, string> = {
@@ -23,9 +23,9 @@ const NAV_ICONS: Record<string, string> = {
   "/app/settings": "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
 };
 
-function NavIcon({ path, size = 16 }: { path: string; size?: number }) {
+function NavIcon({ path, size = 15 }: { path: string; size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
       {path.split("M").filter(Boolean).map((d, i) => <path key={i} d={"M" + d} />)}
     </svg>
   );
@@ -76,17 +76,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         const active = isActive(item);
         return (
           <Link key={item.href} href={item.href} onClick={onNav} style={{
-            display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderRadius: 10,
-            background: active ? "var(--c-accent-soft)" : "transparent",
-            border: `1px solid ${active ? "var(--c-accent-border)" : "transparent"}`,
-            color: active ? "#819595" : "var(--c-text-3)",
+            display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 12,
+            background: active ? "rgba(31,107,69,.15)" : "transparent",
+            border: `1px solid ${active ? "rgba(31,107,69,.25)" : "transparent"}`,
+            color: active ? "#4ade80" : "#97A6B2",
             fontWeight: active ? 600 : 450, fontSize: 13.5,
-            textDecoration: "none", transition: "all .15s", letterSpacing: "-.1px",
-            boxShadow: active ? "inset 3px 0 0 #819595" : "none",
+            textDecoration: "none", transition: "background .15s, color .15s",
+            boxShadow: active ? "inset 3px 0 0 #1F6B45" : "none",
           }}
-            onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,.04)"; (e.currentTarget as HTMLElement).style.color = "var(--c-text-2)"; } }}
-            onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--c-text-3)"; } }}>
-            <span style={{ opacity: active ? 1 : 0.6, flexShrink: 0, display: "flex" }}>
+            onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,.04)"; (e.currentTarget as HTMLElement).style.color = "#F5F7FA"; } }}
+            onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#97A6B2"; } }}>
+            <span style={{ opacity: active ? 1 : 0.55, flexShrink: 0, display: "flex" }}>
               <NavIcon path={NAV_ICONS[item.href] || ""} size={15} />
             </span>
             {item.label}
@@ -112,7 +112,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           .mobile-grid-1 { grid-template-columns: 1fr !important; }
           .mobile-grid-2 { grid-template-columns: 1fr 1fr !important; }
           .mobile-wrap { flex-wrap: wrap !important; }
-          .mobile-text-sm { font-size: 12px !important; }
           h1 { font-size: 20px !important; }
         }
         @media (min-width: 769px) {
@@ -122,49 +121,50 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }
         * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slidedown { from { opacity:0; transform:translateY(-8px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes slidedown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
       {/* Header */}
-      <header style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-header-bg)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 40, flexShrink: 0 }}>
+      <header style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-header-bg)", backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 40, flexShrink: 0 }}>
         <div style={{ padding: "0 20px", height: 58, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <button className="mobile-menu-btn" onClick={() => setMenuOpen(o => !o)}
-              style={{ display: "none", width: 34, height: 34, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 9, alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, color: "var(--c-text-3)", transition: "all .15s" }}>
+              style={{ display: "none", width: 34, height: 34, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 10, alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, color: "var(--c-text-3)", transition: "all .15s" }}>
               {menuOpen ? "✕" : "☰"}
             </button>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
-              <div style={{ width: 30, height: 30, background: "linear-gradient(135deg,#363946,#696773)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 13, boxShadow: "0 2px 10px rgba(79,70,229,.45)", flexShrink: 0 }}>
+              <div style={{ width: 30, height: 30, background: "#1F6B45", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "#FFD447", fontSize: 14, flexShrink: 0 }}>
                 {academyName?.[0]?.toUpperCase() || "A"}
               </div>
               <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
                 <span style={{ fontWeight: 700, color: "var(--c-text)", fontSize: 14, letterSpacing: "-.2px" }}>{academyName || "AcademyOS"}</span>
-                <span className="mobile-hide" style={{ fontSize: 10.5, color: "var(--c-text-muted)", fontWeight: 500 }}>AcademyOS</span>
+                <span className="mobile-hide" style={{ fontSize: 10.5, color: "var(--c-text-muted)" }}>Tennis Academy</span>
               </div>
             </Link>
             <div className="mobile-hide" style={{ width: 1, height: 14, background: "var(--c-border)", marginLeft: 2 }} />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 100, background: "rgba(5,150,105,.08)", border: "1px solid rgba(5,150,105,.18)" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#059669" }} />
-              <span style={{ fontSize: 11.5, color: "#059669", fontWeight: 600 }}>Live</span>
+            <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 100, background: "rgba(31,107,69,.12)", border: "1px solid rgba(31,107,69,.2)" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", animation: "pulse-slow 2.5s ease infinite" }} />
+              <span style={{ fontSize: 11.5, color: "#4ade80", fontWeight: 600 }}>Live</span>
             </div>
             <button onClick={toggleTheme} title={theme === "dark" ? "Light mode" : "Dark mode"}
-              style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, transition: "all .15s", color: "var(--c-text-3)" }}
+              style={{ width: 32, height: 32, borderRadius: 9, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, transition: "all .15s", color: "var(--c-text-3)" }}
               onMouseEnter={e => { (e.currentTarget.style.borderColor = "var(--c-border-hover)"); (e.currentTarget.style.color = "var(--c-text)"); }}
               onMouseLeave={e => { (e.currentTarget.style.borderColor = "var(--c-border)"); (e.currentTarget.style.color = "var(--c-text-3)"); }}>
               {theme === "dark" ? "☀" : "☾"}
             </button>
-            <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px 4px 6px", borderRadius: 100, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer" }} onClick={signOut}
-              title="Sign out">
-              <div style={{ width: 22, height: 22, background: "linear-gradient(135deg,#819595,#819595)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>
+            <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px 4px 6px", borderRadius: 100, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", transition: "border-color .15s" }}
+              onClick={signOut} title="Sign out"
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--c-border-hover)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--c-border)"; }}>
+              <div style={{ width: 22, height: 22, background: "#1F6B45", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#FFD447" }}>
                 {userName?.[0]?.toUpperCase() || "U"}
               </div>
-              <span style={{ fontSize: 12, color: "var(--c-text-3)", fontWeight: 500 }}>{userName || "Account"}</span>
+              <span style={{ fontSize: 12, color: "var(--c-text-3)" }}>{userName || "Account"}</span>
             </div>
-            <button onClick={signOut} className="mobile-menu-btn" style={{ display: "none", width: 32, height: 32, borderRadius: 8, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--c-text-3)" }}
-              title="Sign out">
+            <button onClick={signOut} className="mobile-menu-btn" style={{ display: "none", width: 32, height: 32, borderRadius: 9, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--c-text-3)" }}>
               ↪
             </button>
           </div>
@@ -175,20 +175,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {menuOpen && (
         <div className="mobile-nav-overlay" style={{ display: "none", position: "fixed", inset: 0, zIndex: 50, animation: "slidedown .18s ease" }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.6)", backdropFilter: "blur(4px)" }} onClick={() => setMenuOpen(false)} />
-          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 264, background: "var(--c-sidebar)", padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 32px rgba(0,0,0,.4)", borderRight: "1px solid var(--c-border)" }}>
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 264, background: "var(--c-sidebar)", padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 24px rgba(0,0,0,.4)", borderRight: "1px solid var(--c-border)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "4px 0 20px" }}>
-              <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#363946,#696773)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 12, boxShadow: "0 2px 8px rgba(129,149,149,.3)" }}>
+              <div style={{ width: 28, height: 28, background: "#1F6B45", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "#FFD447", fontSize: 12 }}>
                 {academyName?.[0]?.toUpperCase() || "A"}
               </div>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text)", letterSpacing: "-.2px" }}>{academyName || "AcademyOS"}</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text)" }}>{academyName || "AcademyOS"}</p>
                 <p style={{ fontSize: 11, color: "var(--c-text-muted)" }}>Tennis Academy</p>
               </div>
             </div>
             <SideNav onNav={() => setMenuOpen(false)} />
             <div style={{ height: 1, background: "var(--c-divider)", margin: "16px 0" }} />
-            <Link href="/subscribe" onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 10, background: "rgba(129,149,149,.08)", border: "1px solid rgba(129,149,149,.2)", color: "#819595", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
-              <span style={{ fontSize: 14 }}>⚡</span> Upgrade Plan
+            <Link href="/subscribe" onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, background: "rgba(255,212,71,.1)", border: "1px solid rgba(255,212,71,.2)", color: "#FFD447", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
+              <span>⚡</span> Upgrade Plan
             </Link>
           </div>
         </div>
@@ -196,25 +196,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <div style={{ display: "flex", flex: 1 }}>
         {/* Desktop sidebar */}
-        <aside className="desktop-sidebar" style={{ width: 232, borderRight: "1px solid var(--c-divider)", background: "var(--c-sidebar)", padding: "18px 14px 24px", flexShrink: 0, position: "sticky", top: 58, height: "calc(100vh - 58px)", overflowY: "auto", display: "flex", flexDirection: "column" }}>
+        <aside className="desktop-sidebar" style={{ width: 228, borderRight: "1px solid var(--c-border)", background: "var(--c-sidebar)", padding: "18px 12px 24px", flexShrink: 0, position: "sticky", top: 58, height: "calc(100vh - 58px)", overflowY: "auto", display: "flex", flexDirection: "column" }}>
           <SideNav />
           <div style={{ flex: 1 }} />
-          <div style={{ height: 1, background: "var(--c-divider)", marginBottom: 14 }} />
-          <Link href="/subscribe" style={{ display: "flex", alignItems: "center", gap: 9, padding: "10px 14px", borderRadius: 10, background: "rgba(129,149,149,.07)", border: "1px solid rgba(129,149,149,.18)", color: "#819595", fontWeight: 600, fontSize: 12.5, textDecoration: "none", transition: "all .15s" }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(129,149,149,.1)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(129,149,149,.28)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(129,149,149,.07)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(129,149,149,.18)"; }}>
+          <div style={{ height: 1, background: "var(--c-divider)", marginBottom: 12 }} />
+          <Link href="/subscribe" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, background: "rgba(255,212,71,.08)", border: "1px solid rgba(255,212,71,.16)", color: "#FFD447", fontWeight: 600, fontSize: 12.5, textDecoration: "none", transition: "all .15s" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,212,71,.14)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,212,71,.08)"; }}>
             <span style={{ fontSize: 13 }}>⚡</span> Upgrade Plan
           </Link>
         </aside>
 
-        <main className="main-content" style={{ flex: 1, padding: "32px 36px", minWidth: 0, paddingBottom: 80, animation: "fadein .25s ease" }}>
+        <main className="main-content" style={{ flex: 1, padding: "28px 32px", minWidth: 0, paddingBottom: 80, animation: "fadein .25s ease" }}>
           {subscriptionStatus === "trial" ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
-              <div style={{ maxWidth: 480, textAlign: "center", background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 24, padding: 52, boxShadow: "var(--c-shadow-lg)" }}>
-                <div style={{ width: 72, height: 72, background: "rgba(79,70,229,.1)", border: "1px solid rgba(79,70,229,.2)", borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 24px" }}>🔒</div>
-                <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 12 }}>Subscription Required</h2>
-                <p style={{ fontSize: 14, color: "var(--c-text-muted)", lineHeight: 1.75, marginBottom: 36 }}>To access your academy dashboard you need an active subscription.</p>
-                <a href="/#pricing" style={{ display: "inline-block", background: "linear-gradient(135deg,#363946,#696773)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "13px 32px", borderRadius: 12, textDecoration: "none", boxShadow: "0 6px 24px rgba(129,149,149,.3)" }}>
+              <div style={{ maxWidth: 480, textAlign: "center", background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 18, padding: 52, boxShadow: "var(--c-shadow-lg)" }}>
+                <div style={{ width: 72, height: 72, background: "rgba(31,107,69,.12)", border: "1px solid rgba(31,107,69,.2)", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 24px" }}>🔒</div>
+                <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--c-text)", letterSpacing: "-.5px", marginBottom: 12 }}>Subscription Required</h2>
+                <p style={{ fontSize: 14, color: "var(--c-text-3)", lineHeight: 1.75, marginBottom: 36 }}>To access your academy dashboard you need an active subscription.</p>
+                <a href="/#pricing" style={{ display: "inline-block", background: "#FFD447", color: "#081418", fontWeight: 800, fontSize: 14, padding: "13px 32px", borderRadius: 12, textDecoration: "none" }}>
                   View plans →
                 </a>
               </div>
@@ -224,13 +224,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--c-header-bg)", backdropFilter: "blur(24px)", borderTop: "1px solid var(--c-border)", zIndex: 40, overflowX: "auto" }}>
+      <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40, overflowX: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", width: "100%", justifyContent: "space-around", padding: "0 4px" }}>
           {NAV.map(item => {
             const active = isActive(item);
             return (
-              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 10px", textDecoration: "none", minWidth: 52, color: active ? "#819595" : "var(--c-text-muted)", transition: "all .15s", position: "relative" }}>
-                {active && <span style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 22, height: 2, background: "#819595", borderRadius: 99 }} />}
+              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 10px", textDecoration: "none", minWidth: 52, color: active ? "#4ade80" : "var(--c-text-muted)", transition: "color .15s", position: "relative" }}>
+                {active && <span style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 20, height: 2, background: "#1F6B45", borderRadius: 99 }} />}
                 <NavIcon path={NAV_ICONS[item.href] || ""} size={18} />
                 <span style={{ fontSize: 9.5, fontWeight: active ? 700 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
               </Link>
