@@ -6,6 +6,26 @@ interface Player { id: number; name: string; monthly_fee: number; status: string
 interface Invoice { id: number; amount: number; status: string; month: string; created_at: string }
 interface Session { id: number; player_name: string; date: string; duration: number; type: string; coach_name: string }
 
+const SESSION_META: Record<string, { icon: string; color: string }> = {
+  Training: { icon: "🎯", color: "#1F6B45" },
+  Match: { icon: "🎾", color: "#FFD447" },
+  Fitness: { icon: "💪", color: "#18B3A4" },
+  "Serve Practice": { icon: "🏆", color: "#e07b4f" },
+  Doubles: { icon: "👥", color: "#9b59b6" },
+  "Video Analysis": { icon: "📹", color: "#607080" },
+};
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function todayLabel() {
+  return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+}
+
 export default function Overview() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -36,12 +56,11 @@ export default function Overview() {
   const pendingCount = invoices.filter(i => i.status !== "paid").length;
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const sessionsThisMonth = sessions.filter(s => s.date?.startsWith(thisMonth));
+  const sessionsToday = sessions.filter(s => s.date === today);
   const totalHoursThisMonth = (sessionsThisMonth.reduce((s, r) => s + (r.duration || 0), 0) / 60).toFixed(1);
-  const totalHoursAll = (sessions.reduce((s, r) => s + (r.duration || 0), 0) / 60).toFixed(1);
-  const SESSION_EMOJI: Record<string, string> = { Match: "🎾", Fitness: "💪", "Video Analysis": "📹", Training: "🎯", "Serve Practice": "🏆", Doubles: "👥" };
 
-  // Last 6 months revenue chart data
   const monthlyRevenue = (() => {
     const months: { label: string; key: string }[] = [];
     for (let i = 5; i >= 0; i--) {
@@ -50,142 +69,188 @@ export default function Overview() {
     }
     return months.map(m => ({
       label: m.label,
+      isCurrent: m.key === thisMonth,
       collected: invoices.filter(i => i.status === "paid" && (i.created_at || "").startsWith(m.key)).reduce((s, i) => s + i.amount, 0),
       pending: invoices.filter(i => i.status !== "paid" && (i.created_at || "").startsWith(m.key)).reduce((s, i) => s + i.amount, 0),
     }));
   })();
   const maxRevenue = Math.max(...monthlyRevenue.map(m => m.collected + m.pending), 1);
 
+  const stats = [
+    { label: "Active Players", value: activePlayers.length, sub: `${players.length} total enrolled`, accent: "#1F6B45", icon: "👥", href: "/app/players" },
+    { label: "Monthly MRR", value: `$${mrr.toLocaleString()}`, sub: "recurring revenue", accent: "#1F6B45", icon: "💰", href: "/app/billing" },
+    { label: "Collected", value: `$${collected.toLocaleString()}`, sub: "invoices paid", accent: "#059669", icon: "✅", href: "/app/billing" },
+    { label: "Pending", value: `$${pending.toLocaleString()}`, sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""} due`, accent: pendingCount > 0 ? "#f59e0b" : "#1F6B45", icon: "⏳", href: "/app/billing" },
+    { label: "Sessions / Month", value: sessionsThisMonth.length, sub: `${totalHoursThisMonth}h trained`, accent: "#18B3A4", icon: "🎾", href: "/app/schedule" },
+    { label: "Today", value: sessionsToday.length, sub: sessionsToday.length === 0 ? "no sessions" : "sessions scheduled", accent: sessionsToday.length > 0 ? "#FFD447" : "var(--c-text-dim)", icon: "📅", href: "/app/schedule" },
+  ];
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-      <div>
-        <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Overview</h1>
-        <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>Your academy at a glance</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <p style={{ fontSize: 12, color: "#18B3A4", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4 }}>{todayLabel()}</p>
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 0 }}>{greeting()} 👋</h1>
+        </div>
+        <Link href="/app/players" style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(31,107,69,.3)" }}>
+          + Add Player
+        </Link>
       </div>
 
+      {/* Onboarding (empty state) */}
       {players.length === 0 && (
-        <div style={{ background: "linear-gradient(135deg,rgba(31,107,69,.08),rgba(31,107,69,.06))", border: "1px solid rgba(31,107,69,.2)", borderRadius: 18, padding: 28 }}>
-          <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>👋 Welcome to AcademyOS!</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20, lineHeight: 1.6 }}>Get started in 3 steps:</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ background: "linear-gradient(135deg, #0e1e26, #122028)", border: "1px solid rgba(31,107,69,.25)", borderRadius: 18, padding: "28px 32px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg,#1F6B45,#18B3A4)" }} />
+          <p style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 4 }}>Welcome to AcademyOS 🎾</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 22, lineHeight: 1.6 }}>Get your academy running in 3 steps:</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
-              { n: "1", text: "Add your players", href: "/app/players", btn: "Add Players →" },
-              { n: "2", text: "Generate invoices and send to parents", href: "/app/billing", btn: "Go to Billing →" },
-              { n: "3", text: "Log training sessions", href: "/app/schedule", btn: "Open Schedule →" },
+              { n: "1", text: "Add your first players", href: "/app/players", btn: "Add Players →", done: false },
+              { n: "2", text: "Generate invoices and send to parents", href: "/app/billing", btn: "Go to Billing →", done: false },
+              { n: "3", text: "Log training sessions", href: "/app/schedule", btn: "Open Schedule →", done: false },
             ].map(s => (
-              <div key={s.n} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 12, padding: "14px 18px" }}>
+              <div key={s.n} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "13px 18px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 28, height: 28, background: "#1F6B45", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{s.n}</div>
+                  <div style={{ width: 26, height: 26, background: "#1F6B45", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{s.n}</div>
                   <span style={{ fontSize: 14, color: "var(--c-text-2)" }}>{s.text}</span>
                 </div>
-                <Link href={s.href} style={{ fontSize: 12, fontWeight: 700, color: "#18B3A4", textDecoration: "none", whiteSpace: "nowrap" }}>{s.btn}</Link>
+                <Link href={s.href} style={{ fontSize: 12, fontWeight: 700, color: "#18B3A4", textDecoration: "none", whiteSpace: "nowrap", background: "rgba(24,179,164,.1)", padding: "5px 12px", borderRadius: 8 }}>{s.btn}</Link>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="mobile-grid-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-        {[
-          { emoji: "👥", label: "Active Players", value: activePlayers.length, sub: `${players.length} total`, color: "#1F6B45", href: "/app/players" },
-          { emoji: "💰", label: "Monthly MRR", value: `$${mrr.toLocaleString()}`, sub: "recurring revenue", color: "#059669", href: "/app/billing" },
-          { emoji: "✅", label: "Collected", value: `$${collected.toLocaleString()}`, sub: "invoices paid", color: "#059669", href: "/app/billing" },
-          { emoji: "⏳", label: "Pending", value: `$${pending.toLocaleString()}`, sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""}`, color: "#f59e0b", href: "/app/billing" },
-          { emoji: "🎯", label: "Sessions This Month", value: sessionsThisMonth.length, sub: `${totalHoursThisMonth}h trained`, color: "#18B3A4", href: "/app/players" },
-          { emoji: "⏱️", label: "Total Hours", value: `${totalHoursAll}h`, sub: `${sessions.length} sessions all time`, color: "#18B3A4", href: "/app/players" },
-        ].map(({ emoji, label, value, sub, color, href }) => (
+      {/* Stat cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 12 }}>
+        {stats.map(({ label, value, sub, accent, icon, href }) => (
           <Link key={label} href={href} style={{ textDecoration: "none" }}>
-            <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 18, cursor: "pointer", transition: "border-color .2s", boxShadow: "var(--c-shadow)" }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--c-border-hover)")}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--c-border)")}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <p style={{ fontSize: 11, color: "var(--c-text-muted)", fontWeight: 600 }}>{label}</p>
-                <span style={{ fontSize: 16 }}>{emoji}</span>
+            <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 14, padding: "16px 18px", cursor: "pointer", transition: "border-color .2s, transform .15s", boxShadow: "var(--c-shadow)", borderLeft: `3px solid ${accent}` }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--c-border-hover)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--c-border)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <p style={{ fontSize: 11, color: "var(--c-text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".06em" }}>{label}</p>
+                <span style={{ fontSize: 15, background: accent + "15", borderRadius: 8, padding: "4px 6px" }}>{icon}</span>
               </div>
-              <p style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", marginBottom: 4 }}>{value}</p>
-              <p style={{ fontSize: 12, color }}>{sub}</p>
+              <p style={{ fontSize: 26, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4, lineHeight: 1 }}>{value}</p>
+              <p style={{ fontSize: 12, color: accent === "var(--c-text-dim)" ? "var(--c-text-dim)" : accent + "cc" }}>{sub}</p>
             </div>
           </Link>
         ))}
       </div>
 
       {/* Revenue chart */}
-      <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 20 }}>Monthly Revenue — Last 6 Months</p>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 100 }}>
-          {monthlyRevenue.map(m => (
-            <div key={m.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, height: 80, justifyContent: "flex-end" }}>
-                {m.pending > 0 && <div title={`Pending $${m.pending}`} style={{ width: "100%", height: `${(m.pending / maxRevenue) * 80}px`, background: "#f59e0b40", borderRadius: "4px 4px 0 0", minHeight: 4 }} />}
-                {m.collected > 0 && <div title={`Collected $${m.collected}`} style={{ width: "100%", height: `${(m.collected / maxRevenue) * 80}px`, background: "linear-gradient(180deg,#1F6B45,#1F6B45)", borderRadius: m.pending > 0 ? 0 : "4px 4px 0 0", minHeight: 4 }} />}
-                {m.collected === 0 && m.pending === 0 && <div style={{ width: "100%", height: 4, background: "var(--c-border)", borderRadius: 4 }} />}
-              </div>
-              <span style={{ fontSize: 11, color: "var(--c-text-dim)", fontWeight: 600 }}>{m.label}</span>
-            </div>
-          ))}
+      <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: "24px 24px 20px", boxShadow: "var(--c-shadow)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+          <div>
+            <p style={{ fontSize: 12, color: "var(--c-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 2 }}>Revenue</p>
+            <p style={{ fontSize: 22, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-.5px" }}>${(collected + pending).toLocaleString()} <span style={{ fontSize: 13, fontWeight: 500, color: "var(--c-text-muted)" }}>last 6 months</span></p>
+          </div>
+          <div style={{ display: "flex", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#1F6B45", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "rgba(245,158,11,.4)", borderRadius: 2, border: "1px solid #f59e0b" }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Pending</span></div>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#1F6B45", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span></div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#f59e0b40", borderRadius: 2, border: "1px solid #f59e0b" }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Pending</span></div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 120 }}>
+          {monthlyRevenue.map(m => {
+            const total = m.collected + m.pending;
+            return (
+              <div key={m.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                {total > 0 && <p style={{ fontSize: 10, color: "var(--c-text-dim)", fontWeight: 600, whiteSpace: "nowrap" }}>${total >= 1000 ? `${(total / 1000).toFixed(1)}k` : total}</p>}
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, height: 96, justifyContent: "flex-end" }}>
+                  {m.pending > 0 && (
+                    <div title={`Pending $${m.pending}`} style={{ width: "100%", height: `${Math.max((m.pending / maxRevenue) * 96, 4)}px`, background: "rgba(245,158,11,.35)", borderRadius: "4px 4px 0 0", border: "1px solid rgba(245,158,11,.5)", borderBottom: "none" }} />
+                  )}
+                  {m.collected > 0 && (
+                    <div title={`Collected $${m.collected}`} style={{ width: "100%", height: `${Math.max((m.collected / maxRevenue) * 96, 4)}px`, background: `linear-gradient(180deg, #186038, #1F6B45)`, borderRadius: m.pending > 0 ? 0 : "4px 4px 0 0", opacity: m.isCurrent ? 1 : 0.75 }} />
+                  )}
+                  {total === 0 && <div style={{ width: "100%", height: 3, background: "var(--c-border)", borderRadius: 4 }} />}
+                </div>
+                <span style={{ fontSize: 11, color: m.isCurrent ? "var(--c-text-3)" : "var(--c-text-dim)", fontWeight: m.isCurrent ? 700 : 500 }}>{m.label}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      {/* Bottom 2-col */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+
+        {/* Recent sessions */}
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 16 }}>Recent Sessions</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em" }}>Recent Sessions</p>
+            <Link href="/app/schedule" style={{ fontSize: 11, color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>View all →</Link>
+          </div>
           {sessions.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "20px 0" }}>
-              <p style={{ fontSize: 13, color: "var(--c-text-dim)", marginBottom: 8 }}>No sessions logged yet</p>
-              <p style={{ fontSize: 12, color: "var(--c-text-dim)" }}>Go to a player profile to log training</p>
+            <div style={{ textAlign: "center", padding: "24px 0" }}>
+              <p style={{ fontSize: 28, marginBottom: 8 }}>🎾</p>
+              <p style={{ fontSize: 13, color: "var(--c-text-dim)" }}>No sessions logged yet</p>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {sessions.slice(0, 6).map(s => (
-                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid var(--c-border)" }}>
-                  <span style={{ fontSize: 16, flexShrink: 0 }}>{SESSION_EMOJI[s.type] || "🎯"}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 13, color: "var(--c-text-2)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.player_name}</p>
-                    <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.type} · {s.date}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {sessions.slice(0, 6).map(s => {
+                const meta = SESSION_META[s.type] || { icon: "🎯", color: "#607080" };
+                return (
+                  <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "var(--c-inner)", borderRadius: 10, borderLeft: `3px solid ${meta.color}` }}>
+                    <span style={{ fontSize: 14, flexShrink: 0 }}>{meta.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 13, color: "var(--c-text-2)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.player_name}</p>
+                      <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.type} · {s.date}</p>
+                    </div>
+                    <span style={{ fontSize: 11, color: meta.color, background: meta.color + "18", padding: "2px 7px", borderRadius: 100, fontWeight: 700, flexShrink: 0 }}>{s.duration}m</span>
                   </div>
-                  <span style={{ fontSize: 12, color: "#18B3A4", background: "#18B3A418", padding: "2px 8px", borderRadius: 100, fontWeight: 700, flexShrink: 0 }}>{s.duration}m</span>
-                </div>
-              ))}
-              {sessions.length > 6 && <p style={{ fontSize: 12, color: "var(--c-text-dim)", paddingTop: 4 }}>{sessions.length - 6} more sessions</p>}
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, flex: 1, boxShadow: "var(--c-shadow)" }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 14 }}>Recent Players</p>
+        {/* Right col */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+          {/* Recent players */}
+          <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 22, flex: 1, boxShadow: "var(--c-shadow)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em" }}>Players</p>
+              <Link href="/app/players" style={{ fontSize: 11, color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>View all →</Link>
+            </div>
             {players.length === 0 ? (
-              <Link href="/app/players" style={{ fontSize: 13, color: "#1F6B45", textDecoration: "none" }}>Add your first player →</Link>
+              <Link href="/app/players" style={{ fontSize: 13, color: "#1F6B45", textDecoration: "none", fontWeight: 600 }}>+ Add your first player →</Link>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {players.slice(0, 4).map(p => (
-                  <Link key={p.id} href={`/app/players/${p.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid var(--c-border)", textDecoration: "none" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 26, height: 26, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--c-avatar-text)" }}>{p.name[0]}</div>
-                      <span style={{ fontSize: 13, color: "var(--c-text-2)" }}>{p.name}</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {players.slice(0, 4).map((p, i) => (
+                  <Link key={p.id} href={`/app/players/${p.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 0", borderBottom: i < Math.min(players.length, 4) - 1 ? "1px solid var(--c-divider)" : "none", textDecoration: "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ width: 28, height: 28, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--c-avatar-text)" }}>{p.name[0]}</div>
+                      <div>
+                        <p style={{ fontSize: 13, color: "var(--c-text-2)", fontWeight: 600, margin: 0 }}>{p.name}</p>
+                        <p style={{ fontSize: 11, color: p.status === "active" ? "#1F6B45" : "var(--c-text-dim)", margin: 0 }}>{p.status}</p>
+                      </div>
                     </div>
-                    <span style={{ fontSize: 12, color: "var(--c-text-muted)" }}>${p.monthly_fee}/mo</span>
+                    <span style={{ fontSize: 12, color: "var(--c-text-muted)", fontWeight: 600 }}>${p.monthly_fee}/mo</span>
                   </Link>
                 ))}
               </div>
             )}
           </div>
-          <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 20, boxShadow: "var(--c-shadow)" }}>
+
+          {/* Quick actions */}
+          <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 18, boxShadow: "var(--c-shadow)" }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Quick Actions</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               {[
-                { label: "Add player", href: "/app/players", emoji: "👤" },
-                { label: "Generate invoices", href: "/app/billing", emoji: "💳" },
-                { label: "Add coach", href: "/app/coaches", emoji: "🎾" },
-              ].map(({ label, href, emoji }) => (
-                <Link key={label} href={href} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, textDecoration: "none", color: "var(--c-text-muted)", fontSize: 13, fontWeight: 500, transition: "all .15s" }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--c-text)"; el.style.borderColor = "var(--c-border-hover)"; }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--c-text-muted)"; el.style.borderColor = "var(--c-border)"; }}>
-                  <span>{emoji}</span>{label} →
+                { label: "Add player", href: "/app/players", color: "#1F6B45" },
+                { label: "Generate invoices", href: "/app/billing", color: "#18B3A4" },
+                { label: "View schedule", href: "/app/schedule", color: "#FFD447" },
+              ].map(({ label, href, color }) => (
+                <Link key={label} href={href} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", background: color + "0d", border: `1px solid ${color}22`, borderRadius: 9, textDecoration: "none", color: "var(--c-text-2)", fontSize: 13, fontWeight: 600, transition: "all .15s" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = color + "18"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = color + "0d"; }}>
+                  {label}
+                  <span style={{ color, fontSize: 12 }}>→</span>
                 </Link>
               ))}
             </div>
