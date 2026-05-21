@@ -79,10 +79,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderRadius: 10,
             background: active ? "var(--c-accent-soft)" : "transparent",
             border: `1px solid ${active ? "var(--c-accent-border)" : "transparent"}`,
-            color: active ? "#818cf8" : "var(--c-text-3)",
+            color: active ? "#819595" : "var(--c-text-3)",
             fontWeight: active ? 600 : 450, fontSize: 13.5,
             textDecoration: "none", transition: "all .15s", letterSpacing: "-.1px",
-            boxShadow: active ? "inset 3px 0 0 #4f46e5" : "none",
+            boxShadow: active ? "inset 3px 0 0 #819595" : "none",
           }}
             onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,.04)"; (e.currentTarget as HTMLElement).style.color = "var(--c-text-2)"; } }}
             onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--c-text-3)"; } }}>
@@ -134,7 +134,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {menuOpen ? "✕" : "☰"}
             </button>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
-              <div style={{ width: 30, height: 30, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 13, boxShadow: "0 2px 10px rgba(79,70,229,.45)", flexShrink: 0 }}>
+              <div style={{ width: 30, height: 30, background: "linear-gradient(135deg,#363946,#696773)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 13, boxShadow: "0 2px 10px rgba(79,70,229,.45)", flexShrink: 0 }}>
                 {academyName?.[0]?.toUpperCase() || "A"}
               </div>
               <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
@@ -158,7 +158,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </button>
             <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px 4px 6px", borderRadius: 100, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer" }} onClick={signOut}
               title="Sign out">
-              <div style={{ width: 22, height: 22, background: "linear-gradient(135deg,#4f46e5,#818cf8)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>
+              <div style={{ width: 22, height: 22, background: "linear-gradient(135deg,#819595,#819595)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>
                 {userName?.[0]?.toUpperCase() || "U"}
               </div>
               <span style={{ fontSize: 12, color: "var(--c-text-3)", fontWeight: 500 }}>{userName || "Account"}</span>
@@ -177,7 +177,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.6)", backdropFilter: "blur(4px)" }} onClick={() => setMenuOpen(false)} />
           <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 264, background: "var(--c-sidebar)", padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 32px rgba(0,0,0,.4)", borderRight: "1px solid var(--c-border)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "4px 0 20px" }}>
-              <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#4f46e5,#2563eb)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 12, boxShadow: "0 2px 8px rgba(79,70,229,.4)" }}>
+              <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#363946,#696773)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 12, boxShadow: "0 2px 8px rgba(129,149,149,.3)" }}>
                 {academyName?.[0]?.toUpperCase() || "A"}
               </div>
               <div>
@@ -187,7 +187,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
             <SideNav onNav={() => setMenuOpen(false)} />
             <div style={{ height: 1, background: "var(--c-divider)", margin: "16px 0" }} />
-            <Link href="/subscribe" onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 10, background: "rgba(79,70,229,.08)", border: "1px solid rgba(79,70,229,.18)", color: "#818cf8", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
+            <Link href="/subscribe" onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 10, background: "rgba(129,149,149,.08)", border: "1px solid rgba(129,149,149,.2)", color: "#819595", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
               <span style={{ fontSize: 14 }}>⚡</span> Upgrade Plan
             </Link>
           </div>
@@ -200,9 +200,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SideNav />
           <div style={{ flex: 1 }} />
           <div style={{ height: 1, background: "var(--c-divider)", marginBottom: 14 }} />
-          <Link href="/subscribe" style={{ display: "flex", alignItems: "center", gap: 9, padding: "10px 14px", borderRadius: 10, background: "rgba(79,70,229,.07)", border: "1px solid rgba(79,70,229,.15)", color: "#818cf8", fontWeight: 600, fontSize: 12.5, textDecoration: "none", transition: "all .15s" }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(79,70,229,.12)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(79,70,229,.25)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(79,70,229,.07)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(79,70,229,.15)"; }}>
+          <Link href="/subscribe" style={{ display: "flex", alignItems: "center", gap: 9, padding: "10px 14px", borderRadius: 10, background: "rgba(129,149,149,.07)", border: "1px solid rgba(129,149,149,.18)", color: "#819595", fontWeight: 600, fontSize: 12.5, textDecoration: "none", transition: "all .15s" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(129,149,149,.1)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(129,149,149,.28)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(129,149,149,.07)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(129,149,149,.18)"; }}>
             <span style={{ fontSize: 13 }}>⚡</span> Upgrade Plan
           </Link>
         </aside>
@@ -214,7 +214,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <div style={{ width: 72, height: 72, background: "rgba(79,70,229,.1)", border: "1px solid rgba(79,70,229,.2)", borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 24px" }}>🔒</div>
                 <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 12 }}>Subscription Required</h2>
                 <p style={{ fontSize: 14, color: "var(--c-text-muted)", lineHeight: 1.75, marginBottom: 36 }}>To access your academy dashboard you need an active subscription.</p>
-                <a href="/#pricing" style={{ display: "inline-block", background: "linear-gradient(135deg,#4f46e5,#2563eb)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "13px 32px", borderRadius: 12, textDecoration: "none", boxShadow: "0 6px 24px rgba(79,70,229,.4)" }}>
+                <a href="/#pricing" style={{ display: "inline-block", background: "linear-gradient(135deg,#363946,#696773)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "13px 32px", borderRadius: 12, textDecoration: "none", boxShadow: "0 6px 24px rgba(129,149,149,.3)" }}>
                   View plans →
                 </a>
               </div>
@@ -229,8 +229,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {NAV.map(item => {
             const active = isActive(item);
             return (
-              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 10px", textDecoration: "none", minWidth: 52, color: active ? "#818cf8" : "var(--c-text-muted)", transition: "all .15s", position: "relative" }}>
-                {active && <span style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 22, height: 2, background: "#818cf8", borderRadius: 99 }} />}
+              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 10px", textDecoration: "none", minWidth: 52, color: active ? "#819595" : "var(--c-text-muted)", transition: "all .15s", position: "relative" }}>
+                {active && <span style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 22, height: 2, background: "#819595", borderRadius: 99 }} />}
                 <NavIcon path={NAV_ICONS[item.href] || ""} size={18} />
                 <span style={{ fontSize: 9.5, fontWeight: active ? 700 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
               </Link>
