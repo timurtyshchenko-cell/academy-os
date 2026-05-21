@@ -61,7 +61,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ background: "#081418", minHeight: "100vh", color: "#F5F7FA", fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
+    <div style={{ background: "#081418", minHeight: "100vh", color: "#F5F7FA", fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", overflowX: "hidden" }}>
       <style>{`
         @keyframes pulse-slow { 0%,100%{opacity:.7;transform:scale(1)} 50%{opacity:.3;transform:scale(1.1)} }
         @keyframes fadein { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
@@ -92,7 +92,7 @@ export default function LandingPage() {
           .section-h2{font-size:28px !important;letter-spacing:-.5px !important}
           .nav-signin{display:none !important}
           .section{padding:64px 20px !important}
-          .hero-inner{padding:0 20px !important;overflow:visible !important}
+          .hero-inner{padding:0 20px !important}
           .compare-grid{grid-template-columns:1fr !important}
           .footer-inner{flex-direction:column !important;gap:16px !important;text-align:center !important}
         }
@@ -117,7 +117,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section style={{ position: "relative", paddingTop: 160, paddingBottom: 80, textAlign: "center" }}>
+      <section style={{ position: "relative", paddingTop: 160, paddingBottom: 80, textAlign: "center", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -60, left: "50%", transform: "translateX(-50%)", width: 800, height: 600, background: "radial-gradient(ellipse,rgba(31,107,69,.12) 0%,transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 220, left: "8%", width: 360, height: 360, background: "radial-gradient(ellipse,rgba(24,179,164,.05) 0%,transparent 70%)", pointerEvents: "none", animation: "float 7s ease-in-out infinite" }} />
         <div style={{ position: "absolute", top: 160, right: "6%", width: 280, height: 280, background: "radial-gradient(ellipse,rgba(255,212,71,.04) 0%,transparent 70%)", pointerEvents: "none", animation: "float 9s ease-in-out infinite reverse" }} />
