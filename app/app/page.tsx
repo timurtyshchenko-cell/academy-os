@@ -124,7 +124,7 @@ export default function Overview() {
       )}
 
       {/* Stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))", gap: 10 }}>
         {stats.map(({ label, value, sub, accent, icon, href }) => (
           <Link key={label} href={href} style={{ textDecoration: "none" }}>
             <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 14, padding: "16px 18px", cursor: "pointer", transition: "border-color .2s, transform .15s", boxShadow: "var(--c-shadow)", borderLeft: `3px solid ${accent}` }}
@@ -176,7 +176,7 @@ export default function Overview() {
       </div>
 
       {/* Bottom 2-col */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
         {/* Recent sessions */}
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>

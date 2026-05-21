@@ -187,7 +187,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
           </div>
 
           {/* Quick stats row */}
-          <div className="profile-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 12, marginTop: 24 }}>
+          <div className="profile-stats" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10, marginTop: 20 }}>
             {[
               { label: "Monthly Fee", value: `$${player.monthly_fee}`, sub: "per month" },
               { label: "Total Paid", value: `$${totalPaid.toLocaleString()}`, sub: "all invoices", color: "#1F6B45" },

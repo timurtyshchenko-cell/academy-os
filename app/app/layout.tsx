@@ -113,6 +113,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           .mobile-grid-2 { grid-template-columns: 1fr 1fr !important; }
           .mobile-wrap { flex-wrap: wrap !important; }
           h1 { font-size: 20px !important; }
+          .profile-hero-row { flex-direction: column !important; align-items: flex-start !important; }
+          .profile-hero-row > div:last-child { width: 100%; justify-content: flex-start !important; }
         }
         @media (min-width: 769px) {
           .mobile-menu-btn { display: none !important; }
@@ -223,19 +225,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40, overflowX: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", width: "100%", justifyContent: "space-around", padding: "0 4px" }}>
-          {NAV.map(item => {
-            const active = isActive(item);
+      {/* Mobile bottom nav — 5 primary tabs */}
+      <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", padding: "6px 0 8px" }}>
+          {[
+            { href: "/app", label: "Home", exact: true },
+            { href: "/app/players", label: "Players", exact: false },
+            { href: "/app/schedule", label: "Schedule", exact: false },
+            { href: "/app/billing", label: "Billing", exact: false },
+          ].map(item => {
+            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
-              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 10px", textDecoration: "none", minWidth: 52, color: active ? "#4ade80" : "var(--c-text-muted)", transition: "color .15s", position: "relative" }}>
-                {active && <span style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 20, height: 2, background: "#1F6B45", borderRadius: 99 }} />}
-                <NavIcon path={NAV_ICONS[item.href] || ""} size={18} />
-                <span style={{ fontSize: 9.5, fontWeight: active ? 700 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
+              <Link key={item.href} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 12px", textDecoration: "none", flex: 1, color: active ? "#4ade80" : "var(--c-text-muted)", transition: "color .15s", position: "relative" }}>
+                {active && <span style={{ position: "absolute", top: -6, left: "50%", transform: "translateX(-50%)", width: 24, height: 3, background: "#1F6B45", borderRadius: 99 }} />}
+                <NavIcon path={NAV_ICONS[item.href] || ""} size={20} />
+                <span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{item.label}</span>
               </Link>
             );
           })}
+          {/* More button */}
+          <button onClick={() => setMenuOpen(o => !o)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 12px", flex: 1, background: "none", border: "none", color: menuOpen ? "#4ade80" : "var(--c-text-muted)", cursor: "pointer" }}>
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round">
+              <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+              <circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+            <span style={{ fontSize: 10, fontWeight: 500 }}>More</span>
+          </button>
         </div>
       </nav>
     </div>
