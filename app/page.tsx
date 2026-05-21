@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 
-function useReveal<T extends HTMLElement = HTMLElement>() {
-  const ref = useRef<T>(null);
+function useReveal() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ref = useRef<any>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
