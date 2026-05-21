@@ -43,8 +43,14 @@ export default function Signup() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", background: "#081418" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .auth-right { display: none !important; }
+          .auth-left { flex: 1 1 100% !important; padding: 48px 24px !important; }
+        }
+      `}</style>
       {/* LEFT — form */}
-      <div style={{ flex: "0 0 50%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", minHeight: "100vh" }}>
+      <div className="auth-left" style={{ flex: "0 0 50%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", minHeight: "100vh" }}>
         <div style={{ width: "100%", maxWidth: 420 }}>
           {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 48 }}>
@@ -61,7 +67,7 @@ export default function Signup() {
           <p style={{ fontSize: 14, color: "#607080", marginBottom: 28, lineHeight: 1.5 }}>Start managing your players in minutes. Free to start.</p>
 
           <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
               <div>
                 <label style={lbl}>Your Name</label>
                 <input required value={form.name} onChange={e => set("name", e.target.value)} placeholder="John Smith" style={inp("name")} onFocus={() => setFocused("name")} onBlur={() => setFocused("")} />
@@ -104,7 +110,7 @@ export default function Signup() {
       </div>
 
       {/* RIGHT — marketing panel */}
-      <div style={{ flex: "0 0 50%", background: "#0b1a20", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", position: "relative", overflow: "hidden" }}>
+      <div className="auth-right" style={{ flex: "0 0 50%", background: "#0b1a20", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(31,107,69,.12) 0%, transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none" }} />
 

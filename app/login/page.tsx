@@ -39,8 +39,14 @@ export default function Login() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", background: "#081418" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .auth-right { display: none !important; }
+          .auth-left { flex: 1 1 100% !important; padding: 48px 24px !important; }
+        }
+      `}</style>
       {/* LEFT — form */}
-      <div style={{ flex: "0 0 50%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", minHeight: "100vh" }}>
+      <div className="auth-left" style={{ flex: "0 0 50%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", minHeight: "100vh" }}>
         <div style={{ width: "100%", maxWidth: 400 }}>
           {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 48 }}>
@@ -108,7 +114,7 @@ export default function Login() {
       </div>
 
       {/* RIGHT — marketing panel */}
-      <div style={{ flex: "0 0 50%", background: "#0b1a20", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", position: "relative", overflow: "hidden" }}>
+      <div className="auth-right" style={{ flex: "0 0 50%", background: "#0b1a20", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", position: "relative", overflow: "hidden" }}>
         {/* Decorative radial glow */}
         <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(31,107,69,.12) 0%, transparent 65%)", pointerEvents: "none" }} />
         {/* Subtle grid lines */}
