@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { Resend } from "resend";
 
-const NOTIFY_EMAIL = "timurtyshchenko@gmail.com";
+const NOTIFY_EMAIL = "slimbet@gmail.com";
 
 export async function POST(req: NextRequest) {
   try {
