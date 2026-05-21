@@ -77,7 +77,7 @@ export default function LandingPage() {
         .nav-link { color:#97A6B2; text-decoration:none; font-size:14px; font-weight:500; transition:color .15s }
         .nav-link:hover { color:#F5F7FA }
         @media(max-width:768px){
-          .hero-h1{font-size:40px !important;letter-spacing:-1px !important;line-height:1.1 !important;padding:0 !important;word-break:break-word}
+          .hero-h1{font-size:52px !important;letter-spacing:-2px !important;line-height:1.05 !important;padding:0 !important;word-break:break-word}
           .hero-sub{font-size:16px !important}
           .hero-btns{flex-direction:column !important;align-items:stretch !important}
           .hero-btns a,.hero-btns button{text-align:center !important}
