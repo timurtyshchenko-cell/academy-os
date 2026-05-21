@@ -349,22 +349,43 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 20, padding: 32, width: "100%", maxWidth: 440 }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 24 }}>Log Training Session</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {[
-                { label: "Date", type: "date", key: "date", val: sessionForm.date },
-                { label: "Duration (minutes)", type: "number", key: "duration", val: sessionForm.duration },
-                { label: "Coach", type: "text", key: "coach_name", val: sessionForm.coach_name },
-                { label: "Notes", type: "text", key: "notes", val: sessionForm.notes },
-              ].map(({ label, type, key, val }) => (
-                <div key={key}>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>{label}</label>
-                  <input type={type} value={val} onChange={e => setSessionForm(p => ({ ...p, [key]: e.target.value }))} style={inp} />
-                </div>
-              ))}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { label: "Date", type: "date", key: "date", val: sessionForm.date },
+                  { label: "Duration (min)", type: "number", key: "duration", val: sessionForm.duration },
+                ].map(({ label, type, key, val }) => (
+                  <div key={key}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>{label}</label>
+                    <input type={type} value={val} onChange={e => setSessionForm(p => ({ ...p, [key]: e.target.value }))} style={inp} />
+                  </div>
+                ))}
+              </div>
               <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Type</label>
-                <select value={sessionForm.type} onChange={e => setSessionForm(p => ({ ...p, type: e.target.value }))} style={inp}>
-                  {SESSION_TYPES.map(t => <option key={t}>{t}</option>)}
-                </select>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Session Type</label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+                  {SESSION_TYPES.map(t => {
+                    const m = SESSION_META[t] || { icon: "🎯", color: "#607080" };
+                    const active = sessionForm.type === t;
+                    return (
+                      <button key={t} type="button" onClick={() => setSessionForm(p => ({ ...p, type: t }))}
+                        style={{ padding: "9px 8px", borderRadius: 10, border: `2px solid ${active ? m.color : "var(--c-border)"}`, background: active ? m.color + "18" : "var(--c-inner)", cursor: "pointer", textAlign: "center", transition: "all .15s" }}>
+                        <span style={{ fontSize: 14, display: "block", marginBottom: 2 }}>{m.icon}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: active ? m.color : "var(--c-text-dim)", display: "block", lineHeight: 1.2 }}>{t}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { label: "Coach", key: "coach_name", val: sessionForm.coach_name },
+                  { label: "Notes", key: "notes", val: sessionForm.notes },
+                ].map(({ label, key, val }) => (
+                  <div key={key}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>{label}</label>
+                    <input value={val} onChange={e => setSessionForm(p => ({ ...p, [key]: e.target.value }))} style={inp} />
+                  </div>
+                ))}
               </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
@@ -395,18 +416,34 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
                 </div>
               ))}
               <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Level</label>
-                <select value={form.level} onChange={e => setForm(p => ({ ...p, level: e.target.value }))} style={inp}>
-                  {["Beginner", "Intermediate", "Advanced", "Competitive"].map(l => <option key={l}>{l}</option>)}
-                </select>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Level</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                  {(["Beginner","Intermediate","Advanced","Competitive"] as const).map(l => {
+                    const lc = LEVEL_COLORS[l] || { color: "#607080", bg: "var(--c-inner)" };
+                    const active = form.level === l;
+                    return (
+                      <button key={l} type="button" onClick={() => setForm(p => ({ ...p, level: l }))}
+                        style={{ padding: "10px 12px", borderRadius: 10, border: `2px solid ${active ? lc.color : "var(--c-border)"}`, background: active ? lc.bg : "var(--c-inner)", cursor: "pointer", textAlign: "left", transition: "all .15s" }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: active ? lc.color : "var(--c-text-muted)" }}>{l}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Status</label>
-                <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))} style={inp}>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="paused">Paused</option>
-                </select>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Status</label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {(["active","inactive","paused"] as const).map(s => {
+                    const c = s === "active" ? "#1F6B45" : s === "paused" ? "#f59e0b" : "#607080";
+                    const active = form.status === s;
+                    return (
+                      <button key={s} type="button" onClick={() => setForm(p => ({ ...p, status: s }))}
+                        style={{ flex: 1, padding: "9px 8px", borderRadius: 10, border: `2px solid ${active ? c : "var(--c-border)"}`, background: active ? c + "18" : "var(--c-inner)", cursor: "pointer", transition: "all .15s" }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: active ? c : "var(--c-text-muted)", textTransform: "capitalize" }}>{s}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Notes</label>

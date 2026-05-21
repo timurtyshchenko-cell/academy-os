@@ -3,6 +3,18 @@ import { useState, useEffect } from "react";
 
 interface Invoice { id: number; player_name: string; player_id: number; amount: number; status: string; month: string; due_date: string; paid_at: string; created_at: string }
 
+function initials(name: string) {
+  if (!name) return "?";
+  const p = name.trim().split(" ");
+  return (p[0][0] + (p[1]?.[0] || "")).toUpperCase();
+}
+
+function monthLabel(m: string) {
+  if (!m) return "—";
+  const d = new Date(m + "-01");
+  return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
 export default function BillingPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +77,7 @@ export default function BillingPage() {
     win.document.write(`<!DOCTYPE html><html><head><title>Invoice — ${inv.player_name}</title>
     <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:40px;color:#111827;background:#fff}
     .header{text-align:center;margin-bottom:32px}.logo{font-size:24px;font-weight:900;letter-spacing:-1px}
-    .hero{background:linear-gradient(135deg,#1F6B45,#1F6B45);border-radius:16px;padding:36px;text-align:center;color:#fff;margin-bottom:24px}
+    .hero{background:linear-gradient(135deg,#1F6B45,#18B3A4);border-radius:16px;padding:36px;text-align:center;color:#fff;margin-bottom:24px}
     .hero-label{font-size:11px;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.12em;margin:0 0 8px}
     .hero-amount{font-size:52px;font-weight:900;margin:0 0 6px;letter-spacing:-2px}
     .hero-sub{opacity:.7;margin:0}
@@ -91,10 +103,37 @@ export default function BillingPage() {
     win.print();
   }
 
-  const filtered = filter === "all" ? invoices : invoices.filter(i => filter === "paid" ? i.status === "paid" : i.status !== "paid");
-  const totalPending = invoices.filter(i => i.status !== "paid").reduce((s, i) => s + i.amount, 0);
+  // Stats
   const totalCollected = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.amount, 0);
+  const totalPending = invoices.filter(i => i.status !== "paid").reduce((s, i) => s + i.amount, 0);
   const pendingCount = invoices.filter(i => i.status !== "paid").length;
+  const collectionRate = invoices.length > 0 ? Math.round((invoices.filter(i => i.status === "paid").length / invoices.length) * 100) : 0;
+
+  // Monthly chart data — last 6 months
+  const chartMonths: { key: string; label: string; paid: number; pending: number }[] = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    const label = d.toLocaleDateString("en-US", { month: "short" });
+    const monthInvs = invoices.filter(inv => (inv.month || "").startsWith(key));
+    chartMonths.push({
+      key, label,
+      paid: monthInvs.filter(i => i.status === "paid").reduce((s, i) => s + i.amount, 0),
+      pending: monthInvs.filter(i => i.status !== "paid").reduce((s, i) => s + i.amount, 0),
+    });
+  }
+  const chartMax = Math.max(...chartMonths.map(m => m.paid + m.pending), 1);
+
+  // Group filtered invoices by month
+  const filtered = filter === "all" ? invoices : invoices.filter(i => filter === "paid" ? i.status === "paid" : i.status !== "paid");
+  const byMonth: Record<string, Invoice[]> = {};
+  for (const inv of filtered) {
+    const key = inv.month || "other";
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(inv);
+  }
+  const monthKeys = Object.keys(byMonth).sort((a, b) => b.localeCompare(a));
 
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
@@ -104,177 +143,185 @@ export default function BillingPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <div className="mobile-wrap" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} pending · {invoices.length} total</p>
-        </div>
-        <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(31,107,69,.3)", whiteSpace: "nowrap" }}>
-          {generating ? "Generating..." : "⚡ Generate"}
-        </button>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
-        {[
-          { label: "Collected", value: `$${totalCollected.toLocaleString()}`, color: "#059669", sub: `${invoices.filter(i => i.status === "paid").length} paid` },
-          { label: "Pending", value: `$${totalPending.toLocaleString()}`, color: "#f59e0b", sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""}` },
-          { label: "Total Billed", value: `$${(totalCollected + totalPending).toLocaleString()}`, color: "var(--c-text)", sub: `${invoices.length} total` },
-        ].map(({ label, value, color, sub }) => (
-          <div key={label} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 14, padding: "18px 20px", boxShadow: "var(--c-shadow)" }}>
-            <p style={{ fontSize: 11, color: "var(--c-text-dim)", fontWeight: 600, marginBottom: 8 }}>{label}</p>
-            <p style={{ fontSize: 26, fontWeight: 900, color, marginBottom: 4 }}>{value}</p>
-            <p style={{ fontSize: 12, color: "var(--c-text-dim)" }}>{sub}</p>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", gap: 8 }}>
-        {(["all", "pending", "paid"] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{
-            padding: "8px 16px", borderRadius: 8, border: "1px solid",
-            borderColor: filter === f ? "#1F6B45" : "var(--c-border)",
-            background: filter === f ? "rgba(31,107,69,.12)" : "transparent",
-            color: filter === f ? "#18B3A4" : "var(--c-text-muted)",
-            fontSize: 13, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
-          }}>{f}</button>
-        ))}
-      </div>
-
       <style>{`
         @media (max-width: 768px) {
-          .billing-table { display: none !important; }
-          .billing-cards { display: flex !important; }
-        }
-        @media (min-width: 769px) {
-          .billing-cards { display: none !important; }
+          .billing-stats { grid-template-columns: repeat(2,1fr) !important; }
+          .billing-chart { display: none !important; }
         }
       `}</style>
 
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} pending · {invoices.length} total invoices</p>
+        </div>
+        <button onClick={generate} disabled={generating}
+          style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(31,107,69,.3)", whiteSpace: "nowrap" }}>
+          {generating ? "Generating..." : "⚡ Generate Invoices"}
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div className="billing-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        {[
+          { label: "Collected", value: `$${totalCollected.toLocaleString()}`, sub: `${invoices.filter(i=>i.status==="paid").length} invoices`, color: "#1F6B45" },
+          { label: "Outstanding", value: `$${totalPending.toLocaleString()}`, sub: `${pendingCount} pending`, color: "#f59e0b" },
+          { label: "Total Billed", value: `$${(totalCollected+totalPending).toLocaleString()}`, sub: `${invoices.length} total`, color: "#18B3A4" },
+          { label: "Collection Rate", value: `${collectionRate}%`, sub: "paid on time", color: collectionRate >= 80 ? "#1F6B45" : collectionRate >= 50 ? "#f59e0b" : "#ef4444" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderLeft: `3px solid ${s.color}`, borderRadius: 14, padding: "14px 18px" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".07em", margin: "0 0 4px" }}>{s.label}</p>
+            <p style={{ fontSize: 22, fontWeight: 900, color: "var(--c-text)", margin: "0 0 2px", letterSpacing: "-1px" }}>{s.value}</p>
+            <p style={{ fontSize: 11, color: "var(--c-text-dim)", margin: 0 }}>{s.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Revenue chart */}
+      {invoices.length > 0 && (
+        <div className="billing-chart" style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: "20px 24px" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: "0 0 16px" }}>Monthly Revenue — Last 6 Months</p>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 100 }}>
+            {chartMonths.map(m => {
+              const totalH = ((m.paid + m.pending) / chartMax) * 100;
+              const paidH = (m.paid / chartMax) * 100;
+              const isCurrent = m.key === `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+              return (
+                <div key={m.key} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%" }}>
+                  <div style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", position: "relative" }}
+                    title={`${m.label}: $${(m.paid+m.pending).toLocaleString()} ($${m.paid.toLocaleString()} paid)`}>
+                    {/* Pending portion */}
+                    {m.pending > 0 && (
+                      <div style={{ width: "100%", height: `${((m.pending) / chartMax) * 100}%`, background: "rgba(245,158,11,.25)", borderRadius: paidH === 0 ? "6px 6px 0 0" : "0", borderTop: "2px solid rgba(245,158,11,.4)", minHeight: m.pending > 0 ? 3 : 0 }} />
+                    )}
+                    {/* Paid portion */}
+                    {m.paid > 0 && (
+                      <div style={{ width: "100%", height: `${paidH}%`, background: isCurrent ? "linear-gradient(180deg,#18B3A4,#1F6B45)" : "linear-gradient(180deg,#186038,#1F6B45)", borderRadius: m.pending > 0 ? "0 0 6px 6px" : "6px 6px 0 0", minHeight: 3 }} />
+                    )}
+                    {(m.paid + m.pending) === 0 && (
+                      <div style={{ width: "100%", height: 3, background: "var(--c-border)", borderRadius: 6 }} />
+                    )}
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: isCurrent ? 800 : 600, color: isCurrent ? "#18B3A4" : "var(--c-text-dim)" }}>{m.label}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 3, background: "#1F6B45" }} />
+              <span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 3, background: "rgba(245,158,11,.4)", border: "1px solid rgba(245,158,11,.6)" }} />
+              <span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Pending</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter tabs */}
+      <div style={{ display: "flex", gap: 6 }}>
+        {(["all", "pending", "paid"] as const).map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            style={{ padding: "8px 18px", borderRadius: 100, border: "1px solid", borderColor: filter === f ? "#1F6B45" : "var(--c-border)", background: filter === f ? "rgba(31,107,69,.1)" : "transparent", color: filter === f ? "#1F6B45" : "var(--c-text-muted)", fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all .15s", textTransform: "capitalize" }}>
+            {f === "all" ? `All (${invoices.length})` : f === "paid" ? `Paid (${invoices.filter(i=>i.status==="paid").length})` : `Pending (${pendingCount})`}
+          </button>
+        ))}
+      </div>
+
+      {sendError && <p style={{ fontSize: 13, color: "#ef4444", background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, padding: "10px 14px" }}>⚠ {sendError}</p>}
+
+      {/* Empty state */}
       {filtered.length === 0 ? (
-        <div style={{ background: "var(--c-card)", border: "1px dashed var(--c-border)", borderRadius: 16, padding: 60, textAlign: "center", boxShadow: "var(--c-shadow)" }}>
-          <p style={{ fontSize: 32, marginBottom: 12 }}>💳</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--c-text)", marginBottom: 8 }}>{invoices.length === 0 ? "No invoices yet" : "No invoices match this filter"}</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>{invoices.length === 0 ? "Click Generate to bill all active players" : "Try a different filter"}</p>
-          {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Generate First Invoices →</button>}
+        <div style={{ background: "var(--c-card)", border: "2px dashed var(--c-border)", borderRadius: 20, padding: 60, textAlign: "center" }}>
+          <p style={{ fontSize: 40, marginBottom: 14 }}>💳</p>
+          <p style={{ fontSize: 17, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>{invoices.length === 0 ? "No invoices yet" : "Nothing here"}</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 24 }}>{invoices.length === 0 ? "Click Generate to create invoices for all active players" : "Try a different filter"}</p>
+          {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>⚡ Generate First Invoices →</button>}
         </div>
       ) : (
-        <>
-          {/* Desktop table */}
-          <div className="billing-table" style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--c-shadow)" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--c-border)", background: "var(--c-inner)" }}>
-                  {["Player", "Month", "Amount", "Due Date", "Status", "Actions"].map(h => (
-                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".08em" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(inv => (
-                  <tr key={inv.id} style={{ borderBottom: "1px solid var(--c-border)" }}
-                    onMouseEnter={e => (e.currentTarget.style.background = "var(--c-row)")}
-                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 30, height: 30, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "var(--c-avatar-text)" }}>{(inv.player_name || "?")[0]}</div>
-                        <span style={{ fontSize: 14, color: "var(--c-text-2)", fontWeight: 600 }}>{inv.player_name}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {monthKeys.map(monthKey => {
+            const monthInvs = byMonth[monthKey].sort((a, b) => a.player_name.localeCompare(b.player_name));
+            const monthPaid = monthInvs.filter(i => i.status === "paid").reduce((s, i) => s + i.amount, 0);
+            const monthTotal = monthInvs.reduce((s, i) => s + i.amount, 0);
+            const allPaid = monthInvs.every(i => i.status === "paid");
+            return (
+              <div key={monthKey} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, overflow: "hidden" }}>
+                {/* Month header */}
+                <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--c-border)", background: "var(--c-inner)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{monthLabel(monthKey)}</p>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: allPaid ? "#059669" : "#f59e0b", background: allPaid ? "#05966915" : "#f59e0b15", padding: "2px 8px", borderRadius: 100 }}>
+                      {allPaid ? "All paid" : `${monthInvs.filter(i=>i.status==="paid").length}/${monthInvs.length} paid`}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontSize: 15, fontWeight: 900, color: "var(--c-text)", margin: 0 }}>${monthPaid.toLocaleString()} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--c-text-muted)" }}>/ ${monthTotal.toLocaleString()}</span></p>
+                  </div>
+                </div>
+
+                {/* Invoice rows */}
+                {monthInvs.map((inv, idx) => {
+                  const paid = inv.status === "paid";
+                  return (
+                    <div key={inv.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 20px", borderBottom: idx < monthInvs.length - 1 ? "1px solid var(--c-border)" : "none", borderLeft: `3px solid ${paid ? "#1F6B45" : "#f59e0b"}`, transition: "background .1s" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "var(--c-row)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                      {/* Avatar */}
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: paid ? "rgba(31,107,69,.12)" : "rgba(245,158,11,.1)", border: `1px solid ${paid ? "rgba(31,107,69,.2)" : "rgba(245,158,11,.2)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 900, color: paid ? "#1F6B45" : "#f59e0b" }}>{initials(inv.player_name)}</span>
                       </div>
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--c-text-3)" }}>{inv.month || "—"}</td>
-                    <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "var(--c-text)" }}>${inv.amount.toLocaleString()}</td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--c-text-muted)" }}>{inv.due_date || "—"}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100, color: inv.status === "paid" ? "#059669" : "#f59e0b", background: inv.status === "paid" ? "#05966918" : "#f59e0b18" }}>
-                        {inv.status === "paid" ? "Paid" : "Pending"}
-                      </span>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                        {inv.status !== "paid" && (
-                          <button onClick={() => markPaid(inv.id)} style={{ fontSize: 12, color: "#1F6B45", background: "none", border: "1px solid rgba(31,107,69,.3)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
-                            onMouseEnter={e => { e.currentTarget.style.background = "rgba(31,107,69,.1)"; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
-                            Mark Paid
+                      {/* Info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 2 }}>
+                          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{inv.player_name}</p>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 100, color: paid ? "#059669" : "#f59e0b", background: paid ? "#05966915" : "#f59e0b15" }}>
+                            {paid ? "✓ Paid" : "Pending"}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: 12, color: "var(--c-text-dim)", margin: 0 }}>
+                          Due {inv.due_date || "—"}
+                          {paid && inv.paid_at ? ` · Paid ${inv.paid_at.split("T")[0]}` : ""}
+                        </p>
+                      </div>
+                      {/* Amount */}
+                      <p style={{ fontSize: 18, fontWeight: 900, color: "var(--c-text)", margin: 0, flexShrink: 0 }}>${inv.amount.toLocaleString()}</p>
+                      {/* Actions */}
+                      <div style={{ display: "flex", gap: 5, alignItems: "center", flexShrink: 0 }}>
+                        {!paid && (
+                          <button onClick={() => markPaid(inv.id)}
+                            style={{ fontSize: 12, fontWeight: 700, color: "#1F6B45", background: "rgba(31,107,69,.08)", border: "1px solid rgba(31,107,69,.2)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", whiteSpace: "nowrap" }}>
+                            ✓ Paid
                           </button>
                         )}
                         <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
-                          style={{ fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: sentIds.has(inv.id) ? "rgba(5,150,105,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}>
-                          {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
+                          style={{ fontSize: 12, fontWeight: 600, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-muted)", background: "var(--c-inner)", border: `1px solid ${sentIds.has(inv.id) ? "rgba(5,150,105,.25)" : "var(--c-border)"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", opacity: sending === inv.id ? .6 : 1, whiteSpace: "nowrap" }}>
+                          {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "Send"}
                         </button>
-                        {inv.status !== "paid" && (
+                        {!paid && (
                           <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
-                            style={{ fontSize: 12, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-3)", background: "none", border: "1px solid", borderColor: remindedIds.has(inv.id) ? "rgba(245,158,11,.3)" : "var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600, opacity: reminding === inv.id ? .6 : 1 }}>
-                            {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "🔔 Remind"}
+                            style={{ fontSize: 12, fontWeight: 600, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-muted)", background: "var(--c-inner)", border: `1px solid ${remindedIds.has(inv.id) ? "rgba(245,158,11,.25)" : "var(--c-border)"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", opacity: reminding === inv.id ? .6 : 1, whiteSpace: "nowrap" }}>
+                            {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "Remind"}
                           </button>
                         )}
                         <button onClick={() => printInvoice(inv)}
-                          style={{ fontSize: 12, color: "var(--c-text-3)", background: "none", border: "1px solid var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}>
-                          🖨️ PDF
-                        </button>
+                          style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-dim)", cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center" }}
+                          title="Print / PDF">⎙</button>
                         <button onClick={() => deleteInvoice(inv.id)}
-                          style={{ fontSize: 12, color: "#ef4444", background: "none", border: "1px solid rgba(239,68,68,.25)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,.1)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
-                          🗑️
-                        </button>
+                          style={{ width: 32, height: 32, background: "none", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-dim)", cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center" }}
+                          onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = "#ef4444"; el.style.borderColor = "#ef4444"; }}
+                          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--c-text-dim)"; el.style.borderColor = "var(--c-border)"; }}>✕</button>
                       </div>
-                      {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{sendError}</p>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="billing-cards" style={{ display: "none", flexDirection: "column", gap: 12 }}>
-            {filtered.map(inv => (
-              <div key={inv.id} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 16, boxShadow: "var(--c-shadow)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 36, height: 36, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "var(--c-avatar-text)", flexShrink: 0 }}>{(inv.player_name || "?")[0]}</div>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: "var(--c-text)" }}>{inv.player_name}</p>
-                      <p style={{ fontSize: 12, color: "var(--c-text-muted)" }}>{inv.month || "—"} · Due {inv.due_date || "—"}</p>
                     </div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 18, fontWeight: 900, color: "var(--c-text)" }}>${inv.amount.toLocaleString()}</p>
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 100, color: inv.status === "paid" ? "#059669" : "#f59e0b", background: inv.status === "paid" ? "#05966918" : "#f59e0b18" }}>
-                      {inv.status === "paid" ? "Paid" : "Pending"}
-                    </span>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {inv.status !== "paid" && (
-                    <button onClick={() => markPaid(inv.id)} style={{ flex: 1, minWidth: 90, fontSize: 12, color: "#1F6B45", background: "rgba(31,107,69,.08)", border: "1px solid rgba(31,107,69,.2)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 700 }}>
-                      ✓ Mark Paid
-                    </button>
-                  )}
-                  <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
-                    style={{ flex: 1, minWidth: 80, fontSize: 12, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600, opacity: sending === inv.id ? .6 : 1 }}>
-                    {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "📧 Send"}
-                  </button>
-                  {inv.status !== "paid" && (
-                    <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
-                      style={{ flex: 1, minWidth: 80, fontSize: 12, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600, opacity: reminding === inv.id ? .6 : 1 }}>
-                      {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "🔔 Remind"}
-                    </button>
-                  )}
-                  <button onClick={() => printInvoice(inv)}
-                    style={{ fontSize: 12, color: "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600 }}>
-                    🖨️
-                  </button>
-                  <button onClick={() => deleteInvoice(inv.id)}
-                    style={{ fontSize: 12, color: "#ef4444", background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600 }}>
-                    🗑️
-                  </button>
-                </div>
-                {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 8 }}>{sendError}</p>}
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        </>
+            );
+          })}
+        </div>
       )}
     </div>
   );
