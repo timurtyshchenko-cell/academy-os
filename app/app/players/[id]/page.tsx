@@ -7,7 +7,22 @@ interface Player { id: number; name: string; age: number; level: string; coach_n
 interface Invoice { id: number; amount: number; status: string; month: string; due_date: string; paid_at: string }
 interface Session { id: number; date: string; duration: number; type: string; coach_name: string; notes: string }
 
-const LEVEL_COLORS: Record<string, string> = { Beginner: "#059669", Intermediate: "#1F6B45", Advanced: "#18B3A4", Competitive: "#dc2626" };
+const LEVEL_COLORS: Record<string, { color: string; bg: string }> = {
+  Beginner:     { color: "#18B3A4", bg: "rgba(24,179,164,.12)" },
+  Intermediate: { color: "#1F6B45", bg: "rgba(31,107,69,.12)" },
+  Advanced:     { color: "#FFD447", bg: "rgba(255,212,71,.12)" },
+  Competitive:  { color: "#ef4444", bg: "rgba(239,68,68,.12)" },
+};
+
+const SESSION_META: Record<string, { icon: string; color: string }> = {
+  Training:        { icon: "🎯", color: "#1F6B45" },
+  Match:           { icon: "🎾", color: "#FFD447" },
+  Fitness:         { icon: "💪", color: "#18B3A4" },
+  "Serve Practice":{ icon: "🏆", color: "#e07b4f" },
+  Doubles:         { icon: "👥", color: "#9b59b6" },
+  "Video Analysis":{ icon: "📹", color: "#607080" },
+};
+
 const inp: React.CSSProperties = { width: "100%", background: "var(--c-input-bg)", border: "1px solid var(--c-input-border)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--c-text)", outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
 const SESSION_TYPES = ["Training", "Match", "Fitness", "Serve Practice", "Doubles", "Video Analysis"];
 
@@ -97,95 +112,145 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
   const totalPaid = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.amount, 0);
   const totalPending = invoices.filter(i => i.status !== "paid").reduce((s, i) => s + i.amount, 0);
   const totalSessionHours = (sessions.reduce((s, r) => s + (r.duration || 0), 0) / 60).toFixed(1);
+  const levelStyle = LEVEL_COLORS[player.level] || { color: "var(--c-text-muted)", bg: "var(--c-inner)" };
+
+  // Sessions per month (last 6)
+  const now = new Date();
+  const monthBars = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleString("en-US", { month: "short" });
+    const count = sessions.filter(s => s.date?.startsWith(key)).length;
+    return { label, count };
+  });
+  const maxBar = Math.max(...monthBars.map(m => m.count), 1);
+
+  // Session type breakdown
+  const typeBreakdown = SESSION_TYPES.map(t => ({
+    type: t,
+    count: sessions.filter(s => s.type === t).length,
+    meta: SESSION_META[t] || { icon: "🎯", color: "#607080" },
+  })).filter(t => t.count > 0).sort((a, b) => b.count - a.count);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <style>{`
         @media (max-width: 768px) {
-          .player-2col { grid-template-columns: 1fr !important; }
-          .training-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-          .training-btns { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+          .profile-2col { grid-template-columns: 1fr !important; }
+          .profile-hero-row { flex-direction: column !important; gap: 16px !important; }
+          .profile-stats { grid-template-columns: repeat(2,1fr) !important; }
         }
       `}</style>
+
+      {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Link href="/app/players" style={{ fontSize: 13, color: "var(--c-text-muted)", textDecoration: "none" }}
           onMouseEnter={e => (e.currentTarget.style.color = "var(--c-text)")}
-          onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text-muted)")}>Players</Link>
+          onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text-muted)")}>← Players</Link>
         <span style={{ color: "var(--c-text-dim)", fontSize: 13 }}>/</span>
         <span style={{ fontSize: 13, color: "var(--c-text-3)" }}>{player.name}</span>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 56, height: 56, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, color: "var(--c-avatar-text)" }}>{player.name[0]}</div>
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-0.5px", marginBottom: 4 }}>{player.name}</h1>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: LEVEL_COLORS[player.level] || "var(--c-text-muted)", background: (LEVEL_COLORS[player.level] || "#555") + "18", padding: "3px 10px", borderRadius: 100 }}>{player.level}</span>
-              <span style={{ fontSize: 12, color: player.status === "active" ? "#059669" : "var(--c-text-muted)", background: player.status === "active" ? "#05966918" : "var(--c-inner)", padding: "3px 10px", borderRadius: 100, fontWeight: 700 }}>{player.status}</span>
+      {/* Hero card */}
+      <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 20, overflow: "hidden", boxShadow: "var(--c-shadow-lg)" }}>
+        {/* Top gradient strip */}
+        <div style={{ height: 6, background: "linear-gradient(90deg, #1F6B45, #18B3A4 60%, #1F6B45)" }} />
+        <div style={{ padding: "28px 28px 24px" }}>
+          <div className="profile-hero-row" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              {/* Avatar */}
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <div style={{ width: 68, height: 68, background: "var(--c-avatar-bg)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 800, color: "#18B3A4", border: "2px solid rgba(24,179,164,.25)" }}>
+                  {player.name[0].toUpperCase()}
+                </div>
+                <div style={{ position: "absolute", bottom: 2, right: 2, width: 14, height: 14, borderRadius: "50%", background: player.status === "active" ? "#1F6B45" : "#607080", border: "2px solid var(--c-card)" }} />
+              </div>
+              {/* Name + badges */}
+              <div>
+                <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-0.8px", marginBottom: 8 }}>{player.name}</h1>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: levelStyle.color, background: levelStyle.bg, padding: "4px 12px", borderRadius: 100, border: `1px solid ${levelStyle.color}30` }}>{player.level}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: player.status === "active" ? "#1F6B45" : "var(--c-text-muted)", background: player.status === "active" ? "rgba(31,107,69,.1)" : "var(--c-inner)", padding: "4px 12px", borderRadius: 100 }}>{player.status}</span>
+                  {player.coach_name && <span style={{ fontSize: 12, color: "var(--c-text-muted)", background: "var(--c-inner)", padding: "4px 12px", borderRadius: 100 }}>🎾 {player.coach_name}</span>}
+                  {player.age && <span style={{ fontSize: 12, color: "var(--c-text-muted)", background: "var(--c-inner)", padding: "4px 12px", borderRadius: 100 }}>Age {player.age}</span>}
+                </div>
+              </div>
+            </div>
+            {/* Actions */}
+            <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              <button onClick={sendReport} disabled={sendingReport || sessions.length === 0}
+                style={{ fontSize: 13, color: reportSent ? "#1F6B45" : sendingReport ? "var(--c-text-dim)" : "#18B3A4", background: "var(--c-inner)", fontWeight: 600, padding: "9px 16px", borderRadius: 10, border: "1px solid var(--c-border)", cursor: sessions.length === 0 ? "not-allowed" : "pointer", opacity: sessions.length === 0 ? .4 : 1, whiteSpace: "nowrap" }}>
+                {reportSent ? "✓ Sent" : sendingReport ? "…" : "📧 Report"}
+              </button>
+              <button onClick={() => setEditing(true)} style={{ fontSize: 13, color: "var(--c-text)", background: "var(--c-inner)", fontWeight: 600, padding: "9px 16px", borderRadius: 10, border: "1px solid var(--c-border)", cursor: "pointer" }}>Edit</button>
             </div>
           </div>
-        </div>
-        <button onClick={() => setEditing(true)} style={{ background: "var(--c-inner)", color: "var(--c-text)", fontWeight: 600, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "1px solid var(--c-border)", cursor: "pointer" }}>Edit Profile</button>
-      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-        {[
-          { label: "Monthly Fee", value: `$${player.monthly_fee}/mo`, color: "var(--c-text)" },
-          { label: "Total Paid", value: `$${totalPaid.toLocaleString()}`, color: "#059669" },
-          { label: "Pending", value: `$${totalPending.toLocaleString()}`, color: totalPending > 0 ? "#f59e0b" : "var(--c-text-muted)" },
-          { label: "Sessions", value: sessions.length, color: "var(--c-text)" },
-          { label: "Hours Trained", value: `${totalSessionHours}h`, color: "#18B3A4" },
-        ].map(({ label, value, color }) => (
-          <div key={label} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 14, padding: "16px 20px", boxShadow: "var(--c-shadow)" }}>
-            <p style={{ fontSize: 11, color: "var(--c-text-dim)", fontWeight: 600, marginBottom: 6 }}>{label}</p>
-            <p style={{ fontSize: 22, fontWeight: 800, color }}>{value}</p>
+          {/* Quick stats row */}
+          <div className="profile-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 12, marginTop: 24 }}>
+            {[
+              { label: "Monthly Fee", value: `$${player.monthly_fee}`, sub: "per month" },
+              { label: "Total Paid", value: `$${totalPaid.toLocaleString()}`, sub: "all invoices", color: "#1F6B45" },
+              { label: "Pending", value: `$${totalPending.toLocaleString()}`, sub: totalPending > 0 ? "unpaid" : "all clear", color: totalPending > 0 ? "#f59e0b" : "#1F6B45" },
+              { label: "Sessions", value: sessions.length, sub: "all time" },
+              { label: "Hours", value: `${totalSessionHours}h`, sub: "trained total", color: "#18B3A4" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} style={{ background: "var(--c-inner)", borderRadius: 12, padding: "14px 16px" }}>
+                <p style={{ fontSize: 10, color: "var(--c-text-dim)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 4 }}>{label}</p>
+                <p style={{ fontSize: 20, fontWeight: 900, color: color || "var(--c-text)", letterSpacing: "-.5px", marginBottom: 2 }}>{value}</p>
+                <p style={{ fontSize: 10, color: "var(--c-text-dim)" }}>{sub}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
-      <div className="player-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      {/* 2-col: Info + Invoices */}
+      <div className="profile-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* Player Info */}
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>Player Info</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 18 }}>Player Info</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {[
               { label: "Age", value: player.age ? `${player.age} years old` : "—" },
               { label: "Coach", value: player.coach_name || "—" },
               { label: "Parent Name", value: player.parent_name || "—" },
               { label: "Parent Email", value: player.parent_email || "—" },
-            ].map(({ label, value }) => (
-              <div key={label} style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--c-border)", paddingBottom: 12 }}>
+            ].map(({ label, value }, i, arr) => (
+              <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--c-divider)" : "none" }}>
                 <span style={{ fontSize: 12, color: "var(--c-text-muted)" }}>{label}</span>
-                <span style={{ fontSize: 13, color: "var(--c-text-2)", maxWidth: 200, textAlign: "right" }}>{value}</span>
+                <span style={{ fontSize: 13, color: "var(--c-text-2)", maxWidth: 200, textAlign: "right", fontWeight: 500 }}>{value}</span>
               </div>
             ))}
-            {player.notes && (
-              <div>
-                <p style={{ fontSize: 11, color: "var(--c-text-muted)", marginBottom: 6 }}>Notes</p>
-                <p style={{ fontSize: 13, color: "var(--c-text-3)", lineHeight: 1.5 }}>{player.notes}</p>
-              </div>
-            )}
           </div>
+          {player.notes && (
+            <div style={{ marginTop: 14, background: "var(--c-inner)", borderRadius: 10, padding: "12px 14px" }}>
+              <p style={{ fontSize: 10, color: "var(--c-text-dim)", marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em" }}>Notes</p>
+              <p style={{ fontSize: 13, color: "var(--c-text-3)", lineHeight: 1.6 }}>{player.notes}</p>
+            </div>
+          )}
+          {reportError && <p style={{ marginTop: 10, fontSize: 12, color: "#ef4444" }}>⚠ {reportError}</p>}
         </div>
 
+        {/* Invoices */}
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>Invoice History</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 18 }}>Invoice History</p>
           {invoices.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--c-text-dim)", textAlign: "center", paddingTop: 20 }}>No invoices yet</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {invoices.map(inv => (
-                <div key={inv.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "var(--c-inner)", borderRadius: 10 }}>
+                <div key={inv.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--c-inner)", borderRadius: 10, borderLeft: `3px solid ${inv.status === "paid" ? "#1F6B45" : "#f59e0b"}` }}>
                   <div>
                     <p style={{ fontSize: 13, color: "var(--c-text-2)", fontWeight: 600 }}>{inv.month || "—"}</p>
                     <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Due {inv.due_date || "—"}</p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text)" }}>${inv.amount}</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)" }}>${inv.amount}</span>
                     {inv.status === "paid" ? (
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "#059669", background: "#05966918", padding: "2px 8px", borderRadius: 100 }}>Paid</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#1F6B45", background: "rgba(31,107,69,.1)", padding: "3px 10px", borderRadius: 100 }}>✓ Paid</span>
                     ) : (
-                      <button onClick={() => markPaid(inv.id)} style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", background: "#f59e0b18", padding: "4px 10px", borderRadius: 100, border: "none", cursor: "pointer" }}>Mark Paid</button>
+                      <button onClick={() => markPaid(inv.id)} style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", background: "rgba(245,158,11,.1)", padding: "5px 10px", borderRadius: 100, border: "none", cursor: "pointer" }}>Mark Paid</button>
                     )}
                   </div>
                 </div>
@@ -195,52 +260,90 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
         </div>
       </div>
 
+      {/* Training Log */}
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
-        <div className="training-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        {/* Training header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4 }}>Training Log</p>
-            <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>{sessions.length} sessions · {totalSessionHours} hours total</p>
+            <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>{sessions.length} sessions · {totalSessionHours}h total</p>
           </div>
-          <div className="training-btns" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {reportError && <span style={{ fontSize: 12, color: "#ef4444" }}>{reportError}</span>}
-            {reportSent && <span style={{ fontSize: 12, color: "#059669", fontWeight: 700 }}>✓ Sent!</span>}
-            <button onClick={sendReport} disabled={sendingReport || sessions.length === 0} style={{ background: "none", color: sendingReport ? "var(--c-text-dim)" : "#18B3A4", fontWeight: 600, fontSize: 12, padding: "8px 14px", borderRadius: 8, border: "1px solid var(--c-border)", cursor: sessions.length === 0 ? "not-allowed" : "pointer", opacity: sessions.length === 0 ? .4 : 1 }}>
-              {sendingReport ? "Sending..." : "📧 Send to Parent"}
-            </button>
-            <button onClick={() => setShowAddSession(true)} style={{ background: "var(--c-inner)", color: "var(--c-text)", fontWeight: 600, fontSize: 12, padding: "8px 16px", borderRadius: 8, border: "1px solid var(--c-border)", cursor: "pointer" }}>+ Log Session</button>
-          </div>
+          <button onClick={() => setShowAddSession(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "9px 18px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 2px 8px rgba(31,107,69,.3)" }}>+ Log Session</button>
         </div>
-        {sessions.length === 0 ? (
-          <p style={{ fontSize: 13, color: "var(--c-text-dim)", textAlign: "center", padding: "24px 0" }}>No sessions logged yet</p>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {sessions.map(s => (
-              <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "var(--c-inner)", borderRadius: 10 }}>
-                <div style={{ width: 36, height: 36, background: "var(--c-row)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
-                  {s.type === "Match" ? "🎾" : s.type === "Fitness" ? "💪" : s.type === "Video Analysis" ? "📹" : "🎯"}
+
+        {sessions.length > 0 && (
+          <>
+            {/* Mini charts row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 20, marginBottom: 20, paddingBottom: 20, borderBottom: "1px solid var(--c-divider)" }}>
+              {/* Month bars */}
+              <div>
+                <p style={{ fontSize: 10, color: "var(--c-text-dim)", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".08em" }}>Sessions / Month</p>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 48 }}>
+                  {monthBars.map(m => (
+                    <div key={m.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                      <div style={{ width: "100%", borderRadius: "4px 4px 0 0", minHeight: 3, height: `${Math.max((m.count / maxBar) * 40, m.count > 0 ? 6 : 3)}px`, background: m.count > 0 ? "#1F6B45" : "var(--c-border)" }} />
+                      <span style={{ fontSize: 9, color: "var(--c-text-dim)", fontWeight: 600 }}>{m.label}</span>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text-2)" }}>{s.type}</span>
-                    <span style={{ fontSize: 11, color: "#18B3A4", background: "#18B3A418", padding: "2px 8px", borderRadius: 100, fontWeight: 700 }}>{s.duration} min</span>
-                  </div>
-                  <p style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.date}{s.coach_name ? ` · ${s.coach_name}` : ""}{s.notes ? ` · ${s.notes}` : ""}</p>
-                </div>
-                {player.parent_email && (
-                  <button onClick={() => sendReminder(s.id)} disabled={sendingReminder === s.id} title="Send reminder to parent"
-                    style={{ padding: "4px 8px", background: "none", border: "none", color: reminderSent === s.id ? "#059669" : "var(--c-text-dim)", cursor: "pointer", fontSize: 13 }}>
-                    {reminderSent === s.id ? "✓" : sendingReminder === s.id ? "…" : "🔔"}
-                  </button>
-                )}
-                <button onClick={() => deleteSession(s.id)} style={{ padding: "4px 8px", background: "none", border: "none", color: "var(--c-text-dim)", cursor: "pointer", fontSize: 13 }}
-                  onMouseEnter={e => (e.currentTarget.style.color = "#ef4444")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text-dim)")}>✕</button>
               </div>
-            ))}
+              {/* Type breakdown */}
+              {typeBreakdown.length > 0 && (
+                <div style={{ minWidth: 130 }}>
+                  <p style={{ fontSize: 10, color: "var(--c-text-dim)", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".08em" }}>By Type</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    {typeBreakdown.slice(0, 4).map(t => (
+                      <div key={t.type} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 12 }}>{t.meta.icon}</span>
+                        <span style={{ fontSize: 11, color: "var(--c-text-3)", flex: 1 }}>{t.type}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: t.meta.color }}>{t.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Session list */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {sessions.map(s => {
+                const meta = SESSION_META[s.type] || { icon: "🎯", color: "#607080" };
+                return (
+                  <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", background: "var(--c-inner)", borderRadius: 10, borderLeft: `3px solid ${meta.color}` }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{meta.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text-2)" }}>{s.type}</span>
+                        <span style={{ fontSize: 11, color: meta.color, background: meta.color + "18", padding: "2px 8px", borderRadius: 100, fontWeight: 700 }}>{s.duration} min</span>
+                        {s.coach_name && <span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{s.coach_name}</span>}
+                      </div>
+                      <p style={{ fontSize: 11, color: "var(--c-text-dim)", margin: 0 }}>{s.date}{s.notes ? ` · ${s.notes}` : ""}</p>
+                    </div>
+                    {player.parent_email && (
+                      <button onClick={() => sendReminder(s.id)} disabled={sendingReminder === s.id} title="Notify parent"
+                        style={{ padding: "4px 8px", background: "none", border: "none", color: reminderSent === s.id ? "#1F6B45" : "var(--c-text-dim)", cursor: "pointer", fontSize: 14, flexShrink: 0 }}>
+                        {reminderSent === s.id ? "✓" : sendingReminder === s.id ? "…" : "🔔"}
+                      </button>
+                    )}
+                    <button onClick={() => deleteSession(s.id)} style={{ padding: "4px 8px", background: "none", border: "none", color: "var(--c-text-dim)", cursor: "pointer", fontSize: 13, flexShrink: 0 }}
+                      onMouseEnter={e => (e.currentTarget.style.color = "#ef4444")}
+                      onMouseLeave={e => (e.currentTarget.style.color = "var(--c-text-dim)")}>✕</button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {sessions.length === 0 && (
+          <div style={{ textAlign: "center", padding: "32px 0" }}>
+            <p style={{ fontSize: 32, marginBottom: 8 }}>🎾</p>
+            <p style={{ fontSize: 14, color: "var(--c-text-dim)" }}>No sessions logged yet</p>
           </div>
         )}
       </div>
 
+      {/* Add Session Modal */}
       {showAddSession && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 20, padding: 32, width: "100%", maxWidth: 440 }}>
@@ -266,12 +369,13 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => setShowAddSession(false)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={addSession} disabled={savingSession} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: savingSession ? .7 : 1 }}>{savingSession ? "Saving..." : "Log Session"}</button>
+              <button onClick={addSession} disabled={savingSession} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: savingSession ? .7 : 1 }}>{savingSession ? "Saving…" : "Log Session"}</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Edit Modal */}
       {editing && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 20, padding: 32, width: "100%", maxWidth: 520, maxHeight: "90vh", overflowY: "auto" }}>
@@ -311,7 +415,7 @@ export default function PlayerProfile({ params }: { params: Promise<{ id: string
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <button onClick={() => setEditing(false)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={save} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving..." : "Save Changes"}</button>
+              <button onClick={save} disabled={saving} style={{ flex: 2, padding: "12px", borderRadius: 10, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>{saving ? "Saving…" : "Save Changes"}</button>
             </div>
           </div>
         </div>
