@@ -44,6 +44,12 @@ export default function BillingPage() {
     setSending(null);
   }
 
+  async function deleteInvoice(id: number) {
+    if (!confirm("Delete this invoice? This cannot be undone.")) return;
+    await fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete", invoiceId: id }) });
+    await load();
+  }
+
   async function sendReminder(id: number) {
     setReminding(id); setSendError(null);
     const r = await fetch("/api/invoices/remind", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ invoiceId: id }) });
@@ -205,6 +211,12 @@ export default function BillingPage() {
                           style={{ fontSize: 12, color: "var(--c-text-3)", background: "none", border: "1px solid var(--c-border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}>
                           🖨️ PDF
                         </button>
+                        <button onClick={() => deleteInvoice(inv.id)}
+                          style={{ fontSize: 12, color: "#ef4444", background: "none", border: "1px solid rgba(239,68,68,.25)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontWeight: 600 }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,.1)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                          🗑️
+                        </button>
                       </div>
                       {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{sendError}</p>}
                     </td>
@@ -252,6 +264,10 @@ export default function BillingPage() {
                   <button onClick={() => printInvoice(inv)}
                     style={{ fontSize: 12, color: "var(--c-text-3)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600 }}>
                     🖨️
+                  </button>
+                  <button onClick={() => deleteInvoice(inv.id)}
+                    style={{ fontSize: 12, color: "#ef4444", background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 8, padding: "8px 10px", cursor: "pointer", fontWeight: 600 }}>
+                    🗑️
                   </button>
                 </div>
                 {sendError && (sending === null && reminding === null) && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 8 }}>{sendError}</p>}

@@ -33,5 +33,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
+  if (action === "delete" && invoiceId) {
+    db.prepare("DELETE FROM invoices WHERE id = ? AND academy_id = ?").run(invoiceId, session.academyId);
+    return NextResponse.json({ success: true });
+  }
+
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }
