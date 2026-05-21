@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 
-function useReveal() {
-  const ref = useRef<HTMLElement>(null);
+function useReveal<T extends HTMLElement = HTMLElement>() {
+  const ref = useRef<T>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
