@@ -14,7 +14,7 @@ export default function Signup() {
   const inp = (k: string): React.CSSProperties => ({
     width: "100%",
     background: "#0e1e26",
-    border: `1px solid ${focused === k ? "rgba(31,107,69,.5)" : "rgba(255,255,255,.08)"}`,
+    border: `1px solid ${focused === k ? "rgba(31,107,69,.45)" : "rgba(255,255,255,.08)"}`,
     borderRadius: 12,
     padding: "13px 16px",
     fontSize: 14,
@@ -39,36 +39,29 @@ export default function Signup() {
     router.push("/app");
   };
 
-  const lbl: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 700, color: "#607080", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 8 };
+  const lbl: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#97A6B2", marginBottom: 7 };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#081418", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 24px" }}>
-      {/* Subtle bg decoration */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(31,107,69,.06) 0%, transparent 70%)" }} />
-        <div style={{ position: "absolute", bottom: "-20%", left: "-10%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(24,179,164,.04) 0%, transparent 70%)" }} />
-      </div>
+    <div style={{ minHeight: "100vh", display: "flex", background: "#081418" }}>
+      {/* LEFT — form */}
+      <div style={{ flex: "0 0 50%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", minHeight: "100vh" }}>
+        <div style={{ width: "100%", maxWidth: 420 }}>
+          {/* Logo */}
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 48 }}>
+            <div style={{ width: 36, height: 36, background: "#1F6B45", borderRadius: 50, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#FFD447" strokeWidth="2"/>
+                <path d="M2 12 Q7 7 12 12 Q17 17 22 12" stroke="#FFD447" strokeWidth="1.5" fill="none"/>
+              </svg>
+            </div>
+            <span style={{ fontSize: 16, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.3px" }}>AcademyOS</span>
+          </Link>
 
-      <div style={{ width: "100%", maxWidth: 480, position: "relative" }}>
-        {/* Logo */}
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 44 }}>
-          <div style={{ width: 34, height: 34, background: "#1F6B45", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#FFD447", fontSize: 15, letterSpacing: "-0.5px" }}>A</div>
-          <span style={{ fontSize: 15, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.3px" }}>AcademyOS</span>
-        </Link>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.6px", marginBottom: 6 }}>Create your academy</h1>
+          <p style={{ fontSize: 14, color: "#607080", marginBottom: 28, lineHeight: 1.5 }}>Start managing your players in minutes. Free to start.</p>
 
-        <h1 style={{ fontSize: 28, fontWeight: 900, color: "#F5F7FA", letterSpacing: "-1px", marginBottom: 6 }}>Create your academy</h1>
-        <p style={{ fontSize: 14, color: "#607080", marginBottom: 32, lineHeight: 1.5 }}>Start managing players, sessions & billing in minutes.</p>
-
-        {/* Feature chips */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}>
-          {["✓ Free to start", "✓ No credit card", "✓ Setup in 2 min"].map(t => (
-            <span key={t} style={{ fontSize: 12, color: "#18B3A4", background: "rgba(24,179,164,.08)", border: "1px solid rgba(24,179,164,.15)", borderRadius: 20, padding: "4px 12px", fontWeight: 600 }}>{t}</span>
-          ))}
-        </div>
-
-        <div style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 20, padding: "32px" }}>
-          <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div>
                 <label style={lbl}>Your Name</label>
                 <input required value={form.name} onChange={e => set("name", e.target.value)} placeholder="John Smith" style={inp("name")} onFocus={() => setFocused("name")} onBlur={() => setFocused("")} />
@@ -80,7 +73,7 @@ export default function Signup() {
             </div>
             <div>
               <label style={lbl}>Email</label>
-              <input required type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="you@academy.com" style={inp("email")} onFocus={() => setFocused("email")} onBlur={() => setFocused("")} />
+              <input required type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="coach@academy.com" style={inp("email")} onFocus={() => setFocused("email")} onBlur={() => setFocused("")} />
             </div>
             <div>
               <label style={lbl}>Password</label>
@@ -88,30 +81,62 @@ export default function Signup() {
             </div>
 
             {error && (
-              <div style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, padding: "11px 14px", fontSize: 13, color: "#f87171", display: "flex", alignItems: "center", gap: 8 }}>
-                <span>⚠</span> {error}
+              <div style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, padding: "11px 14px", fontSize: 13, color: "#f87171" }}>
+                {error}
               </div>
             )}
 
             <button
               type="submit" disabled={loading}
-              style={{ width: "100%", background: "#1F6B45", color: "#F5F7FA", fontWeight: 700, fontSize: 15, padding: "14px", borderRadius: 12, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? .7 : 1, transition: "all .2s", marginTop: 4 }}
-              onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.background = "#186038"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#1F6B45"; }}
+              style={{ width: "100%", background: "#FFD447", color: "#081418", fontWeight: 800, fontSize: 15, padding: "14px", borderRadius: 50, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? .7 : 1, transition: "all .2s", marginTop: 6, letterSpacing: "-.2px" }}
+              onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.background = "#f5ca3a"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#FFD447"; }}
             >
               {loading ? "Creating account…" : "Create Academy →"}
             </button>
 
-            <p style={{ fontSize: 13, color: "#607080", textAlign: "center", marginTop: 4 }}>
+            <p style={{ fontSize: 13, color: "#607080", textAlign: "center", marginTop: 6 }}>
               Already have an account?{" "}
-              <Link href="/login" style={{ color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>Sign in</Link>
+              <Link href="/login" style={{ color: "#FFD447", textDecoration: "none", fontWeight: 700 }}>Sign in</Link>
             </p>
           </form>
         </div>
+      </div>
 
-        <p style={{ fontSize: 11, color: "#3d5260", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
-          By signing up you agree to our Terms of Service & Privacy Policy.
-        </p>
+      {/* RIGHT — marketing panel */}
+      <div style={{ flex: "0 0 50%", background: "#0b1a20", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 48px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(31,107,69,.12) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none" }} />
+
+        <div style={{ position: "relative", textAlign: "center", maxWidth: 360 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 50, padding: "6px 16px", marginBottom: 32 }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#18B3A4", display: "inline-block", flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: "#97A6B2", fontWeight: 500 }}>Academy management platform</span>
+          </div>
+
+          <h2 style={{ fontSize: 36, fontWeight: 900, color: "#F5F7FA", letterSpacing: "-1.5px", lineHeight: 1.15, marginBottom: 20 }}>
+            Run your academy<br />
+            <span style={{ color: "#FFD447" }}>like a pro.</span>
+          </h2>
+
+          <p style={{ fontSize: 15, color: "#607080", lineHeight: 1.7 }}>
+            Players, sessions, billing and courts —<br />in one streamlined workspace.
+          </p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 36, textAlign: "left" }}>
+            {[
+              { icon: "🎾", text: "Track every player & session" },
+              { icon: "💳", text: "Auto-generate monthly invoices" },
+              { icon: "📅", text: "Schedule courts & coaches" },
+              { icon: "📊", text: "Revenue analytics at a glance" },
+            ].map(f => (
+              <div key={f.text} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 16px" }}>
+                <span style={{ fontSize: 18 }}>{f.icon}</span>
+                <span style={{ fontSize: 13, color: "#97A6B2", fontWeight: 500 }}>{f.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
