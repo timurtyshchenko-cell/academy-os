@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
 <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif">
   <div style="max-width:560px;margin:0 auto;padding:40px 20px">
     <div style="text-align:center;margin-bottom:28px">
-      <div style="width:44px;height:44px;background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:13px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:20px">A</div>
+      <div style="width:44px;height:44px;background:linear-gradient(135deg,#186038,#1F6B45);border-radius:13px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#FFD447;font-size:20px">A</div>
       <p style="font-size:16px;font-weight:800;color:#111827;margin:10px 0 0">${session.academyName}</p>
     </div>
-    <div style="background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:20px;padding:36px;text-align:center;margin-bottom:20px">
+    <div style="background:linear-gradient(135deg,#186038,#1F6B45);border-radius:20px;padding:36px;text-align:center;margin-bottom:20px">
       <p style="font-size:13px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px">Training Session</p>
       <p style="font-size:28px;font-weight:900;color:#fff;margin:0 0 6px;letter-spacing:-.5px">${player.name}</p>
       <p style="font-size:15px;color:rgba(255,255,255,.75);margin:0">${trainingSession.date}${trainingSession.start_time ? ` at ${trainingSession.start_time}` : ""}</p>
