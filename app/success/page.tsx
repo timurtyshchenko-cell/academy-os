@@ -9,44 +9,60 @@ function SuccessContent() {
   const isSub = type === "subscription";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#080808", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-      <div style={{ maxWidth: 540, textAlign: "center" }}>
-        <div style={{ position: "relative", width: 100, height: 100, margin: "0 auto 32px" }}>
-          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "rgba(37,99,235,.1)", animation: "pulse 2s ease-in-out infinite" }} />
-          <div style={{ position: "relative", width: 100, height: 100, background: "rgba(37,99,235,.15)", border: "2px solid rgba(37,99,235,.3)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>✅</div>
+    <div style={{ minHeight: "100vh", background: "#081418", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px", fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,sans-serif" }}>
+      <style>{`@keyframes pulse-ring { 0%,100%{transform:scale(1);opacity:.4} 50%{transform:scale(1.15);opacity:.1} }`}</style>
+      <div style={{ maxWidth: 560, width: "100%", textAlign: "center" }}>
+        {/* Icon */}
+        <div style={{ position: "relative", width: 96, height: 96, margin: "0 auto 36px" }}>
+          <div style={{ position: "absolute", inset: -8, borderRadius: "50%", background: "rgba(31,107,69,.15)", animation: "pulse-ring 2.5s ease-in-out infinite" }} />
+          <div style={{ position: "relative", width: 96, height: 96, background: "linear-gradient(135deg,#186038,#1F6B45)", border: "2px solid rgba(31,107,69,.4)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 38, boxShadow: "0 8px 32px rgba(31,107,69,.35)" }}>✓</div>
         </div>
-        <h1 style={{ fontSize: 38, fontWeight: 900, color: "#fff", letterSpacing: "-1.5px", marginBottom: 12 }}>
+
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(31,107,69,.1)", border: "1px solid rgba(31,107,69,.22)", borderRadius: 100, padding: "6px 16px", marginBottom: 20 }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
+          <span style={{ fontSize: 12, color: "#97A6B2", fontWeight: 600 }}>Payment confirmed</span>
+        </div>
+
+        <h1 style={{ fontSize: 40, fontWeight: 900, color: "#F5F7FA", letterSpacing: "-1.5px", marginBottom: 14, lineHeight: 1.1 }}>
           {isSub ? "Welcome to AcademyOS!" : "Setup Initiated!"}
         </h1>
-        <p style={{ fontSize: 16, color: "#555", lineHeight: 1.7, marginBottom: 36 }}>
-          {isSub ? "Your subscription is active. Our team will reach out within 24 hours to begin your academy setup and onboarding." : "Your setup payment was received. Our team will contact you within 24 hours to kick off your custom implementation."}
+        <p style={{ fontSize: 16, color: "#97A6B2", lineHeight: 1.75, marginBottom: 40, maxWidth: 440, margin: "0 auto 40px" }}>
+          {isSub
+            ? "Your subscription is active. Our team will reach out within 24 hours to begin your academy setup and onboarding."
+            : "Your setup payment was received. Our team will contact you within 24 hours to kick off your custom implementation."}
         </p>
-        <div style={{ background: "#0c0c0c", border: "1px solid rgba(37,99,235,.15)", borderRadius: 20, padding: 28, marginBottom: 36, textAlign: "left" }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 16 }}>What happens next:</p>
-          <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 12 }}>
+
+        {/* What happens next */}
+        <div style={{ background: "#0b1a20", border: "1px solid rgba(31,107,69,.2)", borderRadius: 20, padding: "28px 32px", marginBottom: 32, textAlign: "left" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 18 }}>What happens next</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {(isSub ? [
-              "📧 Confirmation email sent to your inbox",
-              "📞 Onboarding call scheduled within 24 hours",
-              "⚙️ Custom academy configuration (3–5 business days)",
-              "🎓 Full team training session included",
-              "🚀 Go live with full system access",
+              { icon: "📧", text: "Confirmation email sent to your inbox" },
+              { icon: "📞", text: "Onboarding call scheduled within 24 hours" },
+              { icon: "⚙️", text: "Custom academy configuration (3–5 business days)" },
+              { icon: "🎓", text: "Full team training session included" },
+              { icon: "🚀", text: "Go live with full system access" },
             ] : [
-              "📧 Confirmation email and receipt sent",
-              "📞 Discovery call within 24 hours",
-              "🛠️ Custom system build (5–7 business days)",
-              "🎓 Full coach onboarding session",
-              "✅ 30-day post-launch support included",
-            ]).map(item => (
-              <li key={item} style={{ fontSize: 14, color: "#777", display: "flex", alignItems: "center", gap: 10 }}>{item}</li>
+              { icon: "📧", text: "Confirmation email and receipt sent" },
+              { icon: "📞", text: "Discovery call within 24 hours" },
+              { icon: "🛠️", text: "Custom system build (5–7 business days)" },
+              { icon: "🎓", text: "Full coach onboarding session" },
+              { icon: "✅", text: "30-day post-launch support included" },
+            ]).map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.05)", borderRadius: 12 }}>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
+                <span style={{ fontSize: 14, color: "#97A6B2" }}>{item.text}</span>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/signup" style={{ display: "flex", alignItems: "center", gap: 8, background: "#2563eb", color: "#fff", fontWeight: 800, fontSize: 15, padding: "13px 28px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 20px rgba(37,99,235,.3)" }}>
+
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#FFD447", color: "#081418", fontWeight: 800, fontSize: 15, padding: "13px 32px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 20px rgba(255,212,71,.25)" }}>
             Create your account →
           </Link>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid #1a1a1a", color: "#555", fontWeight: 600, fontSize: 14, padding: "13px 24px", borderRadius: 12, textDecoration: "none" }}>
-            Back to Home
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid rgba(255,255,255,.1)", color: "#97A6B2", fontWeight: 600, fontSize: 14, padding: "13px 24px", borderRadius: 12, textDecoration: "none" }}>
+            Back to home
           </Link>
         </div>
       </div>

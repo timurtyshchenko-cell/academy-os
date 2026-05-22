@@ -51,7 +51,7 @@ export async function sendTrainingReport(data: TrainingReportData) {
         <span style="font-weight:800;color:#111827;font-size:18px;letter-spacing:-.3px;vertical-align:middle">${data.academyName}</span>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:24px;padding:40px 36px;margin-bottom:20px;text-align:center">
+    <div style="background:linear-gradient(135deg,#186038,#1F6B45);border-radius:24px;padding:40px 36px;margin-bottom:20px;text-align:center">
       <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin:0 0 10px">Training Report</p>
       <p style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.5px;margin:0 0 6px">${data.playerName}</p>
       <p style="font-size:15px;color:rgba(255,255,255,.7);margin:0 0 28px">Summary of all training sessions</p>
@@ -108,7 +108,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
     <tr style="background:${i % 2 === 0 ? '#fafafa' : '#fff'}">
       <td style="padding:12px 20px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6">${s.date}</td>
       <td style="padding:12px 20px;font-size:13px;border-bottom:1px solid #f3f4f6">
-        <span style="background:#ede9fe;color:#6d28d9;padding:3px 10px;border-radius:20px;font-weight:600;font-size:12px">${s.type}</span>
+        <span style="background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:20px;font-weight:600;font-size:12px">${s.type}</span>
       </td>
       <td style="padding:12px 20px;font-size:13px;color:#111827;font-weight:600;border-bottom:1px solid #f3f4f6">${s.duration} min</td>
       <td style="padding:12px 20px;font-size:13px;color:#6b7280;border-bottom:1px solid #f3f4f6">${s.coach_name || "—"}</td>
@@ -126,11 +126,11 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
         <span style="font-weight:800;color:#111827;font-size:18px;letter-spacing:-.3px;vertical-align:middle">${data.academyName}</span>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,#4f46e5,#2563eb);border-radius:24px;padding:40px 36px;margin-bottom:20px;text-align:center">
+    <div style="background:linear-gradient(135deg,#186038,#1F6B45);border-radius:24px;padding:40px 36px;margin-bottom:20px;text-align:center">
       <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin:0 0 12px">Invoice · ${data.month}</p>
       <p style="font-size:56px;font-weight:900;color:#fff;letter-spacing:-2px;margin:0 0 8px;line-height:1">\$${data.amount.toLocaleString()}</p>
       <p style="font-size:15px;color:rgba(255,255,255,.7);margin:0">Due by ${data.dueDate}</p>
-      ${data.paymentUrl ? `<a href="${data.paymentUrl}" style="display:inline-block;margin-top:24px;padding:14px 36px;background:#fff;color:#4f46e5;font-weight:800;font-size:16px;border-radius:14px;text-decoration:none;letter-spacing:-.2px">Pay Now →</a>` : ""}
+      ${data.paymentUrl ? `<a href="${data.paymentUrl}" style="display:inline-block;margin-top:24px;padding:14px 36px;background:#FFD447;color:#081418;font-weight:800;font-size:16px;border-radius:14px;text-decoration:none;letter-spacing:-.2px">Pay Now →</a>` : ""}
     </div>
     <div style="background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
       <table style="width:100%;border-collapse:collapse">
