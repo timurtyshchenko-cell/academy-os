@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LangProvider } from "@/lib/i18n/context";
 import { useLang } from "@/lib/i18n/context";
 import { Lang, LANG_FLAGS, LANG_NAMES } from "@/lib/i18n/translations";
@@ -62,6 +62,11 @@ function LangSwitcher() {
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const saved = localStorage.getItem("dashboard-theme") || "dark";
+    document.documentElement.setAttribute("data-theme", saved);
+  }, []);
+
   return (
     <LangProvider>
       {children}
