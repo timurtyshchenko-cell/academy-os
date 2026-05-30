@@ -89,6 +89,10 @@ export default function ParentPortal() {
             style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
             📅 Расписание
           </button>
+          <button onClick={() => router.push("/parent/progress")}
+            style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
+            📈 Прогресс
+          </button>
         </div>
 
         {/* Unpaid invoices warning */}
