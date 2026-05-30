@@ -5,33 +5,61 @@ import { createClient } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
 
-interface Session { id: number; date: string; start_time: string | null; duration: number; type: string; coach_name: string; notes: string; }
-interface Player { name: string; age: number; level: string; coach_name: string; }
+interface PlayerData {
+  player: { name: string; level: string; coach_name: string; age: number } | null;
+  nextSession: { date: string; start_time: string | null; type: string; coach_name: string; duration: number } | null;
+  weekTotal: number;
+  weekAttended: number;
+  allTime: number;
+  totalHours: number;
+}
+
+const LEVEL_COLOR: Record<string, string> = {
+  Beginner: "#18B3A4", Intermediate: "#1F6B45", Advanced: "#d97706", Competitive: "#ef4444",
+};
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function fmtDate(d: string) {
+  const date = new Date(d + "T12:00:00");
+  return `${DAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}`;
+}
+
+function countdown(dateStr: string, timeStr: string | null): string {
+  const target = new Date(dateStr + "T" + (timeStr || "00:00") + ":00");
+  const diff = target.getTime() - Date.now();
+  if (diff <= 0) return "Сейчас";
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  if (days > 0) return `${days} дн. ${hours} ч.`;
+  if (hours > 0) return `${hours} ч. ${mins} мин.`;
+  return `${mins} мин.`;
+}
 
 export default function PlayerPortal() {
   const supabase = createClient();
   const router = useRouter();
-  const [player, setPlayer] = useState<Player | null>(null);
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [data, setData] = useState<PlayerData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [tick, setTick] = useState(0);
 
-  useEffect(() => { init(); }, []);
+  useEffect(() => {
+    init();
+    const iv = setInterval(() => setTick(t => t + 1), 60000);
+    return () => clearInterval(iv);
+  }, []);
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/login"); return; }
 
-    const { data: profile } = await supabase.from("profiles").select("role,player_id,academy_id").eq("id", user.id).single();
-    if (!profile || profile.role !== "player") { router.push("/login"); return; }
-
-    const [sRes, pRes] = await Promise.all([
-      fetch(`/api/portal/sessions?player_id=${profile.player_id}&academy_id=${profile.academy_id}`),
-      fetch(`/api/portal/player?player_id=${profile.player_id}&academy_id=${profile.academy_id}`),
-    ]);
-    const sData = await sRes.json();
-    const pData = await pRes.json();
-    setSessions(sData.sessions || []);
-    setPlayer(pData.player || null);
+    const res = await fetch("/api/portal/player-dashboard");
+    if (res.status === 403 || res.status === 401) { router.push("/login"); return; }
+    const json = await res.json();
+    if (json.error) { setError(json.error); setLoading(false); return; }
+    setData(json);
     setLoading(false);
   }
 
@@ -41,66 +69,109 @@ export default function PlayerPortal() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ width: 32, height: 32, border: "3px solid #e5e7eb", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--c-bg)" }}>
+      <div style={{ width:32, height:32, border:"3px solid var(--c-border)", borderTopColor:"#1F6B45", borderRadius:"50%", animation:"spin 1s linear infinite" }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
-  const totalMin = sessions.reduce((s, x) => s + x.duration, 0);
-  const LEVEL_COLOR: Record<string, string> = { Beginner: "#18B3A4", Intermediate: "#1F6B45", Advanced: "#d97706", Competitive: "#ef4444" };
-  const color = LEVEL_COLOR[player?.level || ""] || "#1F6B45";
+  if (error) return (
+    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--c-bg)" }}>
+      <p style={{ color:"#ef4444", fontSize:14 }}>⚠ {error}</p>
+    </div>
+  );
+
+  const { player, nextSession, weekTotal, weekAttended, allTime, totalHours } = data!;
+  const levelColor = LEVEL_COLOR[player?.level || ""] || "#1F6B45";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f9fafb", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
-      <div style={{ background: "linear-gradient(135deg,#186038,#1F6B45)", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, background: "rgba(255,255,255,.15)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 16, fontWeight: 900, color: "#FFD447" }}>A</span>
+    <div style={{ minHeight:"100vh", background:"var(--c-bg)", fontFamily:"inherit" }}>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      {/* Header */}
+      <div style={{ background:"linear-gradient(135deg,#186038,#1F6B45)", padding:"18px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ width:40, height:40, background:"rgba(255,255,255,.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+            <span style={{ fontSize:18, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".1em", margin: 0 }}>Портал игрока</p>
-            <p style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0 }}>{player?.name || ""}</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Портал игрока</p>
+            <p style={{ fontSize:18, fontWeight:900, color:"#fff", margin:0, letterSpacing:"-.3px" }}>{player?.name || "—"}</p>
           </div>
         </div>
-        <button onClick={signOut} style={{ background: "rgba(255,255,255,.15)", border: "none", color: "#fff", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Выйти</button>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,.85)", background:"rgba(255,255,255,.15)", padding:"5px 12px", borderRadius:100 }}>{player?.level}</span>
+          <button onClick={signOut} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Выйти</button>
+        </div>
       </div>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 16px", display: "flex", flexDirection: "column", gap: 20 }}>
-        {player && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
-            {[
-              { label: "Уровень", value: player.level, color },
-              { label: "Тренировок", value: sessions.length, color: "#18B3A4" },
-              { label: "Часов", value: `${(totalMin / 60).toFixed(1)}ч`, color: "#d97706" },
-            ].map(s => (
-              <div key={s.label} style={{ background: "#fff", border: `1px solid #e5e7eb`, borderLeft: `3px solid ${s.color}`, borderRadius: 12, padding: "14px 16px" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".06em", margin: "0 0 4px" }}>{s.label}</p>
-                <p style={{ fontSize: 18, fontWeight: 900, color: "#111827", margin: 0 }}>{s.value}</p>
-              </div>
-            ))}
-          </div>
-        )}
+      <div style={{ maxWidth:720, margin:"0 auto", padding:"24px 16px", display:"flex", flexDirection:"column", gap:16 }}>
 
-        <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
-            <p style={{ fontSize: 14, fontWeight: 800, color: "#111827", margin: 0 }}>История тренировок</p>
-          </div>
-          {sessions.length === 0 ? (
-            <div style={{ padding: "24px 20px", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "#9ca3af" }}>Тренировок пока нет</p>
+        {/* Stats grid */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
+          {/* This week */}
+          <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid #1F6B45`, borderRadius:14, padding:"16px 18px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>На этой неделе</p>
+            <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
+              <p style={{ fontSize:28, fontWeight:900, color:"#1F6B45", margin:0, lineHeight:1 }}>{weekAttended}</p>
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>/ {weekTotal}</p>
             </div>
-          ) : sessions.slice(0, 20).map(s => (
-            <div key={s.id} style={{ padding: "14px 20px", borderBottom: "1px solid #f9fafb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: "0 0 2px" }}>{s.type}</p>
-                <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>{s.date}{s.start_time ? ` · ${s.start_time}` : ""}{s.coach_name ? ` · ${s.coach_name}` : ""}</p>
-                {s.notes && <p style={{ fontSize: 11, color: "#9ca3af", margin: "2px 0 0" }}>{s.notes}</p>}
+            <p style={{ fontSize:11, color:"var(--c-text-dim)", margin:"4px 0 0" }}>посещено тренировок</p>
+            {weekTotal > 0 && (
+              <div style={{ marginTop:10, height:6, background:"var(--c-inner)", borderRadius:100, overflow:"hidden" }}>
+                <div style={{ width:`${(weekAttended/weekTotal)*100}%`, height:"100%", background:"#1F6B45", borderRadius:100, transition:"width .3s" }} />
               </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#1F6B45", background: "rgba(31,107,69,.08)", padding: "4px 10px", borderRadius: 100, flexShrink: 0 }}>{s.duration} мин</span>
+            )}
+          </div>
+
+          {/* All time */}
+          <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid #18B3A4`, borderRadius:14, padding:"16px 18px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>За всё время</p>
+            <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
+              <p style={{ fontSize:28, fontWeight:900, color:"#18B3A4", margin:0, lineHeight:1 }}>{allTime}</p>
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>сессий</p>
             </div>
-          ))}
+            <p style={{ fontSize:11, color:"var(--c-text-dim)", margin:"4px 0 0" }}>{(totalHours/60).toFixed(1)} часов на корте</p>
+          </div>
+
+          {/* Coach */}
+          <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid #d97706`, borderRadius:14, padding:"16px 18px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>Тренер</p>
+            <p style={{ fontSize:18, fontWeight:900, color:"var(--c-text)", margin:0, letterSpacing:"-.3px" }}>{player?.coach_name || "—"}</p>
+          </div>
+
+          {/* Level */}
+          <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid ${levelColor}`, borderRadius:14, padding:"16px 18px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>Уровень</p>
+            <p style={{ fontSize:18, fontWeight:900, color:levelColor, margin:0, letterSpacing:"-.3px" }}>{player?.level || "—"}</p>
+          </div>
         </div>
+
+        {/* Next session countdown */}
+        <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:16, overflow:"hidden" }}>
+          <div style={{ background:"linear-gradient(135deg,#186038,#1F6B45)", padding:"20px 20px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 4px" }}>Следующая тренировка</p>
+            {nextSession ? (
+              <>
+                <p style={{ fontSize:22, fontWeight:900, color:"#fff", margin:"0 0 6px", letterSpacing:"-.5px" }}>{fmtDate(nextSession.date)}</p>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:14 }}>
+                  {nextSession.start_time && <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,.8)", background:"rgba(255,255,255,.15)", padding:"3px 10px", borderRadius:100 }}>🕐 {nextSession.start_time}</span>}
+                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,.8)", background:"rgba(255,255,255,.15)", padding:"3px 10px", borderRadius:100 }}>🎾 {nextSession.type}</span>
+                  {nextSession.coach_name && <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,.8)", background:"rgba(255,255,255,.15)", padding:"3px 10px", borderRadius:100 }}>👤 {nextSession.coach_name}</span>}
+                </div>
+                <div style={{ background:"rgba(255,255,255,.1)", borderRadius:12, padding:"12px 16px", display:"inline-flex", flexDirection:"column" }}>
+                  <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 2px" }}>До начала</p>
+                  <p style={{ fontSize:24, fontWeight:900, color:"#FFD447", margin:0, letterSpacing:"-.5px" }}>
+                    {countdown(nextSession.date, nextSession.start_time)}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <p style={{ fontSize:15, color:"rgba(255,255,255,.7)", margin:0 }}>Нет запланированных тренировок</p>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
