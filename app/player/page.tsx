@@ -53,10 +53,10 @@ export default function PlayerPortal() {
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
+    if (!user) { router.push("/portal/login"); return; }
 
     const res = await fetch("/api/portal/player-dashboard");
-    if (res.status === 403 || res.status === 401) { router.push("/login"); return; }
+    if (res.status === 403 || res.status === 401) { router.push("/portal/login"); return; }
     const json = await res.json();
     if (json.error) { setError(json.error); setLoading(false); return; }
     setData(json);
@@ -65,7 +65,7 @@ export default function PlayerPortal() {
 
   async function signOut() {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/portal/login");
   }
 
   if (loading) return (

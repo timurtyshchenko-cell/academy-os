@@ -30,7 +30,7 @@ function ParentInvoicesInner() {
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
+    if (!user) { router.push("/portal/login"); return; }
 
     const paidParam = searchParams.get("paid");
     if (paidParam) {
@@ -44,7 +44,7 @@ function ParentInvoicesInner() {
     }
 
     const res = await fetch("/api/portal/invoices");
-    if (!res.ok) { router.push("/login"); return; }
+    if (!res.ok) { router.push("/portal/login"); return; }
     const data = await res.json();
     setInvoices(data.invoices || []);
     setLoading(false);

@@ -34,9 +34,9 @@ export default function ParentAchievements() {
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
+    if (!user) { router.push("/portal/login"); return; }
     const res = await fetch("/api/portal/achievements");
-    if (!res.ok) { router.push("/login"); return; }
+    if (!res.ok) { router.push("/portal/login"); return; }
     setStats(await res.json());
     setLoading(false);
   }

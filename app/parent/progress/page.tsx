@@ -48,10 +48,10 @@ export default function ParentProgress() {
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
+    if (!user) { router.push("/portal/login"); return; }
 
     const res = await fetch("/api/portal/progress");
-    if (!res.ok) { router.push("/login"); return; }
+    if (!res.ok) { router.push("/portal/login"); return; }
     const data = await res.json();
     setSessions(data.sessions || []);
     setPlayerName(data.playerName || "");
