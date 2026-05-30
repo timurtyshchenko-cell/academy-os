@@ -63,7 +63,9 @@ function LangSwitcher() {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const saved = localStorage.getItem("dashboard-theme") || "dark";
+    const path = window.location.pathname;
+    const isPortal = path.startsWith("/parent") || path.startsWith("/player") || path.startsWith("/invite");
+    const saved = isPortal ? "dark" : (localStorage.getItem("dashboard-theme") || "dark");
     document.documentElement.setAttribute("data-theme", saved);
   }, []);
 
