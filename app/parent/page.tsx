@@ -2,42 +2,44 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/lib/i18n/context";
 
 export const dynamic = "force-dynamic";
 
-interface Session { id: number; date: string; start_time: string | null; duration: number; type: string; coach_name: string; notes: string; }
-interface Invoice { id: number; amount: number; status: string; month: string; due_date: string; }
+interface DashboardData {
+  player: { name: string; coach_name: string } | null;
+  nextSession: { date: string; start_time: string | null; type: string; coach_name: string; notes: string } | null;
+  lastNote: { notes: string; date: string } | null;
+  unpaidCount: number;
+  totalSessions: number;
+}
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function fmt(dateStr: string) {
+  const d = new Date(dateStr + "T12:00:00");
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
 
 export default function ParentPortal() {
   const supabase = createClient();
   const router = useRouter();
-  const [playerName, setPlayerName] = useState("");
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const { t } = useLang();
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    init();
-  }, []);
+  useEffect(() => { init(); }, []);
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/login"); return; }
 
-    const { data: profile } = await supabase.from("profiles").select("role,player_id,academy_id").eq("id", user.id).single();
-    if (!profile || profile.role !== "parent") { router.push("/login"); return; }
-
-    const [sRes, iRes, pRes] = await Promise.all([
-      fetch(`/api/portal/sessions?player_id=${profile.player_id}&academy_id=${profile.academy_id}`),
-      fetch(`/api/portal/invoices?player_id=${profile.player_id}&academy_id=${profile.academy_id}`),
-      fetch(`/api/portal/player?player_id=${profile.player_id}&academy_id=${profile.academy_id}`),
-    ]);
-    const sData = await sRes.json();
-    const iData = await iRes.json();
-    const pData = await pRes.json();
-    setSessions(sData.sessions || []);
-    setInvoices(iData.invoices || []);
-    setPlayerName(pData.player?.name || "");
+    const res = await fetch("/api/portal/dashboard");
+    if (res.status === 403 || res.status === 401) { router.push("/login"); return; }
+    const json = await res.json();
+    if (json.error) { setError(json.error); setLoading(false); return; }
+    setData(json);
     setLoading(false);
   }
 
@@ -47,80 +49,103 @@ export default function ParentPortal() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ width: 32, height: 32, border: "3px solid #e5e7eb", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--c-bg)" }}>
+      <div style={{ width:32, height:32, border:"3px solid var(--c-border)", borderTopColor:"#1F6B45", borderRadius:"50%", animation:"spin 1s linear infinite" }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
-  const upcoming = sessions.filter(s => s.date >= new Date().toISOString().slice(0, 10)).slice(0, 5);
-  const unpaidInvoices = invoices.filter(i => i.status === "pending");
+  if (error) return (
+    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--c-bg)" }}>
+      <p style={{ color:"#ef4444", fontSize:14 }}>⚠ {error}</p>
+    </div>
+  );
+
+  const { player, nextSession, lastNote, unpaidCount, totalSessions } = data!;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f9fafb", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
-      <div style={{ background: "linear-gradient(135deg,#186038,#1F6B45)", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, background: "rgba(255,255,255,.15)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 16, fontWeight: 900, color: "#FFD447" }}>A</span>
+    <div style={{ minHeight:"100vh", background:"var(--c-bg)", fontFamily:"inherit" }}>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      {/* Header */}
+      <div style={{ background:"linear-gradient(135deg,#186038,#1F6B45)", padding:"18px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ width:36, height:36, background:"rgba(255,255,255,.15)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+            <span style={{ fontSize:16, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".1em", margin: 0 }}>Родительский портал</p>
-            <p style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0 }}>{playerName}</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Родительский портал</p>
+            <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>{player?.name || "—"}</p>
           </div>
         </div>
-        <button onClick={signOut} style={{ background: "rgba(255,255,255,.15)", border: "none", color: "#fff", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Выйти</button>
+        <button onClick={signOut} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Выйти</button>
       </div>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 16px", display: "flex", flexDirection: "column", gap: 20 }}>
-        {unpaidInvoices.length > 0 && (
-          <div style={{ background: "#fffbeb", border: "1px solid #fbbf24", borderRadius: 14, padding: "16px 20px" }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#92400e", margin: "0 0 4px" }}>⚠ Неоплаченные счета: {unpaidInvoices.length}</p>
-            <p style={{ fontSize: 12, color: "#b45309", margin: 0 }}>Общая сумма: ${unpaidInvoices.reduce((s, i) => s + i.amount, 0).toLocaleString()}</p>
+      <div style={{ maxWidth:720, margin:"0 auto", padding:"24px 16px", display:"flex", flexDirection:"column", gap:16 }}>
+
+        {/* Unpaid invoices warning */}
+        {unpaidCount > 0 && (
+          <div style={{ background:"rgba(217,119,6,.1)", border:"1px solid rgba(217,119,6,.3)", borderRadius:14, padding:"14px 18px", display:"flex", alignItems:"center", gap:12 }}>
+            <span style={{ fontSize:20 }}>⚠️</span>
+            <div>
+              <p style={{ fontSize:13, fontWeight:700, color:"#d97706", margin:0 }}>Неоплаченных счетов: {unpaidCount}</p>
+              <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:"2px 0 0" }}>Пожалуйста оплатите вовремя</p>
+            </div>
           </div>
         )}
 
-        <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
-            <p style={{ fontSize: 14, fontWeight: 800, color: "#111827", margin: 0 }}>Предстоящие тренировки</p>
+        {/* Stats row */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #1F6B45", borderRadius:14, padding:"16px 18px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Тренер</p>
+            <p style={{ fontSize:18, fontWeight:900, color:"var(--c-text)", margin:0 }}>{player?.coach_name || "—"}</p>
           </div>
-          {upcoming.length === 0 ? (
-            <div style={{ padding: "24px 20px", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "#9ca3af" }}>Нет предстоящих тренировок</p>
-            </div>
-          ) : upcoming.map(s => (
-            <div key={s.id} style={{ padding: "14px 20px", borderBottom: "1px solid #f9fafb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: "0 0 2px" }}>{s.type}</p>
-                <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>{s.date}{s.start_time ? ` · ${s.start_time}` : ""}{s.coach_name ? ` · ${s.coach_name}` : ""}</p>
-              </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#1F6B45", background: "rgba(31,107,69,.08)", padding: "4px 10px", borderRadius: 100 }}>{s.duration} мин</span>
-            </div>
-          ))}
+          <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #18B3A4", borderRadius:14, padding:"16px 18px" }}>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Всего тренировок</p>
+            <p style={{ fontSize:18, fontWeight:900, color:"var(--c-text)", margin:0 }}>{totalSessions}</p>
+          </div>
         </div>
 
-        <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
-            <p style={{ fontSize: 14, fontWeight: 800, color: "#111827", margin: 0 }}>Счета</p>
+        {/* Next session */}
+        <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:16, overflow:"hidden" }}>
+          <div style={{ padding:"14px 18px", borderBottom:"1px solid var(--c-border)", display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontSize:16 }}>📅</span>
+            <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>Следующая тренировка</p>
           </div>
-          {invoices.length === 0 ? (
-            <div style={{ padding: "24px 20px", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "#9ca3af" }}>Счетов нет</p>
-            </div>
-          ) : invoices.slice(0, 6).map(i => (
-            <div key={i.id} style={{ padding: "14px 20px", borderBottom: "1px solid #f9fafb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ padding:"18px" }}>
+            {nextSession ? (
               <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: "0 0 2px" }}>{i.month}</p>
-                <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>До {i.due_date}</p>
+                <p style={{ fontSize:20, fontWeight:900, color:"#1F6B45", margin:"0 0 6px", letterSpacing:"-.5px" }}>{fmt(nextSession.date)}</p>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  {nextSession.start_time && <span style={{ fontSize:12, fontWeight:600, color:"var(--c-text-muted)", background:"var(--c-inner)", padding:"4px 10px", borderRadius:100 }}>🕐 {nextSession.start_time}</span>}
+                  <span style={{ fontSize:12, fontWeight:600, color:"var(--c-text-muted)", background:"var(--c-inner)", padding:"4px 10px", borderRadius:100 }}>🎾 {nextSession.type}</span>
+                  {nextSession.coach_name && <span style={{ fontSize:12, fontWeight:600, color:"var(--c-text-muted)", background:"var(--c-inner)", padding:"4px 10px", borderRadius:100 }}>👤 {nextSession.coach_name}</span>}
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 15, fontWeight: 900, color: "#111827" }}>${i.amount}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: i.status === "paid" ? "#1F6B45" : "#d97706", background: i.status === "paid" ? "rgba(31,107,69,.08)" : "rgba(217,119,6,.08)", padding: "3px 10px", borderRadius: 100 }}>
-                  {i.status === "paid" ? "Оплачен" : "Ожидает"}
-                </span>
-              </div>
-            </div>
-          ))}
+            ) : (
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>Нет запланированных тренировок</p>
+            )}
+          </div>
         </div>
+
+        {/* Last coach note */}
+        <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:16, overflow:"hidden" }}>
+          <div style={{ padding:"14px 18px", borderBottom:"1px solid var(--c-border)", display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontSize:16 }}>📝</span>
+            <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>Последняя заметка тренера</p>
+          </div>
+          <div style={{ padding:"18px" }}>
+            {lastNote ? (
+              <div>
+                <p style={{ fontSize:14, color:"var(--c-text)", lineHeight:1.6, margin:"0 0 8px" }}>"{lastNote.notes}"</p>
+                <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>{fmt(lastNote.date)}</p>
+              </div>
+            ) : (
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>Заметок пока нет</p>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
