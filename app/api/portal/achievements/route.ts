@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest) {
 
     const { data: profile } = await supabase
       .from("profiles").select("role,player_id,academy_id").eq("id", user.id).single();
-    if (!profile || profile.role !== "player") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!profile || !["parent","player"].includes(profile.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const { player_id, academy_id } = profile;
     const db = getDb();
