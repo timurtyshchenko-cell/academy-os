@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -17,7 +17,7 @@ function fmtDate(d: string) {
   return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
 
-export default function ParentInvoices() {
+function ParentInvoicesInner() {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -171,5 +171,13 @@ export default function ParentInvoices() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ParentInvoices() {
+  return (
+    <Suspense>
+      <ParentInvoicesInner />
+    </Suspense>
   );
 }
