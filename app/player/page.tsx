@@ -107,6 +107,12 @@ export default function PlayerPortal() {
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"24px 16px", display:"flex", flexDirection:"column", gap:16 }}>
 
+        {/* Nav */}
+        <button onClick={() => router.push("/player/schedule")}
+          style={{ width:"100%", padding:"13px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13, textAlign:"left" }}>
+          📅 Моё расписание →
+        </button>
+
         {/* Stats grid */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
           {/* This week */}
