@@ -83,6 +83,14 @@ export default function ParentPortal() {
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"24px 16px", display:"flex", flexDirection:"column", gap:16 }}>
 
+        {/* Nav */}
+        <div style={{ display:"flex", gap:8 }}>
+          <button onClick={() => router.push("/parent/schedule")}
+            style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
+            📅 Расписание
+          </button>
+        </div>
+
         {/* Unpaid invoices warning */}
         {unpaidCount > 0 && (
           <div style={{ background:"rgba(217,119,6,.1)", border:"1px solid rgba(217,119,6,.3)", borderRadius:14, padding:"14px 18px", display:"flex", alignItems:"center", gap:12 }}>
