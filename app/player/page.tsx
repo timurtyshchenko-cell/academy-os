@@ -117,6 +117,10 @@ export default function PlayerPortal() {
             style={{ flex:1, padding:"13px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
             📈 Прогресс
           </button>
+          <button onClick={() => router.push("/player/achievements")}
+            style={{ flex:1, padding:"13px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
+            🏆 Награды
+          </button>
         </div>
 
         {/* Stats grid */}
