@@ -1,10 +1,12 @@
-import { Resend } from "resend";
-
-function getResend() {
-  const key = process.env["RESEND_API_KEY"];
-  console.log("RESEND key present:", !!key, "| length:", key?.length ?? 0);
-  if (!key) throw new Error("RESEND_API_KEY missing from environment");
-  return new Resend(key);
+async function sendMail(fromName: string, to: string, subject: string, html: string) {
+  const key = process.env.BREVO_API_KEY;
+  if (!key) throw new Error("BREVO_API_KEY missing from environment");
+  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: { "api-key": key, "Content-Type": "application/json" },
+    body: JSON.stringify({ sender: { name: fromName, email: "noreply@academyos.app" }, to: [{ email: to }], subject, htmlContent: html }),
+  });
+  if (!res.ok) throw new Error(`Brevo error: ${await res.text()}`);
 }
 
 export interface InvoiceEmailData {
@@ -91,13 +93,7 @@ export async function sendTrainingReport(data: TrainingReportData) {
 </body>
 </html>`;
 
-  const { error } = await getResend().emails.send({
-    from: `${data.academyName} <onboarding@resend.dev>`,
-    to: data.to,
-    subject: `Training Report — ${data.playerName} — ${data.sessions.length} sessions · ${totalHours}h`,
-    html,
-  });
-  if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
+  await sendMail(data.academyName, data.to, `Training Report — ${data.playerName} — ${data.sessions.length} sessions · ${totalHours}h`, html);
 }
 
 export async function sendInvoiceEmail(data: InvoiceEmailData) {
@@ -168,13 +164,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
 </body>
 </html>`;
 
-  const { error } = await getResend().emails.send({
-    from: `${data.academyName} <onboarding@resend.dev>`,
-    to: data.to,
-    subject: `Invoice — ${data.playerName} — ${data.month} — $${data.amount}`,
-    html,
-  });
-  if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
+  await sendMail(data.academyName, data.to, `Invoice — ${data.playerName} — ${data.month} — $${data.amount}`, html);
 }
 
 export interface ReminderEmailData {
@@ -214,10 +204,58 @@ export async function sendReminderEmail(data: ReminderEmailData) {
 </body>
 </html>`;
 
-  const { error } = await getResend().emails.send({
-    from: `${data.academyName} <onboarding@resend.dev>`,
-    to: data.to,
-    subject: `Payment Reminder — ${data.playerName} — ${data.month} — $${data.amount}`,
+  await sendMail(data.academyName, data.to, `Payment Reminder — ${data.playerName} — ${data.month} — $${data.amount}`, html);
+}
+
+export async function sendInviteEmail({
+  to, role, playerName, academyName, token,
+}: {
+  to: string; role: "parent" | "player"; playerName: string; academyName: string; token: string;
+}) {
+  const { Resend } = await import("resend");
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY missing from environment");
+  const resend = new Resend(key);
+
+  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${token}`;
+  const roleLabel = role === "parent" ? "родителя" : "игрока";
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif">
+  <div style="max-width:520px;margin:0 auto;padding:40px 20px">
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <div style="background:linear-gradient(135deg,#186038,#1F6B45);padding:32px 36px;text-align:center">
+        <div style="width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <span style="font-size:22px;font-weight:900;color:#FFD447">A</span>
+        </div>
+        <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin:0 0 8px">AcademyOS</p>
+        <p style="font-size:22px;font-weight:900;color:#fff;margin:0;letter-spacing:-.5px">Вас приглашают в ${academyName}</p>
+      </div>
+      <div style="padding:32px 36px">
+        <p style="font-size:15px;color:#374151;margin:0 0 8px;line-height:1.6">
+          Вы получили доступ как <strong>${roleLabel}</strong> игрока <strong>${playerName}</strong>.
+        </p>
+        <p style="font-size:14px;color:#6b7280;margin:0 0 28px;line-height:1.6">
+          Нажмите кнопку ниже чтобы создать аккаунт и войти в портал.
+        </p>
+        <a href="${inviteUrl}" style="display:block;text-align:center;background:linear-gradient(135deg,#186038,#1F6B45);color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:-.2px">
+          Принять приглашение →
+        </a>
+        <p style="font-size:12px;color:#9ca3af;margin:20px 0 0;text-align:center">
+          Ссылка действительна 7 дней. Если вы не ожидали этого письма — проигнорируйте его.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: `${academyName} <onboarding@resend.dev>`,
+    to,
+    subject: `Приглашение в ${academyName}`,
     html,
   });
   if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));

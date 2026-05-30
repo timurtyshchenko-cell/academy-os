@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useLang } from "@/lib/i18n/context";
+import { LOCALE_MAP } from "@/lib/i18n/translations";
 
 interface Player { id: number; name: string; monthly_fee: number; status: string }
 interface Invoice { id: number; amount: number; status: string; month: string; created_at: string }
@@ -15,18 +17,15 @@ const SESSION_META: Record<string, { icon: string; color: string }> = {
   "Video Analysis": { icon: "📹", color: "#607080" },
 };
 
-function greeting() {
+function greetingKey() {
   const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-function todayLabel() {
-  return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  if (h < 12) return "goodMorning" as const;
+  if (h < 17) return "goodAfternoon" as const;
+  return "goodEvening" as const;
 }
 
 export default function Overview() {
+  const { lang, t } = useLang();
   const [players, setPlayers] = useState<Player[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -65,7 +64,7 @@ export default function Overview() {
     const months: { label: string; key: string }[] = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push({ label: d.toLocaleString("en-US", { month: "short" }), key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` });
+      months.push({ label: d.toLocaleString(LOCALE_MAP[lang], { month: "short" }), key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` });
     }
     return months.map(m => ({
       label: m.label,
@@ -76,13 +75,14 @@ export default function Overview() {
   })();
   const maxRevenue = Math.max(...monthlyRevenue.map(m => m.collected + m.pending), 1);
 
+  const d = t.dashboard;
   const stats = [
-    { label: "Active Players", value: activePlayers.length, sub: `${players.length} total enrolled`, accent: "#1F6B45", icon: "👥", href: "/app/players" },
-    { label: "Monthly MRR", value: `$${mrr.toLocaleString()}`, sub: "recurring revenue", accent: "#1F6B45", icon: "💰", href: "/app/billing" },
-    { label: "Collected", value: `$${collected.toLocaleString()}`, sub: "invoices paid", accent: "#059669", icon: "✅", href: "/app/billing" },
-    { label: "Pending", value: `$${pending.toLocaleString()}`, sub: `${pendingCount} invoice${pendingCount !== 1 ? "s" : ""} due`, accent: pendingCount > 0 ? "#f59e0b" : "#1F6B45", icon: "⏳", href: "/app/billing" },
-    { label: "Sessions / Month", value: sessionsThisMonth.length, sub: `${totalHoursThisMonth}h trained`, accent: "#18B3A4", icon: "🎾", href: "/app/schedule" },
-    { label: "Today", value: sessionsToday.length, sub: sessionsToday.length === 0 ? "no sessions" : "sessions scheduled", accent: sessionsToday.length > 0 ? "#FFD447" : "var(--c-text-dim)", icon: "📅", href: "/app/schedule" },
+    { label: d.activePlayers, value: activePlayers.length, sub: `${players.length} ${d.totalEnrolled}`, accent: "#1F6B45", icon: "👥", href: "/app/players" },
+    { label: d.monthlyMrr, value: `$${mrr.toLocaleString()}`, sub: d.recurringRevenue, accent: "#1F6B45", icon: "💰", href: "/app/billing" },
+    { label: d.collected, value: `$${collected.toLocaleString()}`, sub: d.invoicesPaid, accent: "#059669", icon: "✅", href: "/app/billing" },
+    { label: d.pending, value: `$${pending.toLocaleString()}`, sub: `${pendingCount} ${pendingCount !== 1 ? d.invoicesDue : d.invoiceDue}`, accent: pendingCount > 0 ? "#f59e0b" : "#1F6B45", icon: "⏳", href: "/app/billing" },
+    { label: d.sessionsPerMonth, value: sessionsThisMonth.length, sub: `${totalHoursThisMonth}${d.hoursTrainedSuffix}`, accent: "#18B3A4", icon: "🎾", href: "/app/schedule" },
+    { label: d.today, value: sessionsToday.length, sub: sessionsToday.length === 0 ? d.noSessions : d.sessionsScheduled, accent: sessionsToday.length > 0 ? "#FFD447" : "var(--c-text-dim)", icon: "📅", href: "/app/schedule" },
   ];
 
   return (
@@ -91,11 +91,11 @@ export default function Overview() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <p style={{ fontSize: 12, color: "#18B3A4", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4 }}>{todayLabel()}</p>
-          <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 0 }}>{greeting()} 👋</h1>
+          <p style={{ fontSize: 12, color: "#18B3A4", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4 }}>{new Date().toLocaleDateString(LOCALE_MAP[lang], { weekday: "long", month: "long", day: "numeric" })}</p>
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 0 }}>{d[greetingKey()]} 👋</h1>
         </div>
         <Link href="/app/players" style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(31,107,69,.3)" }}>
-          + Add Player
+          {d.addPlayer}
         </Link>
       </div>
 
@@ -103,13 +103,13 @@ export default function Overview() {
       {players.length === 0 && (
         <div style={{ background: "linear-gradient(135deg, #0e1e26, #122028)", border: "1px solid rgba(31,107,69,.25)", borderRadius: 18, padding: "28px 32px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg,#1F6B45,#18B3A4)" }} />
-          <p style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 4 }}>Welcome to AcademyOS 🎾</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 22, lineHeight: 1.6 }}>Get your academy running in 3 steps:</p>
+          <p style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 4 }}>{d.welcomeTitle}</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 22, lineHeight: 1.6 }}>{d.welcomeDesc}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
-              { n: "1", text: "Add your first players", href: "/app/players", btn: "Add Players →", done: false },
-              { n: "2", text: "Generate invoices and send to parents", href: "/app/billing", btn: "Go to Billing →", done: false },
-              { n: "3", text: "Log training sessions", href: "/app/schedule", btn: "Open Schedule →", done: false },
+              { n: "1", text: d.step1Text, href: "/app/players", btn: d.step1Btn, done: false },
+              { n: "2", text: d.step2Text, href: "/app/billing", btn: d.step2Btn, done: false },
+              { n: "3", text: d.step3Text, href: "/app/schedule", btn: d.step3Btn, done: false },
             ].map(s => (
               <div key={s.n} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "13px 18px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -145,12 +145,12 @@ export default function Overview() {
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: "24px 24px 20px", boxShadow: "var(--c-shadow)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
-            <p style={{ fontSize: 12, color: "var(--c-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 2 }}>Revenue</p>
-            <p style={{ fontSize: 22, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-.5px" }}>${(collected + pending).toLocaleString()} <span style={{ fontSize: 13, fontWeight: 500, color: "var(--c-text-muted)" }}>last 6 months</span></p>
+            <p style={{ fontSize: 12, color: "var(--c-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 2 }}>{d.revenue}</p>
+            <p style={{ fontSize: 22, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-.5px" }}>${(collected + pending).toLocaleString()} <span style={{ fontSize: 13, fontWeight: 500, color: "var(--c-text-muted)" }}>{d.lastSixMonths}</span></p>
           </div>
           <div style={{ display: "flex", gap: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#1F6B45", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Collected</span></div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "rgba(245,158,11,.4)", borderRadius: 2, border: "1px solid #f59e0b" }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>Pending</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "#1F6B45", borderRadius: 2 }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{d.collected}</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, background: "rgba(245,158,11,.4)", borderRadius: 2, border: "1px solid #f59e0b" }} /><span style={{ fontSize: 11, color: "var(--c-text-dim)" }}>{d.pending}</span></div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 120 }}>
@@ -181,13 +181,13 @@ export default function Overview() {
         {/* Recent sessions */}
         <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 24, boxShadow: "var(--c-shadow)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em" }}>Recent Sessions</p>
-            <Link href="/app/schedule" style={{ fontSize: 11, color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>View all →</Link>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em" }}>{d.recentSessions}</p>
+            <Link href="/app/schedule" style={{ fontSize: 11, color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>{d.viewAll}</Link>
           </div>
           {sessions.length === 0 ? (
             <div style={{ textAlign: "center", padding: "24px 0" }}>
               <p style={{ fontSize: 28, marginBottom: 8 }}>🎾</p>
-              <p style={{ fontSize: 13, color: "var(--c-text-dim)" }}>No sessions logged yet</p>
+              <p style={{ fontSize: 13, color: "var(--c-text-dim)" }}>{d.noSessionsLogged}</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -214,11 +214,11 @@ export default function Overview() {
           {/* Recent players */}
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 22, flex: 1, boxShadow: "var(--c-shadow)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em" }}>Players</p>
-              <Link href="/app/players" style={{ fontSize: 11, color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>View all →</Link>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em" }}>{d.players}</p>
+              <Link href="/app/players" style={{ fontSize: 11, color: "#18B3A4", textDecoration: "none", fontWeight: 600 }}>{d.viewAll}</Link>
             </div>
             {players.length === 0 ? (
-              <Link href="/app/players" style={{ fontSize: 13, color: "#1F6B45", textDecoration: "none", fontWeight: 600 }}>+ Add your first player →</Link>
+              <Link href="/app/players" style={{ fontSize: 13, color: "#1F6B45", textDecoration: "none", fontWeight: 600 }}>{d.addFirstPlayer}</Link>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                 {players.slice(0, 4).map((p, i) => (
@@ -239,12 +239,12 @@ export default function Overview() {
 
           {/* Quick actions */}
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: 18, boxShadow: "var(--c-shadow)" }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Quick Actions</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>{d.quickActions}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               {[
-                { label: "Add player", href: "/app/players", color: "#1F6B45" },
-                { label: "Generate invoices", href: "/app/billing", color: "#18B3A4" },
-                { label: "View schedule", href: "/app/schedule", color: "#FFD447" },
+                { label: d.addPlayerAction, href: "/app/players", color: "#1F6B45" },
+                { label: d.generateInvoices, href: "/app/billing", color: "#18B3A4" },
+                { label: d.viewSchedule, href: "/app/schedule", color: "#FFD447" },
               ].map(({ label, href, color }) => (
                 <Link key={label} href={href} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", background: color + "0d", border: `1px solid ${color}22`, borderRadius: 9, textDecoration: "none", color: "var(--c-text-2)", fontSize: 13, fontWeight: 600, transition: "all .15s" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = color + "18"; }}

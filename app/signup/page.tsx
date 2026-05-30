@@ -2,9 +2,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLang } from "@/lib/i18n/context";
 
 export default function Signup() {
   const router = useRouter();
+  const { t } = useLang();
+  const l = t.signup;
+  const li = t.login;
   const [form, setForm] = useState({ name: "", email: "", password: "", academy: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,8 +31,8 @@ export default function Signup() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password || !form.academy) { setError("All fields are required."); return; }
-    if (form.password.length < 6) { setError("Password must be at least 6 characters."); return; }
+    if (!form.name || !form.email || !form.password || !form.academy) { setError(l.errAllRequired); return; }
+    if (form.password.length < 6) { setError(l.errPasswordLength); return; }
     setLoading(true); setError("");
     const res = await fetch("/api/auth/signup", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -63,27 +67,27 @@ export default function Signup() {
             <span style={{ fontSize: 16, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.3px" }}>AcademyOS</span>
           </Link>
 
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.6px", marginBottom: 6 }}>Create your academy</h1>
-          <p style={{ fontSize: 14, color: "#607080", marginBottom: 28, lineHeight: 1.5 }}>Start managing your players in minutes. Free to start.</p>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.6px", marginBottom: 6 }}>{l.title}</h1>
+          <p style={{ fontSize: 14, color: "#607080", marginBottom: 28, lineHeight: 1.5 }}>{l.subtitle}</p>
 
           <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
               <div>
-                <label style={lbl}>Your Name</label>
+                <label style={lbl}>{l.yourName}</label>
                 <input required value={form.name} onChange={e => set("name", e.target.value)} placeholder="John Smith" style={inp("name")} onFocus={() => setFocused("name")} onBlur={() => setFocused("")} />
               </div>
               <div>
-                <label style={lbl}>Academy Name</label>
+                <label style={lbl}>{l.academyName}</label>
                 <input required value={form.academy} onChange={e => set("academy", e.target.value)} placeholder="Miami Tennis" style={inp("academy")} onFocus={() => setFocused("academy")} onBlur={() => setFocused("")} />
               </div>
             </div>
             <div>
-              <label style={lbl}>Email</label>
+              <label style={lbl}>{l.email}</label>
               <input required type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="coach@academy.com" style={inp("email")} onFocus={() => setFocused("email")} onBlur={() => setFocused("")} />
             </div>
             <div>
-              <label style={lbl}>Password</label>
-              <input required type="password" value={form.password} onChange={e => set("password", e.target.value)} placeholder="Min 6 characters" style={inp("password")} onFocus={() => setFocused("password")} onBlur={() => setFocused("")} />
+              <label style={lbl}>{l.password}</label>
+              <input required type="password" value={form.password} onChange={e => set("password", e.target.value)} placeholder={l.passwordPlaceholder} style={inp("password")} onFocus={() => setFocused("password")} onBlur={() => setFocused("")} />
             </div>
 
             {error && (
@@ -98,12 +102,12 @@ export default function Signup() {
               onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.background = "#f5ca3a"; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#FFD447"; }}
             >
-              {loading ? "Creating account…" : "Create Academy →"}
+              {loading ? l.creating : l.createBtn}
             </button>
 
             <p style={{ fontSize: 13, color: "#607080", textAlign: "center", marginTop: 6 }}>
-              Already have an account?{" "}
-              <Link href="/login" style={{ color: "#FFD447", textDecoration: "none", fontWeight: 700 }}>Sign in</Link>
+              {l.haveAccount}{" "}
+              <Link href="/login" style={{ color: "#FFD447", textDecoration: "none", fontWeight: 700 }}>{l.signIn}</Link>
             </p>
           </form>
         </div>
@@ -117,26 +121,24 @@ export default function Signup() {
         <div style={{ position: "relative", textAlign: "center", maxWidth: 360 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 50, padding: "6px 16px", marginBottom: 32 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#18B3A4", display: "inline-block", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "#97A6B2", fontWeight: 500 }}>Academy management platform</span>
+            <span style={{ fontSize: 12, color: "#97A6B2", fontWeight: 500 }}>{li.platformBadge}</span>
           </div>
 
           <h2 style={{ fontSize: 36, fontWeight: 900, color: "#F5F7FA", letterSpacing: "-1.5px", lineHeight: 1.15, marginBottom: 20 }}>
-            Run your academy<br />
-            <span style={{ color: "#FFD447" }}>like a pro.</span>
+            {li.heroLine1}<br />
+            <span style={{ color: "#FFD447" }}>{li.heroLine2}</span>
           </h2>
 
-          <p style={{ fontSize: 15, color: "#607080", lineHeight: 1.7 }}>
-            Players, sessions, billing and courts —<br />in one streamlined workspace.
-          </p>
+          <p style={{ fontSize: 15, color: "#607080", lineHeight: 1.7 }}>{li.heroDesc}</p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 36, textAlign: "left" }}>
             {[
-              { icon: "🎾", text: "Track every player & session" },
-              { icon: "💳", text: "Auto-generate monthly invoices" },
-              { icon: "📅", text: "Schedule courts & coaches" },
-              { icon: "📊", text: "Revenue analytics at a glance" },
+              { icon: "🎾", text: li.feature1 },
+              { icon: "💳", text: li.feature2 },
+              { icon: "📅", text: li.feature3 },
+              { icon: "📊", text: l.feature4 },
             ].map(f => (
-              <div key={f.text} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 16px" }}>
+              <div key={f.icon} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 16px" }}>
                 <span style={{ fontSize: 18 }}>{f.icon}</span>
                 <span style={{ fontSize: 13, color: "#97A6B2", fontWeight: 500 }}>{f.text}</span>
               </div>

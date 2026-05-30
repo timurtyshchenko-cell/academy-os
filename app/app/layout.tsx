@@ -2,15 +2,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useLang } from "@/lib/i18n/context";
+import { Lang, LANG_FLAGS, LANG_LABELS, LANG_NAMES } from "@/lib/i18n/translations";
 
-const NAV = [
-  { href: "/app", label: "Overview", exact: true },
-  { href: "/app/players", label: "Players" },
-  { href: "/app/schedule", label: "Schedule" },
-  { href: "/app/courts", label: "Courts" },
-  { href: "/app/billing", label: "Billing" },
-  { href: "/app/coaches", label: "Coaches" },
-  { href: "/app/settings", label: "Settings" },
+const NAV_KEYS = [
+  { href: "/app", key: "overview" as const, exact: true },
+  { href: "/app/players", key: "players" as const },
+  { href: "/app/schedule", key: "schedule" as const },
+  { href: "/app/courts", key: "courts" as const },
+  { href: "/app/billing", key: "billing" as const },
+  { href: "/app/coaches", key: "coaches" as const },
+  { href: "/app/settings", key: "settings" as const },
 ];
 
 const NAV_ICONS: Record<string, string> = {
@@ -34,11 +36,15 @@ function NavIcon({ path, size = 15 }: { path: string; size?: number }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { lang, setLang, t } = useLang();
+  const [langOpen, setLangOpen] = useState(false);
   const [academyName, setAcademyName] = useState("");
   const [userName, setUserName] = useState("");
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const NAV = NAV_KEYS.map(item => ({ ...item, label: t.nav[item.key] }));
 
   useEffect(() => {
     const saved = (localStorage.getItem("dashboard-theme") || "dark") as "dark" | "light";
@@ -140,7 +146,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
                 <span style={{ fontWeight: 700, color: "var(--c-text)", fontSize: 14, letterSpacing: "-.2px" }}>{academyName || "AcademyOS"}</span>
-                <span className="mobile-hide" style={{ fontSize: 10.5, color: "var(--c-text-muted)" }}>Tennis Academy</span>
+                <span className="mobile-hide" style={{ fontSize: 10.5, color: "var(--c-text-muted)" }}>{t.layout.tennisAcademy}</span>
               </div>
             </Link>
             <div className="mobile-hide" style={{ width: 1, height: 14, background: "var(--c-border)", marginLeft: 2 }} />
@@ -149,14 +155,38 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 100, background: "rgba(31,107,69,.12)", border: "1px solid rgba(31,107,69,.2)" }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", animation: "pulse-slow 2.5s ease infinite" }} />
-              <span style={{ fontSize: 11.5, color: "#4ade80", fontWeight: 600 }}>Live</span>
+              <span style={{ fontSize: 11.5, color: "#4ade80", fontWeight: 600 }}>{t.layout.live}</span>
             </div>
-            <button onClick={toggleTheme} title={theme === "dark" ? "Light mode" : "Dark mode"}
+            <button onClick={toggleTheme} title={theme === "dark" ? t.layout.lightMode : t.layout.darkMode}
               style={{ width: 32, height: 32, borderRadius: 9, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, transition: "all .15s", color: "var(--c-text-3)" }}
               onMouseEnter={e => { (e.currentTarget.style.borderColor = "var(--c-border-hover)"); (e.currentTarget.style.color = "var(--c-text)"); }}
               onMouseLeave={e => { (e.currentTarget.style.borderColor = "var(--c-border)"); (e.currentTarget.style.color = "var(--c-text-3)"); }}>
               {theme === "dark" ? "☀" : "☾"}
             </button>
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setLangOpen(o => !o)}
+                style={{ height: 32, padding: "0 12px", borderRadius: 9, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, color: "var(--c-text)", transition: "all .15s", whiteSpace: "nowrap" }}
+                onMouseEnter={e => { (e.currentTarget.style.borderColor = "#1F6B45"); (e.currentTarget.style.background = "rgba(31,107,69,.1)"); }}
+                onMouseLeave={e => { (e.currentTarget.style.borderColor = "var(--c-border)"); (e.currentTarget.style.background = "var(--c-inner)"); }}>
+                <span style={{ fontSize: 15 }}>{LANG_FLAGS[lang]}</span>
+                <span>{LANG_LABELS[lang]}</span>
+                <span style={{ fontSize: 9, opacity: .5 }}>▾</span>
+              </button>
+              {langOpen && (
+                <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 12, overflow: "hidden", boxShadow: "var(--c-shadow-lg)", zIndex: 100, minWidth: 140 }}>
+                  {(["en", "es", "ru"] as Lang[]).map(l => (
+                    <button key={l} onClick={() => { setLang(l); setLangOpen(false); }}
+                      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "10px 14px", background: l === lang ? "rgba(31,107,69,.12)" : "transparent", border: "none", cursor: "pointer", fontSize: 13, fontWeight: l === lang ? 700 : 500, color: l === lang ? "#4ade80" : "var(--c-text-3)", transition: "background .12s" }}
+                      onMouseEnter={e => { if (l !== lang) (e.currentTarget.style.background = "rgba(255,255,255,.05)"); }}
+                      onMouseLeave={e => { if (l !== lang) (e.currentTarget.style.background = "transparent"); }}>
+                      <span style={{ fontSize: 16 }}>{LANG_FLAGS[l]}</span>
+                      <span>{LANG_NAMES[l]}</span>
+                      {l === lang && <span style={{ marginLeft: "auto", fontSize: 11 }}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="mobile-hide" style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px 4px 6px", borderRadius: 100, border: "1px solid var(--c-border)", background: "var(--c-inner)", cursor: "pointer", transition: "border-color .15s" }}
               onClick={signOut} title="Sign out"
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--c-border-hover)"; }}
@@ -184,13 +214,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text)" }}>{academyName || "AcademyOS"}</p>
-                <p style={{ fontSize: 11, color: "var(--c-text-muted)" }}>Tennis Academy</p>
+                <p style={{ fontSize: 11, color: "var(--c-text-muted)" }}>{t.layout.tennisAcademy}</p>
               </div>
             </div>
             <SideNav onNav={() => setMenuOpen(false)} />
             <div style={{ height: 1, background: "var(--c-divider)", margin: "16px 0" }} />
             <Link href="/subscribe" onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, background: "rgba(255,212,71,.1)", border: "1px solid rgba(255,212,71,.2)", color: "#FFD447", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
-              <span>⚡</span> Upgrade Plan
+              <span>⚡</span> {t.layout.upgradePlan}
             </Link>
           </div>
         </div>
@@ -205,7 +235,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/subscribe" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, background: "rgba(255,212,71,.08)", border: "1px solid rgba(255,212,71,.16)", color: "#FFD447", fontWeight: 600, fontSize: 12.5, textDecoration: "none", transition: "all .15s" }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,212,71,.14)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,212,71,.08)"; }}>
-            <span style={{ fontSize: 13 }}>⚡</span> Upgrade Plan
+            <span style={{ fontSize: 13 }}>⚡</span> {t.layout.upgradePlan}
           </Link>
         </aside>
 
@@ -214,10 +244,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
               <div style={{ maxWidth: 480, textAlign: "center", background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 18, padding: 52, boxShadow: "var(--c-shadow-lg)" }}>
                 <div style={{ width: 72, height: 72, background: "rgba(31,107,69,.12)", border: "1px solid rgba(31,107,69,.2)", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 24px" }}>🔒</div>
-                <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--c-text)", letterSpacing: "-.5px", marginBottom: 12 }}>Subscription Required</h2>
-                <p style={{ fontSize: 14, color: "var(--c-text-3)", lineHeight: 1.75, marginBottom: 36 }}>To access your academy dashboard you need an active subscription.</p>
+                <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--c-text)", letterSpacing: "-.5px", marginBottom: 12 }}>{t.layout.subscriptionRequired}</h2>
+                <p style={{ fontSize: 14, color: "var(--c-text-3)", lineHeight: 1.75, marginBottom: 36 }}>{t.layout.subscriptionDesc}</p>
                 <a href="/#pricing" style={{ display: "inline-block", background: "#FFD447", color: "#081418", fontWeight: 800, fontSize: 14, padding: "13px 32px", borderRadius: 12, textDecoration: "none" }}>
-                  View plans →
+                  {t.layout.viewPlans}
                 </a>
               </div>
             </div>
@@ -229,10 +259,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <nav className="mobile-bottom-nav" style={{ display: "none", position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--c-header-bg)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--c-border)", zIndex: 40 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", padding: "6px 0 8px" }}>
           {[
-            { href: "/app", label: "Home", exact: true },
-            { href: "/app/players", label: "Players", exact: false },
-            { href: "/app/schedule", label: "Schedule", exact: false },
-            { href: "/app/billing", label: "Billing", exact: false },
+            { href: "/app", label: t.nav.home, exact: true },
+            { href: "/app/players", label: t.nav.players, exact: false },
+            { href: "/app/schedule", label: t.nav.schedule, exact: false },
+            { href: "/app/billing", label: t.nav.billing, exact: false },
           ].map(item => {
             const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
@@ -250,7 +280,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
               <circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/>
             </svg>
-            <span style={{ fontSize: 10, fontWeight: 500 }}>More</span>
+            <span style={{ fontSize: 10, fontWeight: 500 }}>{t.nav.more}</span>
           </button>
         </div>
       </nav>

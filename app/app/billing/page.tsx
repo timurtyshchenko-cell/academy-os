@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useLang } from "@/lib/i18n/context";
+import { LOCALE_MAP } from "@/lib/i18n/translations";
 
 interface Invoice { id: number; player_name: string; player_id: number; amount: number; status: string; month: string; due_date: string; paid_at: string; created_at: string }
 
@@ -9,13 +11,15 @@ function initials(name: string) {
   return (p[0][0] + (p[1]?.[0] || "")).toUpperCase();
 }
 
-function monthLabel(m: string) {
+function monthLabel(m: string, locale: string) {
   if (!m) return "—";
   const d = new Date(m + "-01");
-  return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  return d.toLocaleDateString(locale, { month: "long", year: "numeric" });
 }
 
 export default function BillingPage() {
+  const { lang, t } = useLang();
+  const b = t.billing;
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -115,7 +119,7 @@ export default function BillingPage() {
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-    const label = d.toLocaleDateString("en-US", { month: "short" });
+    const label = d.toLocaleDateString(LOCALE_MAP[lang], { month: "short" });
     const monthInvs = invoices.filter(inv => (inv.month || "").startsWith(key));
     chartMonths.push({
       key, label,
@@ -153,22 +157,22 @@ export default function BillingPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Billing</h1>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} pending · {invoices.length} total invoices</p>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>{b.title}</h1>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{pendingCount} {b.pending_label} · {invoices.length} {b.total_label}</p>
         </div>
         <button onClick={generate} disabled={generating}
           style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generating ? "not-allowed" : "pointer", opacity: generating ? .7 : 1, boxShadow: "0 4px 16px rgba(31,107,69,.3)", whiteSpace: "nowrap" }}>
-          {generating ? "Generating..." : "⚡ Generate Invoices"}
+          {generating ? b.generating : b.generateInvoices}
         </button>
       </div>
 
       {/* Stats */}
       <div className="billing-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
         {[
-          { label: "Collected", value: `$${totalCollected.toLocaleString()}`, sub: `${invoices.filter(i=>i.status==="paid").length} invoices`, color: "#1F6B45" },
-          { label: "Outstanding", value: `$${totalPending.toLocaleString()}`, sub: `${pendingCount} pending`, color: "#f59e0b" },
-          { label: "Total Billed", value: `$${(totalCollected+totalPending).toLocaleString()}`, sub: `${invoices.length} total`, color: "#18B3A4" },
-          { label: "Collection Rate", value: `${collectionRate}%`, sub: "paid on time", color: collectionRate >= 80 ? "#1F6B45" : collectionRate >= 50 ? "#f59e0b" : "#ef4444" },
+          { label: b.collected, value: `$${totalCollected.toLocaleString()}`, sub: `${invoices.filter(i=>i.status==="paid").length} ${b.invoices}`, color: "#1F6B45" },
+          { label: b.outstanding, value: `$${totalPending.toLocaleString()}`, sub: `${pendingCount} ${b.pending_label}`, color: "#f59e0b" },
+          { label: b.totalBilled, value: `$${(totalCollected+totalPending).toLocaleString()}`, sub: `${invoices.length} ${b.filterAll.toLowerCase()}`, color: "#18B3A4" },
+          { label: b.collectionRate, value: `${collectionRate}%`, sub: b.paidOnTime, color: collectionRate >= 80 ? "#1F6B45" : collectionRate >= 50 ? "#f59e0b" : "#ef4444" },
         ].map(s => (
           <div key={s.label} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderLeft: `3px solid ${s.color}`, borderRadius: 14, padding: "14px 18px" }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".07em", margin: "0 0 4px" }}>{s.label}</p>
@@ -181,7 +185,7 @@ export default function BillingPage() {
       {/* Revenue chart */}
       {invoices.length > 0 && (
         <div className="billing-chart" style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 16, padding: "20px 24px" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: "0 0 16px" }}>Monthly Revenue — Last 6 Months</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: "0 0 16px" }}>{b.monthlyRevenue}</p>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 100 }}>
             {chartMonths.map(m => {
               const totalH = ((m.paid + m.pending) / chartMax) * 100;
@@ -226,7 +230,7 @@ export default function BillingPage() {
         {(["all", "pending", "paid"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
             style={{ padding: "8px 18px", borderRadius: 100, border: "1px solid", borderColor: filter === f ? "#1F6B45" : "var(--c-border)", background: filter === f ? "rgba(31,107,69,.1)" : "transparent", color: filter === f ? "#1F6B45" : "var(--c-text-muted)", fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all .15s", textTransform: "capitalize" }}>
-            {f === "all" ? `All (${invoices.length})` : f === "paid" ? `Paid (${invoices.filter(i=>i.status==="paid").length})` : `Pending (${pendingCount})`}
+            {f === "all" ? `${b.filterAll} (${invoices.length})` : f === "paid" ? `${b.filterPaid} (${invoices.filter(i=>i.status==="paid").length})` : `${b.filterPending} (${pendingCount})`}
           </button>
         ))}
       </div>
@@ -237,9 +241,9 @@ export default function BillingPage() {
       {filtered.length === 0 ? (
         <div style={{ background: "var(--c-card)", border: "2px dashed var(--c-border)", borderRadius: 20, padding: 60, textAlign: "center" }}>
           <p style={{ fontSize: 40, marginBottom: 14 }}>💳</p>
-          <p style={{ fontSize: 17, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>{invoices.length === 0 ? "No invoices yet" : "Nothing here"}</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 24 }}>{invoices.length === 0 ? "Click Generate to create invoices for all active players" : "Try a different filter"}</p>
-          {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>⚡ Generate First Invoices →</button>}
+          <p style={{ fontSize: 17, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>{invoices.length === 0 ? b.noInvoicesYet : b.nothingHere}</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 24 }}>{invoices.length === 0 ? b.generatePrompt : b.tryDifferentFilter}</p>
+          {invoices.length === 0 && <button onClick={generate} disabled={generating} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>{b.generateFirstBtn}</button>}
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -253,9 +257,9 @@ export default function BillingPage() {
                 {/* Month header */}
                 <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--c-border)", background: "var(--c-inner)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <p style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{monthLabel(monthKey)}</p>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{monthLabel(monthKey, LOCALE_MAP[lang])}</p>
                     <span style={{ fontSize: 11, fontWeight: 700, color: allPaid ? "#059669" : "#f59e0b", background: allPaid ? "#05966915" : "#f59e0b15", padding: "2px 8px", borderRadius: 100 }}>
-                      {allPaid ? "All paid" : `${monthInvs.filter(i=>i.status==="paid").length}/${monthInvs.length} paid`}
+                      {allPaid ? b.allPaid : `${monthInvs.filter(i=>i.status==="paid").length}/${monthInvs.length} ${b.filterPaid.toLowerCase()}`}
                     </span>
                   </div>
                   <div style={{ textAlign: "right" }}>
@@ -279,12 +283,12 @@ export default function BillingPage() {
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 2 }}>
                           <p style={{ fontSize: 14, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>{inv.player_name}</p>
                           <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 100, color: paid ? "#059669" : "#f59e0b", background: paid ? "#05966915" : "#f59e0b15" }}>
-                            {paid ? "✓ Paid" : "Pending"}
+                            {paid ? b.paid : b.pending}
                           </span>
                         </div>
                         <p style={{ fontSize: 12, color: "var(--c-text-dim)", margin: 0 }}>
-                          Due {inv.due_date || "—"}
-                          {paid && inv.paid_at ? ` · Paid ${inv.paid_at.split("T")[0]}` : ""}
+                          {b.due} {inv.due_date || "—"}
+                          {paid && inv.paid_at ? ` · ${b.paidOn} ${inv.paid_at.split("T")[0]}` : ""}
                         </p>
                       </div>
                       {/* Amount */}
@@ -294,17 +298,17 @@ export default function BillingPage() {
                         {!paid && (
                           <button onClick={() => markPaid(inv.id)}
                             style={{ fontSize: 12, fontWeight: 700, color: "#1F6B45", background: "rgba(31,107,69,.08)", border: "1px solid rgba(31,107,69,.2)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", whiteSpace: "nowrap" }}>
-                            ✓ Paid
+                            {b.paid}
                           </button>
                         )}
                         <button onClick={() => sendToParent(inv.id)} disabled={sending === inv.id}
                           style={{ fontSize: 12, fontWeight: 600, color: sentIds.has(inv.id) ? "#059669" : "var(--c-text-muted)", background: "var(--c-inner)", border: `1px solid ${sentIds.has(inv.id) ? "rgba(5,150,105,.25)" : "var(--c-border)"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", opacity: sending === inv.id ? .6 : 1, whiteSpace: "nowrap" }}>
-                          {sending === inv.id ? "..." : sentIds.has(inv.id) ? "✓ Sent" : "Send"}
+                          {sending === inv.id ? "..." : sentIds.has(inv.id) ? b.sent : b.send}
                         </button>
                         {!paid && (
                           <button onClick={() => sendReminder(inv.id)} disabled={reminding === inv.id}
                             style={{ fontSize: 12, fontWeight: 600, color: remindedIds.has(inv.id) ? "#f59e0b" : "var(--c-text-muted)", background: "var(--c-inner)", border: `1px solid ${remindedIds.has(inv.id) ? "rgba(245,158,11,.25)" : "var(--c-border)"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", opacity: reminding === inv.id ? .6 : 1, whiteSpace: "nowrap" }}>
-                            {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? "✓ Reminded" : "Remind"}
+                            {reminding === inv.id ? "..." : remindedIds.has(inv.id) ? b.reminded : b.remind}
                           </button>
                         )}
                         <button onClick={() => printInvoice(inv)}

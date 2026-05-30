@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { Resend } from "resend";
-
 const NOTIFY_EMAIL = "slimbet@gmail.com";
 
 export async function POST(req: NextRequest) {
@@ -21,9 +19,8 @@ export async function POST(req: NextRequest) {
     fs.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
     console.log("New demo lead:", lead);
 
-    const resendKey = process.env["RESEND_API_KEY"];
-    if (resendKey) {
-      const resend = new Resend(resendKey);
+    const brevoKey = process.env.BREVO_API_KEY;
+    if (brevoKey) {
       const html = `
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px;background:#f9fafb">
           <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
@@ -45,16 +42,14 @@ export async function POST(req: NextRequest) {
           </div>
         </div>`;
 
-      const { error } = await resend.emails.send({
-        from: "AcademyOS <onboarding@resend.dev>",
-        to: NOTIFY_EMAIL,
-        subject: `New Demo Request — ${academy}`,
-        html,
+      await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": brevoKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ sender: { name: "AcademyOS", email: "noreply@academyos.app" }, to: [{ email: NOTIFY_EMAIL }], subject: `New Demo Request — ${academy}`, htmlContent: html }),
       });
-      if (error) console.error("Resend error:", error);
-      else console.log("Demo notification sent to", NOTIFY_EMAIL);
+      console.log("Demo notification sent to", NOTIFY_EMAIL);
     } else {
-      console.warn("RESEND_API_KEY not set — skipping email notification");
+      console.warn("BREVO_API_KEY not set — skipping email notification");
     }
 
     return NextResponse.json({ success: true });

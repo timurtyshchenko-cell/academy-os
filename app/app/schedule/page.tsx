@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useLang } from "@/lib/i18n/context";
 
 interface Session {
   id: number; player_name: string; date: string; start_time: string | null;
@@ -44,6 +45,11 @@ function nowTop() {
   const mins = now.getHours() * 60 + now.getMinutes() - START_H * 60;
   return Math.max(0, (mins / 60) * HOUR_H);
 }
+function yToTime(y: number): string {
+  const totalMins = Math.round((START_H * 60 + (y / HOUR_H) * 60) / 15) * 15;
+  const clamped = Math.max(START_H * 60, Math.min((END_H - 1) * 60, totalMins));
+  return `${String(Math.floor(clamped / 60)).padStart(2,"0")}:${String(clamped % 60).padStart(2,"0")}`;
+}
 function initials(name: string) {
   if (!name) return "?";
   const p = name.trim().split(" ");
@@ -51,6 +57,8 @@ function initials(name: string) {
 }
 
 export default function SchedulePage() {
+  const { t } = useLang();
+  const s = t.schedule;
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekOf, setWeekOf] = useState(() => weekStart(new Date()));
@@ -60,7 +68,10 @@ export default function SchedulePage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [nowY, setNowY] = useState(nowTop());
+  const [dragId, setDragId] = useState<number | null>(null);
+  const [dropInfo, setDropInfo] = useState<{ dStr: string; time: string } | null>(null);
   const bodyRef = useRef<any>(null);
+  const colRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const today = fmt(new Date());
 
@@ -124,6 +135,11 @@ export default function SchedulePage() {
     setSaving(false);
   }
 
+  async function moveSession(id: number, date: string, start_time: string) {
+    setSessions(prev => prev.map(ss => ss.id === id ? { ...ss, date, start_time } : ss));
+    await fetch("/api/sessions", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, date, start_time }) });
+  }
+
   async function deleteSession(id: number) {
     if (!confirm("Remove session?")) return;
     await fetch("/api/sessions", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
@@ -155,33 +171,35 @@ export default function SchedulePage() {
         }
         .day-col:hover .day-add-btn { opacity: 1 !important; }
         .session-chip:hover .session-del { opacity: 1 !important; }
+        .session-chip[draggable="true"] { cursor: grab; }
+        .session-chip[draggable="true"]:active { cursor: grabbing; }
       `}</style>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Schedule</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>{s.title}</h1>
           <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>{weekLabel}</p>
         </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <button onClick={() => setWeekOf(d => { const n = new Date(d); n.setDate(n.getDate()-7); return n; })}
             style={{ width: 34, height: 34, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 14, display:"flex",alignItems:"center",justifyContent:"center" }}>←</button>
           <button onClick={() => setWeekOf(weekStart(new Date()))}
-            style={{ padding: "7px 14px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Today</button>
+            style={{ padding: "7px 14px", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>{s.today}</button>
           <button onClick={() => setWeekOf(d => { const n = new Date(d); n.setDate(n.getDate()+7); return n; })}
             style={{ width: 34, height: 34, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, color: "var(--c-text-muted)", cursor: "pointer", fontSize: 14, display:"flex",alignItems:"center",justifyContent:"center" }}>→</button>
           <button onClick={() => { setForm(f => ({ ...f, date: today })); setShowAdd(today); }}
-            style={{ padding: "7px 18px", background: "#1F6B45", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, boxShadow: "0 4px 14px rgba(31,107,69,.3)" }}>+ Add Session</button>
+            style={{ padding: "7px 18px", background: "#1F6B45", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, boxShadow: "0 4px 14px rgba(31,107,69,.3)" }}>{s.addSession}</button>
         </div>
       </div>
 
       {/* Stats row */}
       <div className="sched-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
         {[
-          { label: "This week", value: totalThisWeek + " sessions", color: "#1F6B45" },
-          { label: "Total hours", value: `${Math.floor(totalHours/60)}h ${totalHours%60}m`, color: "#18B3A4" },
-          { label: "Today", value: (sessionsByDay[today]?.length || 0) + " sessions", color: "#FFD447" },
-          { label: "Session types", value: SESSION_TYPES.length + " types", color: "#9b59b6" },
+          { label: s.thisWeek, value: `${totalThisWeek} ${s.sessions}`, color: "#1F6B45" },
+          { label: s.totalHours, value: `${Math.floor(totalHours/60)}${s.hourSuffix} ${totalHours%60}${s.minuteSuffix}`, color: "#18B3A4" },
+          { label: s.todaySessions, value: `${sessionsByDay[today]?.length || 0} ${s.sessions}`, color: "#FFD447" },
+          { label: s.sessionTypes, value: `${SESSION_TYPES.length} ${s.types}`, color: "#9b59b6" },
         ].map(s => (
           <div key={s.label} style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid ${s.color}`, borderRadius:12, padding:"12px 16px" }}>
             <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 3px" }}>{s.label}</p>
@@ -205,7 +223,7 @@ export default function SchedulePage() {
                 <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:30, height:30, borderRadius:"50%", background: isT ? "#1F6B45" : "transparent" }}>
                   <p style={{ fontSize:16, fontWeight:900, color: isT ? "#fff" : "var(--c-text)", margin:0, lineHeight:1 }}>{day.getDate()}</p>
                 </div>
-                {cnt > 0 && <p style={{ fontSize:10, color: isT ? "#1F6B45" : "var(--c-text-dim)", margin:"2px 0 0", fontWeight:600 }}>{cnt} session{cnt!==1?"s":""}</p>}
+                {cnt > 0 && <p style={{ fontSize:10, color: isT ? "#1F6B45" : "var(--c-text-dim)", margin:"2px 0 0", fontWeight:600 }}>{cnt} {cnt !== 1 ? s.sessions : s.session}</p>}
               </div>
             );
           })}
@@ -254,7 +272,28 @@ export default function SchedulePage() {
               const isT = dStr === today;
               const daySessions = (sessionsByDay[dStr] || []).filter(s => s.start_time);
               return (
-                <div key={di} className="day-col" onClick={() => { setForm(f => ({ ...f, date: dStr })); setShowAdd(dStr); }}
+                <div key={di} className="day-col"
+                  ref={el => { colRefs.current[di] = el; }}
+                  onClick={() => { if (dragId !== null) return; setForm(f => ({ ...f, date: dStr })); setShowAdd(dStr); }}
+                  onDragOver={e => {
+                    if (dragId === null) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    const col = colRefs.current[di];
+                    if (!col) return;
+                    const rect = col.getBoundingClientRect();
+                    setDropInfo({ dStr, time: yToTime(e.clientY - rect.top) });
+                  }}
+                  onDragLeave={e => {
+                    const col = colRefs.current[di];
+                    if (!col || !col.contains(e.relatedTarget as Node)) setDropInfo(null);
+                  }}
+                  onDrop={e => {
+                    e.preventDefault();
+                    if (dragId === null || !dropInfo || dropInfo.dStr !== dStr) return;
+                    moveSession(dragId, dStr, dropInfo.time);
+                    setDragId(null); setDropInfo(null);
+                  }}
                   style={{ position:"relative", borderRight: di < 6 ? "1px solid var(--c-border)" : "none", background: isT ? "rgba(31,107,69,.02)" : "transparent", cursor:"pointer", minHeight: HOURS.length * HOUR_H }}>
                   {/* Hour lines */}
                   {HOURS.map((_, i) => (
@@ -277,8 +316,11 @@ export default function SchedulePage() {
                     const heightPx = Math.max(24, s.duration / 60 * HOUR_H - 4);
                     return (
                       <div key={s.id} className="session-chip"
+                        draggable
+                        onDragStart={e => { e.stopPropagation(); setDragId(s.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(s.id)); }}
+                        onDragEnd={() => { setDragId(null); setDropInfo(null); }}
                         onClick={e => e.stopPropagation()}
-                        style={{ position:"absolute", left:3, right:3, top: topPx + 2, height: heightPx, background: meta.light, borderLeft:`3px solid ${meta.color}`, borderRadius:"0 7px 7px 0", padding:"4px 8px 4px 6px", overflow:"hidden", zIndex:3, cursor:"default", boxShadow:`0 1px 4px rgba(0,0,0,.15)`, border:`1px solid ${meta.color}30`, borderLeftWidth:3 }}>
+                        style={{ position:"absolute", left:3, right:3, top: topPx + 2, height: heightPx, background: meta.light, borderLeft:`3px solid ${meta.color}`, borderRadius:"0 7px 7px 0", padding:"4px 8px 4px 6px", overflow:"hidden", zIndex:3, boxShadow:`0 1px 4px rgba(0,0,0,.15)`, border:`1px solid ${meta.color}30`, borderLeftWidth:3, opacity: dragId === s.id ? 0.35 : 1, transition:"opacity .1s" }}>
                         <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:2 }}>
                           <p style={{ fontSize:11, fontWeight:800, color:meta.color, margin:0, lineHeight:1.25, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>{s.player_name}</p>
                           <button className="session-del" onClick={() => deleteSession(s.id)}
@@ -289,6 +331,13 @@ export default function SchedulePage() {
                       </div>
                     );
                   })}
+                  {/* Drop indicator */}
+                  {dropInfo?.dStr === dStr && (
+                    <div style={{ position:"absolute", left:3, right:3, top: (timeToMin(dropInfo.time) - START_H * 60) / 60 * HOUR_H, height:2, background:"#1F6B45", zIndex:10, pointerEvents:"none", borderRadius:1 }}>
+                      <div style={{ position:"absolute", left:-2, top:-3, width:8, height:8, borderRadius:"50%", background:"#1F6B45" }} />
+                      <span style={{ position:"absolute", left:10, top:-8, fontSize:9, color:"#1F6B45", fontWeight:800, background:"var(--c-card)", padding:"0 4px", borderRadius:4, whiteSpace:"nowrap" }}>{dropInfo.time}</span>
+                    </div>
+                  )}
                   {/* Add hover hint */}
                   <div className="day-add-btn" style={{ position:"absolute", bottom:8, right:6, opacity:0, transition:"opacity .15s", pointerEvents:"none", zIndex:4 }}>
                     <span style={{ fontSize:18, color:"var(--c-text-dim)", lineHeight:1 }}>+</span>
@@ -354,7 +403,7 @@ export default function SchedulePage() {
               })}
               {daySessions.length === 0 && (
                 <div style={{ padding:"14px 16px", textAlign:"center" }}>
-                  <p style={{ fontSize:12, color:"var(--c-text-dim)" }}>No sessions</p>
+                  <p style={{ fontSize:12, color:"var(--c-text-dim)" }}>{s.noSessions}</p>
                 </div>
               )}
             </div>
@@ -368,9 +417,9 @@ export default function SchedulePage() {
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:24, width:"100%", maxWidth:500, maxHeight:"90vh", overflowY:"auto" }}>
             {/* Header */}
             <div style={{ background:"linear-gradient(135deg,#186038,#1F6B45)", padding:"24px 28px" }}>
-              <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 4px" }}>New Session</p>
+              <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 4px" }}>{s.newSession}</p>
               <p style={{ fontSize:20, fontWeight:900, color:"#fff", margin:0 }}>
-                {showAdd === today ? "Today" : (() => { const d = new Date(showAdd+"T12:00:00"); return `${DAYS_LONG[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`; })()}
+                {showAdd === today ? s.today : (() => { const d = new Date(showAdd+"T12:00:00"); return `${DAYS_LONG[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`; })()}
               </p>
             </div>
             <div style={{ padding:26 }}>
@@ -378,7 +427,7 @@ export default function SchedulePage() {
               <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
                 {/* Session type picker */}
                 <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:8 }}>Session Type</label>
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:8 }}>{s.sessionType}</label>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:6 }}>
                     {SESSION_TYPES.map(t => {
                       const m = SESSION_META[t];
@@ -394,14 +443,14 @@ export default function SchedulePage() {
                 </div>
                 {/* Player */}
                 <div>
-                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Player *</label>
-                  <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value, player_id: "" }))} placeholder="Type player name..." style={inp} />
+                  <label style={{ display:"block", fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>{s.player}</label>
+                  <input value={form.player_name} onChange={e => setForm(f => ({ ...f, player_name: e.target.value, player_id: "" }))} placeholder={s.playerPlaceholder} style={inp} />
                   {players.length > 0 && (
                     <select value={form.player_id} onChange={e => {
                       const p = players.find(p => p.id === parseInt(e.target.value));
                       setForm(f => ({ ...f, player_id: e.target.value, player_name: p?.name || f.player_name }));
                     }} style={{ ...inp, marginTop: 6 }}>
-                      <option value="">— or pick from list —</option>
+                      <option value="">{s.orPickFromList}</option>
                       {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
                   )}
@@ -409,9 +458,9 @@ export default function SchedulePage() {
                 {/* Date + Time + Duration */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
                   {[
-                    { k:"date", label:"Date", type:"date" },
-                    { k:"start_time", label:"Start Time", type:"time" },
-                    { k:"duration", label:"Duration (min)", type:"number" },
+                    { k:"date", label:s.date, type:"date" },
+                    { k:"start_time", label:s.startTime, type:"time" },
+                    { k:"duration", label:s.duration, type:"number" },
                   ].map(({ k, label, type }) => (
                     <div key={k}>
                       <label style={{ display:"block", fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:5 }}>{label}</label>
@@ -422,8 +471,8 @@ export default function SchedulePage() {
                 {/* Coach + Notes */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                   {[
-                    { k:"coach_name", label:"Coach", placeholder:"Coach Rivera" },
-                    { k:"notes", label:"Notes", placeholder:"Optional" },
+                    { k:"coach_name", label:s.coach, placeholder:"Coach Rivera" },
+                    { k:"notes", label:s.notes, placeholder:"Optional" },
                   ].map(({ k, label, placeholder }) => (
                     <div key={k}>
                       <label style={{ display:"block", fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:5 }}>{label}</label>
@@ -434,10 +483,10 @@ export default function SchedulePage() {
               </div>
               <div style={{ display:"flex", gap:10, marginTop:20 }}>
                 <button onClick={() => { setShowAdd(null); setFormError(""); }}
-                  style={{ flex:1, padding:"13px", borderRadius:12, border:"1px solid var(--c-border)", background:"var(--c-inner)", color:"var(--c-text-muted)", fontWeight:600, cursor:"pointer", fontSize:14 }}>Cancel</button>
+                  style={{ flex:1, padding:"13px", borderRadius:12, border:"1px solid var(--c-border)", background:"var(--c-inner)", color:"var(--c-text-muted)", fontWeight:600, cursor:"pointer", fontSize:14 }}>{s.cancel}</button>
                 <button onClick={addSession} disabled={saving}
                   style={{ flex:2, padding:"13px", borderRadius:12, border:"none", background: SESSION_META[form.type]?.color || "#1F6B45", color:"#fff", fontWeight:700, cursor:"pointer", fontSize:14, opacity: saving ? .7 : 1 }}>
-                  {saving ? "Saving..." : "Add Session"}
+                  {saving ? s.saving : s.addSessionBtn}
                 </button>
               </div>
             </div>

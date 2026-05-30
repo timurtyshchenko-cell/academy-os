@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useLang } from "@/lib/i18n/context";
+import { LOCALE_MAP } from "@/lib/i18n/translations";
 
 interface Court { id: number; name: string; surface: string; status: string; price_per_hour: number }
 interface Booking { id: number; court_id: number; court_name: string; player_name: string; coach_name: string; date: string; start_time: string; end_time: string; notes: string; total_price: number; payment_status: string; }
@@ -22,9 +24,9 @@ function addDays(s: string, n: number) {
   d.setDate(d.getDate() + n);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
-function fmtDate(s: string) {
+function fmtDate(s: string, locale: string) {
   const d = new Date(s + "T12:00:00");
-  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  return d.toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" });
 }
 function weekDays(anchor: string) {
   const d = new Date(anchor + "T12:00:00");
@@ -56,6 +58,8 @@ const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 7:00 – 21:00
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default function CourtsPage() {
+  const { lang, t } = useLang();
+  const c = t.courts;
   const [courts, setCourts] = useState<Court[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,14 +168,14 @@ export default function CourtsPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Courts</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>{c.title}</h1>
           <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>
-            {availableCount} available · {courts.length} total
+            {availableCount} {c.available} · {courts.length} {c.total}
           </p>
         </div>
         <button onClick={() => setShowAddCourt(true)}
           style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(31,107,69,.3)", display: "flex", alignItems: "center", gap: 6 }}>
-          + Add Court
+          {c.addCourt}
         </button>
       </div>
 
@@ -179,10 +183,10 @@ export default function CourtsPage() {
       {courts.length > 0 && (
         <div className="courts-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
           {[
-            { label: "Total Courts", value: courts.length, color: "#1F6B45" },
-            { label: "Available Now", value: availableCount, color: "#18B3A4" },
-            { label: "Bookings Today", value: bookings.length, color: "#FFD447" },
-            { label: "Revenue Today", value: `$${todayRevenue}`, color: "#d97706" },
+            { label: c.totalCourts, value: courts.length, color: "#1F6B45" },
+            { label: c.availableNow, value: availableCount, color: "#18B3A4" },
+            { label: c.bookingsToday, value: bookings.length, color: "#FFD447" },
+            { label: c.revenueToday, value: `$${todayRevenue}`, color: "#d97706" },
           ].map(s => (
             <div key={s.label} style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 14, padding: "14px 18px", borderLeft: `3px solid ${s.color}` }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".07em", margin: "0 0 4px" }}>{s.label}</p>
@@ -196,9 +200,9 @@ export default function CourtsPage() {
       {courts.length === 0 ? (
         <div style={{ background: "var(--c-card)", border: "2px dashed var(--c-border)", borderRadius: 20, padding: 64, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎾</div>
-          <p style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>No courts yet</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 24 }}>Add your courts to start managing bookings</p>
-          <button onClick={() => setShowAddCourt(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>Add First Court →</button>
+          <p style={{ fontSize: 18, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>{c.noCourtsYet}</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 24 }}>{c.noCourtsDesc}</p>
+          <button onClick={() => setShowAddCourt(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 12, border: "none", cursor: "pointer" }}>{c.addFirstCourtBtn}</button>
         </div>
       ) : (
         <div className="courts-cards" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
@@ -230,18 +234,18 @@ export default function CourtsPage() {
                     </div>
                     <button onClick={() => toggleStatus(court)}
                       style={{ fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 100, border: `1px solid ${avail ? "rgba(5,150,105,.3)" : "rgba(239,68,68,.3)"}`, cursor: "pointer", background: avail ? "rgba(5,150,105,.1)" : "rgba(239,68,68,.1)", color: avail ? "#059669" : "#ef4444" }}>
-                      {avail ? "● Available" : "✕ Maint."}
+                      {avail ? c.availableStatus : c.maintStatus}
                     </button>
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: "var(--c-text-dim)", background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "3px 9px" }}>
-                      {todayBks === 0 ? "Free today" : `${todayBks} booking${todayBks !== 1 ? "s" : ""} today`}
+                      {todayBks === 0 ? c.freeToday : `${todayBks} ${c.bookingsCount}`}
                     </span>
                   </div>
                   {/* Utilization bar */}
                   <div style={{ marginTop: 14 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, color: "var(--c-text-dim)", fontWeight: 600 }}>Today's utilization</span>
+                      <span style={{ fontSize: 10, color: "var(--c-text-dim)", fontWeight: 600 }}>{c.todayUtilization}</span>
                       <span style={{ fontSize: 10, color: s.color, fontWeight: 700 }}>{utilPct}%</span>
                     </div>
                     <div style={{ height: 4, background: "var(--c-inner)", borderRadius: 100, overflow: "hidden" }}>
@@ -254,7 +258,7 @@ export default function CourtsPage() {
                   <button onClick={() => { setBookingError(""); setBookingForm(f => ({ ...f, date: selectedDate })); setShowBooking(court); }}
                     disabled={!avail}
                     style={{ flex: 1, padding: "9px 0", background: avail ? s.color : "transparent", border: `1px solid ${avail ? s.color : "var(--c-border)"}`, borderRadius: 9, fontSize: 13, color: avail ? "#fff" : "var(--c-text-dim)", cursor: avail ? "pointer" : "not-allowed", fontWeight: 700, transition: "opacity .15s" }}>
-                    {avail ? "Book Court" : "Unavailable"}
+                    {avail ? c.bookCourt : c.unavailable}
                   </button>
                   <button onClick={() => deleteCourt(court.id)}
                     style={{ width: 36, background: "transparent", border: "1px solid var(--c-border)", borderRadius: 9, fontSize: 14, color: "var(--c-text-dim)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
@@ -273,16 +277,16 @@ export default function CourtsPage() {
           {/* Date nav header */}
           <div className="courts-date-nav" style={{ padding: "18px 24px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: "0 0 2px" }}>Daily Schedule</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", margin: "0 0 2px" }}>{c.dailySchedule}</p>
               <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", margin: 0 }}>
-                {fmtDate(selectedDate)}
-                {isToday && <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: "#18B3A4", background: "rgba(24,179,164,.12)", padding: "2px 8px", borderRadius: 100 }}>Today</span>}
+                {fmtDate(selectedDate, LOCALE_MAP[lang])}
+                {isToday && <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: "#18B3A4", background: "rgba(24,179,164,.12)", padding: "2px 8px", borderRadius: 100 }}>{c.availableNow.split(" ")[0] === "Available" ? "Today" : t.schedule.today}</span>}
               </p>
             </div>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <button onClick={() => setSelectedDate(d => addDays(d, -7))} style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, cursor: "pointer", fontSize: 12, color: "var(--c-text-muted)", display: "flex", alignItems: "center", justifyContent: "center" }}>«</button>
               <button onClick={() => setSelectedDate(d => addDays(d, -1))} style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--c-text-muted)", display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
-              <button onClick={() => setSelectedDate(todayStr())} style={{ padding: "6px 14px", background: isToday ? "rgba(31,107,69,.1)" : "var(--c-inner)", border: `1px solid ${isToday ? "rgba(31,107,69,.3)" : "var(--c-border)"}`, borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, color: isToday ? "#1F6B45" : "var(--c-text-muted)" }}>Today</button>
+              <button onClick={() => setSelectedDate(todayStr())} style={{ padding: "6px 14px", background: isToday ? "rgba(31,107,69,.1)" : "var(--c-inner)", border: `1px solid ${isToday ? "rgba(31,107,69,.3)" : "var(--c-border)"}`, borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, color: isToday ? "#1F6B45" : "var(--c-text-muted)" }}>{t.schedule.today}</button>
               <button onClick={() => setSelectedDate(d => addDays(d, 1))} style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--c-text-muted)", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
               <button onClick={() => setSelectedDate(d => addDays(d, 7))} style={{ width: 32, height: 32, background: "var(--c-inner)", border: "1px solid var(--c-border)", borderRadius: 8, cursor: "pointer", fontSize: 12, color: "var(--c-text-muted)", display: "flex", alignItems: "center", justifyContent: "center" }}>»</button>
             </div>
@@ -310,8 +314,8 @@ export default function CourtsPage() {
             {bookings.length === 0 ? (
               <div style={{ textAlign: "center", padding: "32px 0" }}>
                 <p style={{ fontSize: 32, marginBottom: 10 }}>📅</p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: "var(--c-text)", marginBottom: 6 }}>No bookings for this day</p>
-                <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>Select a court and click "Book Court"</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "var(--c-text)", marginBottom: 6 }}>{c.noBookings}</p>
+                <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>{c.selectAndBook}</p>
               </div>
             ) : (
               <div style={{ minWidth: 520 }}>
@@ -375,7 +379,7 @@ export default function CourtsPage() {
           {/* Booking list */}
           {bookings.length > 0 && (
             <div style={{ padding: "0 24px 24px" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Booking List — {bookings.length} booking{bookings.length !== 1 ? "s" : ""}</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>{c.bookingList} — {bookings.length} {c.bookingsCount}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {bookings.sort((a, b) => a.start_time.localeCompare(b.start_time)).map(b => {
                   const courtSurface = courts.find(c => c.id === b.court_id)?.surface || "Hard";
@@ -415,7 +419,7 @@ export default function CourtsPage() {
       {showAddCourt && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.75)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 24, padding: 36, width: "100%", maxWidth: 420 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--c-text)", marginBottom: 28, letterSpacing: "-.3px" }}>New Court</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--c-text)", marginBottom: 28, letterSpacing: "-.3px" }}>{c.newCourt}</h2>
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>Surface Type</label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -444,8 +448,8 @@ export default function CourtsPage() {
               </div>
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
-              <button onClick={() => setShowAddCourt(false)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
-              <button onClick={addCourt} disabled={saving || !courtForm.name} style={{ flex: 2, padding: "13px", borderRadius: 12, border: "none", background: SURFACE[courtForm.surface].color, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving || !courtForm.name ? .6 : 1 }}>{saving ? "Adding..." : "Add Court"}</button>
+              <button onClick={() => setShowAddCourt(false)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{c.cancel}</button>
+              <button onClick={addCourt} disabled={saving || !courtForm.name} style={{ flex: 2, padding: "13px", borderRadius: 12, border: "none", background: SURFACE[courtForm.surface].color, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving || !courtForm.name ? .6 : 1 }}>{saving ? c.adding : c.addCourtBtn}</button>
             </div>
           </div>
         </div>
@@ -501,10 +505,10 @@ export default function CourtsPage() {
                 </div>
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                <button onClick={() => setShowBooking(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+                <button onClick={() => setShowBooking(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{c.cancel}</button>
                 <button onClick={addBooking} disabled={saving}
                   style={{ flex: 2, padding: "13px", borderRadius: 12, border: "none", background: (SURFACE[showBooking.surface] || SURFACE.Hard).color, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving ? .7 : 1 }}>
-                  {saving ? "Saving..." : "Confirm Booking"}
+                  {saving ? c.saving : c.confirmBooking}
                 </button>
               </div>
             </div>

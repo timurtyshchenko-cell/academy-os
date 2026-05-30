@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useLang } from "@/lib/i18n/context";
 
 interface Coach { id: number; name: string; email: string; specialty: string; status: string; created_at: string }
 interface Player { id: number; name: string; coach_name: string; status: string }
@@ -28,6 +29,8 @@ function initials(name: string) {
 }
 
 export default function CoachesPage() {
+  const { t } = useLang();
+  const co = t.coaches;
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,12 +86,12 @@ export default function CoachesPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Coaches</h1>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{activeCount} active · {coaches.length} total</p>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>{co.title}</h1>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{activeCount} {co.active_label} · {coaches.length} {co.total_label}</p>
         </div>
         <button onClick={() => setShowAdd(true)}
           style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(31,107,69,.3)" }}>
-          + Add Coach
+          {co.addCoach}
         </button>
       </div>
 
@@ -110,9 +113,9 @@ export default function CoachesPage() {
       {coaches.length === 0 ? (
         <div style={{ background: "var(--c-card)", border: "2px dashed var(--c-border)", borderRadius: 20, padding: 60, textAlign: "center" }}>
           <p style={{ fontSize: 40, marginBottom: 12 }}>🎾</p>
-          <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>No coaches yet</p>
-          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>Add your coaching staff to get started</p>
-          <button onClick={() => setShowAdd(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>Add First Coach →</button>
+          <p style={{ fontSize: 16, fontWeight: 800, color: "var(--c-text)", marginBottom: 8 }}>{co.noCoachesYet}</p>
+          <p style={{ fontSize: 14, color: "var(--c-text-muted)", marginBottom: 20 }}>{co.noCoachesDesc}</p>
+          <button onClick={() => setShowAdd(true)} style={{ background: "#1F6B45", color: "#fff", fontWeight: 700, fontSize: 14, padding: "10px 24px", borderRadius: 10, border: "none", cursor: "pointer" }}>{co.addFirstCoachBtn}</button>
         </div>
       ) : (
         <div className="coaches-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
@@ -135,7 +138,7 @@ export default function CoachesPage() {
                       </div>
                       <div>
                         <p style={{ fontSize: 15, fontWeight: 800, color: "var(--c-text)", margin: 0, lineHeight: 1.2 }}>{c.name}</p>
-                        <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>{c.email || "No email"}</p>
+                        <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>{c.email || co.noEmail}</p>
                       </div>
                     </div>
                     <button onClick={() => deleteCoach(c.id)}
@@ -152,7 +155,7 @@ export default function CoachesPage() {
                       <span style={{ fontSize: 12, color: "var(--c-text-dim)", background: "var(--c-inner)", border: "1px solid var(--c-border)", padding: "4px 12px", borderRadius: 100 }}>General</span>
                     )}
                     <span style={{ fontSize: 12, fontWeight: 600, color: "var(--c-text-muted)", background: "var(--c-inner)", border: "1px solid var(--c-border)", padding: "4px 10px", borderRadius: 100 }}>
-                      {playerCount} player{playerCount !== 1 ? "s" : ""}
+                      {playerCount} {playerCount !== 1 ? co.players : co.player}
                     </span>
                   </div>
                 </div>
@@ -167,15 +170,15 @@ export default function CoachesPage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.75)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
           <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 24, width: "100%", maxWidth: 460, maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ background: "linear-gradient(135deg,#186038,#1F6B45)", padding: "24px 28px" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".1em", margin: "0 0 4px" }}>New Coach</p>
-              <p style={{ fontSize: 20, fontWeight: 900, color: "#fff", margin: 0 }}>Add to your staff</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".1em", margin: "0 0 4px" }}>{co.newCoach}</p>
+              <p style={{ fontSize: 20, fontWeight: 900, color: "#fff", margin: 0 }}>{co.addToStaff}</p>
             </div>
             <div style={{ padding: 26 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {[
-                    { k: "name", label: "Name *", placeholder: "Coach Rivera", type: "text" },
-                    { k: "email", label: "Email", placeholder: "coach@academy.com", type: "email" },
+                    { k: "name", label: co.name, placeholder: "Coach Rivera", type: "text" },
+                    { k: "email", label: co.email, placeholder: "coach@academy.com", type: "email" },
                   ].map(({ k, label, placeholder, type }) => (
                     <div key={k}>
                       <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 5 }}>{label}</label>
@@ -185,7 +188,7 @@ export default function CoachesPage() {
                 </div>
                 {/* Specialty picker */}
                 <div>
-                  <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Specialty</label>
+                  <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>{co.specialty}</label>
                   <div className="spec-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
                     {SPECIALTIES.map(s => {
                       const m = SPECIALTY_META[s] || { color: "#607080", light: "rgba(96,112,128,.12)" };
@@ -201,10 +204,10 @@ export default function CoachesPage() {
                 </div>
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 22 }}>
-                <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+                <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{co.cancel}</button>
                 <button onClick={addCoach} disabled={saving || !form.name}
                   style={{ flex: 2, padding: "13px", borderRadius: 12, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, opacity: saving || !form.name ? .6 : 1 }}>
-                  {saving ? "Adding..." : "Add Coach"}
+                  {saving ? co.adding : co.addCoachBtn}
                 </button>
               </div>
             </div>

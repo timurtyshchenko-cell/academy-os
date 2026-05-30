@@ -32,6 +32,18 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id, date, start_time } = await req.json();
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  const db = getDb();
+  db.prepare("UPDATE sessions SET date = COALESCE(?, date), start_time = COALESCE(?, start_time) WHERE id = ? AND academy_id = ?")
+    .run(date ?? null, start_time ?? null, id, session.academyId);
+  const s = db.prepare("SELECT * FROM sessions WHERE id = ?").get(id);
+  return NextResponse.json({ session: s });
+}
+
 export async function DELETE(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

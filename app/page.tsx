@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { useLang } from "@/lib/i18n/context";
+import { Lang, LANG_FLAGS, LANG_LABELS, LANG_NAMES } from "@/lib/i18n/translations";
 
 function useReveal() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +31,9 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function LandingPage() {
+  const { lang, setLang, t } = useLang();
+  const ld = t.landing;
+  const [langOpen, setLangOpen] = useState(false);
   const revealStats = useReveal();
   const revealProblem = useReveal();
   const revealFeatures = useReveal();
@@ -45,7 +50,7 @@ export default function LandingPage() {
   const [err, setErr] = useState("");
 
   async function handleCheckout() {
-    if (!email || !academy) { setErr("Fill in both fields"); return; }
+    if (!email || !academy) { setErr(ld.modalErrFill); return; }
     setLoading(true); setErr("");
     try {
       const res = await fetch("/api/stripe/checkout", {
@@ -55,8 +60,8 @@ export default function LandingPage() {
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else setErr("Something went wrong. Try again.");
-    } catch { setErr("Network error. Try again."); }
+      else setErr(ld.modalErrWrong);
+    } catch { setErr(ld.modalErrNetwork); }
     setLoading(false);
   }
 
@@ -108,9 +113,33 @@ export default function LandingPage() {
             <span style={{ fontWeight: 700, color: "#F5F7FA", fontSize: 18, letterSpacing: "-.3px" }}>AcademyOS</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Link href="/login" className="nav-link nav-signin" style={{ padding: "8px 16px", borderRadius: 8 }}>Sign in</Link>
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setLangOpen(o => !o)}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9, border: "1px solid rgba(255,255,255,.25)", background: "rgba(255,255,255,.08)", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#F5F7FA", transition: "all .15s" }}
+                onMouseEnter={e => { (e.currentTarget.style.background = "rgba(255,255,255,.14)"); }}
+                onMouseLeave={e => { (e.currentTarget.style.background = "rgba(255,255,255,.08)"); }}>
+                <span style={{ fontSize: 16 }}>{LANG_FLAGS[lang]}</span>
+                <span>{LANG_LABELS[lang]}</span>
+                <span style={{ fontSize: 10, opacity: .6 }}>▾</span>
+              </button>
+              {langOpen && (
+                <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, background: "#122028", border: "1px solid rgba(255,255,255,.1)", borderRadius: 12, overflow: "hidden", boxShadow: "0 12px 40px rgba(0,0,0,.6)", zIndex: 200, minWidth: 140 }}>
+                  {(["en", "es", "ru"] as Lang[]).map(lc => (
+                    <button key={lc} onClick={() => { setLang(lc); setLangOpen(false); }}
+                      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "10px 14px", background: lc === lang ? "rgba(31,107,69,.15)" : "transparent", border: "none", cursor: "pointer", fontSize: 13, fontWeight: lc === lang ? 700 : 500, color: lc === lang ? "#4ade80" : "#97A6B2", transition: "background .12s" }}
+                      onMouseEnter={e => { if (lc !== lang) (e.currentTarget.style.background = "rgba(255,255,255,.06)"); }}
+                      onMouseLeave={e => { if (lc !== lang) (e.currentTarget.style.background = "transparent"); }}>
+                      <span style={{ fontSize: 16 }}>{LANG_FLAGS[lc]}</span>
+                      <span>{LANG_NAMES[lc]}</span>
+                      {lc === lang && <span style={{ marginLeft: "auto", fontSize: 11 }}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Link href="/login" className="nav-link nav-signin" style={{ padding: "8px 16px", borderRadius: 8 }}>{t.nav.signIn}</Link>
             <Link href="/signup" className="btn-cta" style={{ fontSize: 14, padding: "10px 22px", borderRadius: 12 }}>
-              Get started →
+              {t.nav.getStarted}
             </Link>
           </div>
         </div>
@@ -125,27 +154,27 @@ export default function LandingPage() {
         <div className="hero-inner" style={{ maxWidth: 820, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1, animation: "fadein .8s ease both" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(31,107,69,.1)", border: "1px solid rgba(31,107,69,.22)", borderRadius: 100, padding: "7px 18px", marginBottom: 40 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "pulse-slow 2.5s ease infinite" }} />
-            <span style={{ fontSize: 12, color: "#97A6B2", fontWeight: 600, letterSpacing: ".06em" }}>Built exclusively for tennis academies</span>
+            <span style={{ fontSize: 12, color: "#97A6B2", fontWeight: 600, letterSpacing: ".06em" }}>{ld.builtFor}</span>
           </div>
 
           <h1 className="hero-h1" style={{ fontSize: 90, fontWeight: 900, lineHeight: 1.04, letterSpacing: "-3px", marginBottom: 28, overflow: "visible" }}>
-            <span style={{ color: "#F5F7FA", display: "block", overflow: "visible" }}>Run your academy</span>
-            <span style={{ color: "#FFD447", display: "block", overflow: "visible" }}>like a business.</span>
+            <span style={{ color: "#F5F7FA", display: "block", overflow: "visible" }}>{ld.hero1}</span>
+            <span style={{ color: "#FFD447", display: "block", overflow: "visible" }}>{ld.hero2}</span>
           </h1>
 
           <p className="hero-sub" style={{ fontSize: 19, color: "#97A6B2", lineHeight: 1.75, maxWidth: 520, margin: "0 auto 48px" }}>
-            Players, coaches, schedules, billing, and parent emails — all in one place. Stop wasting hours on admin work.
+            {ld.heroDesc}
           </p>
 
           <div className="hero-btns" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
             <Link href="/book-demo" className="btn-cta" style={{ fontSize: 16, padding: "15px 40px", borderRadius: 14 }}>
-              Book a Free Demo →
+              {ld.bookDemo}
             </Link>
             <Link href="/signup" className="btn-outline" style={{ fontSize: 16, padding: "15px 28px", borderRadius: 14 }}>
-              Start free trial
+              {ld.startTrial}
             </Link>
           </div>
-          <p style={{ fontSize: 13, color: "#97A6B2", marginTop: 20, opacity: .7 }}>14-day free trial · No credit card · Cancel anytime</p>
+          <p style={{ fontSize: 13, color: "#97A6B2", marginTop: 20, opacity: .7 }}>{ld.trialNotice}</p>
         </div>
 
         {/* Dashboard mockup */}
@@ -164,7 +193,13 @@ export default function LandingPage() {
                     <div style={{ width: 22, height: 22, background: "#1F6B45", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "#FFD447" }}>A</div>
                     <div style={{ width: 65, height: 5, background: "rgba(255,255,255,.07)", borderRadius: 4 }} />
                   </div>
-                  {[{l:"Overview",a:true},{l:"Players"},{l:"Billing"},{l:"Schedule"},{l:"Settings"}].map(item => (
+                  {[
+                    { l: t.nav.overview, a: true },
+                    { l: t.nav.players },
+                    { l: t.nav.billing },
+                    { l: t.nav.schedule },
+                    { l: t.nav.settings },
+                  ].map(item => (
                     <div key={item.l} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 10, marginBottom: 2, background: item.a ? "rgba(31,107,69,.15)" : "transparent", boxShadow: item.a ? "inset 3px 0 0 #1F6B45" : "none" }}>
                       <span style={{ fontSize: 12, color: item.a ? "#4ade80" : "#97A6B2", fontWeight: item.a ? 600 : 400 }}>{item.l}</span>
                     </div>
@@ -215,10 +250,10 @@ export default function LandingPage() {
       <div ref={revealStats} className="reveal-section" style={{ borderTop: "1px solid rgba(255,255,255,.07)", borderBottom: "1px solid rgba(255,255,255,.07)", background: "#0b1a20" }}>
         <div className="stats-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
           {[
-            { v: "$10k", l: "One-time setup" },
-            { v: "$4k", l: "Per month" },
-            { v: "∞", l: "Players & invoices" },
-            { v: "24/7", l: "Support included" },
+            { v: "$10k", l: ld.statSetupLabel },
+            { v: "$4k",  l: ld.statMonthlyLabel },
+            { v: "∞",    l: ld.statPlayersLabel },
+            { v: "24/7", l: ld.statSupportLabel },
           ].map((s, i) => (
             <div key={i} style={{ padding: "32px 24px", textAlign: "center", borderRight: i < 3 ? "1px solid rgba(255,255,255,.06)" : "none" }}>
               <p style={{ fontSize: 32, fontWeight: 900, color: "#FFD447", letterSpacing: "-1px", marginBottom: 8 }}>{s.v}</p>
@@ -232,15 +267,15 @@ export default function LandingPage() {
       <section ref={revealProblem} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>The problem</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>{ld.problemLabel}</p>
             <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#F5F7FA" }}>
-              Running an academy is chaos.<br />It doesn't have to be.
+              {ld.problemTitleLine1}<br />{ld.problemTitleLine2}
             </h2>
           </div>
           <div className="compare-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 36 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>Without AcademyOS</p>
-              {["3+ hours/month sending invoices manually","Chasing parents on WhatsApp for payments","Excel spreadsheets for player tracking","Missing sessions, losing revenue","No visibility on what's actually happening"].map(item => (
+              <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>{ld.withoutTitle}</p>
+              {[ld.prob1, ld.prob2, ld.prob3, ld.prob4, ld.prob5].map(item => (
                 <div key={item} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
                   <span style={{ color: "#ef4444", fontSize: 14, flexShrink: 0, marginTop: 2, fontWeight: 700 }}>✕</span>
                   <p style={{ fontSize: 14, color: "#97A6B2", lineHeight: 1.6 }}>{item}</p>
@@ -248,8 +283,8 @@ export default function LandingPage() {
               ))}
             </div>
             <div style={{ background: "#1A2B34", border: "1px solid rgba(31,107,69,.25)", borderRadius: 18, padding: 36 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: "#4ade80", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>With AcademyOS</p>
-              {["Invoices generated & emailed in one click","Parents pay online via Stripe link","All players, sessions, coaches in one dashboard","Automated reminders for unpaid invoices","Live revenue & attendance at a glance"].map(item => (
+              <p style={{ fontSize: 12, fontWeight: 700, color: "#4ade80", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 24 }}>{ld.withTitle}</p>
+              {[ld.sol1, ld.sol2, ld.sol3, ld.sol4, ld.sol5].map(item => (
                 <div key={item} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
                   <span style={{ color: "#4ade80", fontSize: 14, flexShrink: 0, marginTop: 2, fontWeight: 700 }}>✓</span>
                   <p style={{ fontSize: 14, color: "#97A6B2", lineHeight: 1.6 }}>{item}</p>
@@ -264,26 +299,26 @@ export default function LandingPage() {
       <section ref={revealFeatures} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>Features</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>{ld.featLabel}</p>
             <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#F5F7FA" }}>
-              Everything your academy needs
+              {ld.featTitle}
             </h2>
-            <p style={{ fontSize: 17, color: "#97A6B2", maxWidth: 440, margin: "0 auto" }}>One platform. No spreadsheets. No chaos.</p>
+            <p style={{ fontSize: 17, color: "#97A6B2", maxWidth: 440, margin: "0 auto" }}>{ld.featSubtitle}</p>
           </div>
           <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
             <div className="card-hover feat-big" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 36, gridColumn: "1 / 3" }}>
               <div style={{ width: 50, height: 50, background: "rgba(31,107,69,.15)", border: "1px solid rgba(31,107,69,.25)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, marginBottom: 22 }}>👥</div>
-              <h3 style={{ fontSize: 21, fontWeight: 800, color: "#F5F7FA", marginBottom: 12, letterSpacing: "-.4px" }}>Player Management</h3>
-              <p style={{ fontSize: 14, color: "#97A6B2", lineHeight: 1.8, maxWidth: 440 }}>Complete profiles — age, level, coach, parent contacts, training history, payment status. Everything about every player, instantly accessible.</p>
+              <h3 style={{ fontSize: 21, fontWeight: 800, color: "#F5F7FA", marginBottom: 12, letterSpacing: "-.4px" }}>{ld.feat1Title}</h3>
+              <p style={{ fontSize: 14, color: "#97A6B2", lineHeight: 1.8, maxWidth: 440 }}>{ld.feat1Desc}</p>
             </div>
             {[
-              { icon: "💳", title: "Smart Billing", desc: "Generate invoices for all players in one click. Email with a Stripe payment link. Auto-mark paid.", c: "rgba(31,107,69,.15)", cb: "rgba(31,107,69,.25)" },
-              { icon: "📧", title: "Parent Emails", desc: "Beautiful invoice and training report emails. Reminders for unpaid invoices automatically.", c: "rgba(255,212,71,.1)", cb: "rgba(255,212,71,.2)" },
-              { icon: "📅", title: "Schedule & Sessions", desc: "Log training sessions, track hours, view attendance. Full history per player.", c: "rgba(24,179,164,.1)", cb: "rgba(24,179,164,.2)" },
-              { icon: "📊", title: "Revenue Dashboard", desc: "Live MRR, collected vs pending, monthly chart. Know your numbers at a glance.", c: "rgba(31,107,69,.15)", cb: "rgba(31,107,69,.25)" },
-              { icon: "🔒", title: "Your Data, Isolated", desc: "Multi-tenant architecture. Your academy data is 100% private and secure.", c: "rgba(255,212,71,.1)", cb: "rgba(255,212,71,.2)" },
+              { icon: "💳", title: ld.feat2Title, desc: ld.feat2Desc, c: "rgba(31,107,69,.15)", cb: "rgba(31,107,69,.25)" },
+              { icon: "📧", title: ld.feat3Title, desc: ld.feat3Desc, c: "rgba(255,212,71,.1)", cb: "rgba(255,212,71,.2)" },
+              { icon: "📅", title: ld.feat4Title, desc: ld.feat4Desc, c: "rgba(24,179,164,.1)", cb: "rgba(24,179,164,.2)" },
+              { icon: "📊", title: ld.feat5Title, desc: ld.feat5Desc, c: "rgba(31,107,69,.15)", cb: "rgba(31,107,69,.25)" },
+              { icon: "🔒", title: ld.feat6Title, desc: ld.feat6Desc, c: "rgba(255,212,71,.1)", cb: "rgba(255,212,71,.2)" },
             ].map(f => (
-              <div key={f.title} className="card-hover" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 28 }}>
+              <div key={f.icon} className="card-hover" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 28 }}>
                 <div style={{ width: 44, height: 44, background: f.c, border: `1px solid ${f.cb}`, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18 }}>{f.icon}</div>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: "#F5F7FA", marginBottom: 10, letterSpacing: "-.3px" }}>{f.title}</h3>
                 <p style={{ fontSize: 13, color: "#97A6B2", lineHeight: 1.7 }}>{f.desc}</p>
@@ -297,15 +332,15 @@ export default function LandingPage() {
       <section ref={revealProcess} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)", background: "#0b1a20" }}>
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>Process</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#F5F7FA" }}>Up and running in 3 days</h2>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>{ld.processLabel}</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#F5F7FA" }}>{ld.processTitle}</h2>
           </div>
           <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, position: "relative" }}>
             <div className="steps-line" style={{ position: "absolute", top: 34, left: "18%", right: "18%", height: 1, background: "linear-gradient(90deg,transparent,rgba(31,107,69,.4),transparent)", pointerEvents: "none" }} />
             {[
-              { n: "01", icon: "📋", title: "Send us your data", desc: "Share your player list, billing rates, and coach info. We set up everything in 24 hours." },
-              { n: "02", icon: "🎓", title: "Team onboarding", desc: "30-minute call with your staff. Everyone is ready to log sessions and send invoices." },
-              { n: "03", icon: "🚀", title: "Go live", desc: "Your academy runs on AcademyOS. Invoices go out, parents pay online, you see everything." },
+              { n: "01", icon: "📋", title: ld.step1Title, desc: ld.step1Desc },
+              { n: "02", icon: "🎓", title: ld.step2Title, desc: ld.step2Desc },
+              { n: "03", icon: "🚀", title: ld.step3Title, desc: ld.step3Desc },
             ].map(s => (
               <div key={s.n} className="card-hover" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 32, textAlign: "center", position: "relative" }}>
                 <div style={{ position: "absolute", top: 16, right: 18, fontSize: 11, fontWeight: 700, color: "#FFD447", letterSpacing: ".08em", opacity: .7 }}>{s.n}</div>
@@ -322,25 +357,25 @@ export default function LandingPage() {
       <section ref={revealTestimonials} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
         <div style={{ maxWidth: 1060, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>Testimonials</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#F5F7FA" }}>Academy directors love it</h2>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>{ld.testimLabel}</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#F5F7FA" }}>{ld.testimTitle}</h2>
           </div>
           <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
             {[
-              { quote: "We used to spend 3 hours every month sending invoices manually. Now it takes one click. Parents actually get real training reports — they love it.", name: "Carlos M.", role: "Director, Elite Tennis Academy" },
-              { quote: "Finally a system built for tennis academies, not a generic CRM. The billing dashboard alone saved us from so many missed payments.", name: "Sarah K.", role: "Owner, ProTennis Club" },
-              { quote: "Setup took 2 days. The team picked it up immediately. The invoice emails with the Pay Now button are a game-changer.", name: "David R.", role: "Head Coach & Director" },
-            ].map(t => (
-              <div key={t.name} className="card-hover" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 30 }}>
+              { quote: ld.testim1Quote, name: ld.testim1Name, role: ld.testim1Role },
+              { quote: ld.testim2Quote, name: ld.testim2Name, role: ld.testim2Role },
+              { quote: ld.testim3Quote, name: ld.testim3Name, role: ld.testim3Role },
+            ].map(item => (
+              <div key={item.name} className="card-hover" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 30 }}>
                 <div style={{ display: "flex", gap: 2, marginBottom: 18 }}>
                   {Array(5).fill(0).map((_, i) => <span key={i} style={{ color: "#FFD447", fontSize: 14 }}>★</span>)}
                 </div>
-                <p style={{ fontSize: 14, color: "#97A6B2", lineHeight: 1.85, marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
+                <p style={{ fontSize: 14, color: "#97A6B2", lineHeight: 1.85, marginBottom: 24, fontStyle: "italic" }}>&quot;{item.quote}&quot;</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 38, height: 38, background: "#1F6B45", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#FFD447", flexShrink: 0 }}>{t.name[0]}</div>
+                  <div style={{ width: 38, height: 38, background: "#1F6B45", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#FFD447", flexShrink: 0 }}>{item.name[0]}</div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#F5F7FA" }}>{t.name}</p>
-                    <p style={{ fontSize: 12, color: "#97A6B2" }}>{t.role}</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#F5F7FA" }}>{item.name}</p>
+                    <p style={{ fontSize: 12, color: "#97A6B2" }}>{item.role}</p>
                   </div>
                 </div>
               </div>
@@ -353,17 +388,17 @@ export default function LandingPage() {
       <section ref={revealFaq} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)", background: "#0b1a20" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>FAQ</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#F5F7FA" }}>Common questions</h2>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>{ld.faqLabel}</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", color: "#F5F7FA" }}>{ld.faqTitle}</h2>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
-              { q: "How long does setup take?", a: "Typically 2–3 business days. We handle everything — just send us your player list and billing details." },
-              { q: "Can I cancel anytime?", a: "Yes. Cancel anytime. Your data stays accessible for 30 days after cancellation so you can export everything." },
-              { q: "How many players can I add?", a: "Unlimited. No caps on players, coaches, invoices, or sessions." },
-              { q: "Do parents need accounts?", a: "No. They receive invoice and report emails directly — no login required on their end." },
-              { q: "Does it work on mobile?", a: "Yes. The dashboard works on all devices. You can also install it as an app on your phone home screen." },
-              { q: "Is my data secure?", a: "Yes. Each academy's data is fully isolated. Encrypted connections and regular backups." },
+              { q: ld.faq1Q, a: ld.faq1A },
+              { q: ld.faq2Q, a: ld.faq2A },
+              { q: ld.faq3Q, a: ld.faq3A },
+              { q: ld.faq4Q, a: ld.faq4A },
+              { q: ld.faq5Q, a: ld.faq5A },
+              { q: ld.faq6Q, a: ld.faq6A },
             ].map((item, i) => (
               <FaqItem key={i} q={item.q} a={item.a} />
             ))}
@@ -372,45 +407,45 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section ref={revealPricing} className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
+      <section ref={revealPricing} id="pricing" className="section reveal-section" style={{ padding: "110px 24px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
         <div style={{ maxWidth: 880, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 72 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>Pricing</p>
-            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#F5F7FA" }}>Simple, honest pricing</h2>
-            <p style={{ fontSize: 16, color: "#97A6B2" }}>One setup fee. One monthly subscription. No surprises.</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 14 }}>{ld.pricingLabel}</p>
+            <h2 className="section-h2" style={{ fontSize: 46, fontWeight: 900, letterSpacing: "-2px", marginBottom: 16, color: "#F5F7FA" }}>{ld.pricingTitle}</h2>
+            <p style={{ fontSize: 16, color: "#97A6B2" }}>{ld.pricingSubtitle}</p>
           </div>
           <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div className="card-hover" style={{ background: "#122028", border: "1px solid rgba(255,255,255,.08)", borderRadius: 18, padding: 44 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#97A6B2", textTransform: "uppercase", letterSpacing: ".14em", marginBottom: 24 }}>One-Time Setup</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#97A6B2", textTransform: "uppercase", letterSpacing: ".14em", marginBottom: 24 }}>{ld.pricingSetupLabel}</p>
               <div style={{ marginBottom: 36 }}>
                 <span style={{ fontSize: 54, fontWeight: 900, color: "#F5F7FA", letterSpacing: "-2px" }}>$10k</span>
-                <span style={{ fontSize: 15, color: "#97A6B2", marginLeft: 8 }}>once</span>
+                <span style={{ fontSize: 15, color: "#97A6B2", marginLeft: 8 }}>{ld.pricingSetupPeriod}</span>
               </div>
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
-                {["Custom installation & config","Data migration from spreadsheets","Staff onboarding call","30-day priority support"].map(i => (
+                {[ld.pricingSetupF1, ld.pricingSetupF2, ld.pricingSetupF3, ld.pricingSetupF4].map(i => (
                   <li key={i} style={{ fontSize: 14, color: "#97A6B2", display: "flex", alignItems: "center", gap: 12 }}>
                     <span style={{ color: "#1F6B45", fontWeight: 800, fontSize: 15 }}>✓</span>{i}
                   </li>
                 ))}
               </ul>
-              <Link href="/book-demo" className="btn-outline" style={{ display: "block", width: "100%", textAlign: "center", fontSize: 14, fontWeight: 700, padding: "13px", borderRadius: 13 }}>Book a demo →</Link>
+              <Link href="/book-demo" className="btn-outline" style={{ display: "block", width: "100%", textAlign: "center", fontSize: 14, fontWeight: 700, padding: "13px", borderRadius: 13 }}>{ld.pricingBookDemo}</Link>
             </div>
             <div className="card-hover" style={{ background: "#1A2B34", border: "1px solid rgba(31,107,69,.3)", borderRadius: 18, padding: 44, position: "relative" }}>
-              <div style={{ position: "absolute", top: -13, left: 28, background: "#FFD447", color: "#081418", fontSize: 11, fontWeight: 800, padding: "4px 14px", borderRadius: 100, letterSpacing: ".06em" }}>MONTHLY</div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".14em", marginBottom: 24 }}>Subscription</p>
+              <div style={{ position: "absolute", top: -13, left: 28, background: "#FFD447", color: "#081418", fontSize: 11, fontWeight: 800, padding: "4px 14px", borderRadius: 100, letterSpacing: ".06em" }}>{ld.pricingMonthlyBadge}</div>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#18B3A4", textTransform: "uppercase", letterSpacing: ".14em", marginBottom: 24 }}>{ld.pricingSubLabel}</p>
               <div style={{ marginBottom: 36 }}>
                 <span style={{ fontSize: 54, fontWeight: 900, color: "#F5F7FA", letterSpacing: "-2px" }}>$4k</span>
-                <span style={{ fontSize: 15, color: "#97A6B2", marginLeft: 8 }}>/month</span>
+                <span style={{ fontSize: 15, color: "#97A6B2", marginLeft: 8 }}>{ld.pricingSubPeriod}</span>
               </div>
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
-                {["Unlimited players & coaches","Unlimited invoices & emails","All features included","Monthly updates","24/7 support"].map(i => (
+                {[ld.pricingSubF1, ld.pricingSubF2, ld.pricingSubF3, ld.pricingSubF4, ld.pricingSubF5].map(i => (
                   <li key={i} style={{ fontSize: 14, color: "#97A6B2", display: "flex", alignItems: "center", gap: 12 }}>
                     <span style={{ color: "#FFD447", fontWeight: 800, fontSize: 15 }}>✓</span>{i}
                   </li>
                 ))}
               </ul>
               <button onClick={() => setModal(true)} className="btn-cta" style={{ display: "block", width: "100%", textAlign: "center", fontSize: 15, padding: "14px", borderRadius: 13, border: "none" }}>
-                Get started →
+                {ld.pricingGetStarted}
               </button>
             </div>
           </div>
@@ -422,20 +457,18 @@ export default function LandingPage() {
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 400, background: "radial-gradient(ellipse,rgba(31,107,69,.1) 0%,transparent 65%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
           <h2 style={{ fontSize: 52, fontWeight: 900, letterSpacing: "-2.5px", marginBottom: 24, color: "#F5F7FA", lineHeight: 1.1 }}>
-            Ready to run a<br /><span style={{ color: "#FFD447" }}>real business?</span>
+            {ld.ctaTitle1}<br /><span style={{ color: "#FFD447" }}>{ld.ctaTitle2}</span>
           </h2>
-          <p style={{ fontSize: 17, color: "#97A6B2", lineHeight: 1.8, marginBottom: 48 }}>
-            Join directors who stopped drowning in admin and started focusing on what matters — coaching.
-          </p>
+          <p style={{ fontSize: 17, color: "#97A6B2", lineHeight: 1.8, marginBottom: 48 }}>{ld.ctaDesc}</p>
           <div className="hero-btns" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
             <Link href="/signup" className="btn-cta" style={{ fontSize: 17, fontWeight: 800, padding: "16px 52px", borderRadius: 14 }}>
-              Start free trial →
+              {ld.ctaStartTrial}
             </Link>
             <Link href="/book-demo" className="btn-outline" style={{ fontSize: 15, padding: "16px 32px", borderRadius: 14 }}>
-              Book a demo
+              {ld.ctaBookDemo}
             </Link>
           </div>
-          <p style={{ fontSize: 13, color: "#97A6B2", marginTop: 24, opacity: .6 }}>14 days free · No credit card · Cancel anytime</p>
+          <p style={{ fontSize: 13, color: "#97A6B2", marginTop: 24, opacity: .6 }}>{ld.ctaTrialNote}</p>
         </div>
       </section>
 
@@ -444,10 +477,13 @@ export default function LandingPage() {
         <div style={{ position: "fixed", inset: 0, zIndex: 999, background: "rgba(0,0,0,.75)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
           onClick={e => { if (e.target === e.currentTarget) setModal(false); }}>
           <div style={{ background: "#122028", border: "1px solid rgba(255,255,255,.1)", borderRadius: 20, padding: "44px 40px", width: "100%", maxWidth: 440, boxShadow: "0 40px 100px rgba(0,0,0,.7)" }}>
-            <p style={{ fontSize: 22, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.5px", marginBottom: 8 }}>Subscribe to AcademyOS</p>
-            <p style={{ fontSize: 14, color: "#97A6B2", marginBottom: 28 }}>$4,000/month — unlimited players, all features</p>
+            <p style={{ fontSize: 22, fontWeight: 800, color: "#F5F7FA", letterSpacing: "-.5px", marginBottom: 8 }}>{ld.modalTitle}</p>
+            <p style={{ fontSize: 14, color: "#97A6B2", marginBottom: 28 }}>{ld.modalSubtitle}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
-              {[{label:"Academy Name",val:academy,set:setAcademy,ph:"Miami Tennis Academy",type:"text"},{label:"Email",val:email,set:setEmail,ph:"you@academy.com",type:"email"}].map(f => (
+              {[
+                { label: ld.modalAcademyLabel, val: academy, set: setAcademy, ph: "Miami Tennis Academy", type: "text" },
+                { label: ld.modalEmailLabel, val: email, set: setEmail, ph: "you@academy.com", type: "email" },
+              ].map(f => (
                 <div key={f.label}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "#97A6B2", textTransform: "uppercase", letterSpacing: ".08em", display: "block", marginBottom: 8 }}>{f.label}</label>
                   <input type={f.type} value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
@@ -458,9 +494,9 @@ export default function LandingPage() {
             {err && <p style={{ fontSize: 13, color: "#f87171", marginBottom: 14 }}>{err}</p>}
             <button onClick={handleCheckout} disabled={loading} className="btn-cta"
               style={{ width: "100%", fontSize: 15, padding: "14px", borderRadius: 13, opacity: loading ? .7 : 1 }}>
-              {loading ? "Redirecting..." : "Continue to payment →"}
+              {loading ? ld.modalRedirecting : ld.modalContinue}
             </button>
-            <p style={{ fontSize: 12, color: "#97A6B2", textAlign: "center", marginTop: 14, opacity: .6 }}>Powered by Stripe · Secure checkout</p>
+            <p style={{ fontSize: 12, color: "#97A6B2", textAlign: "center", marginTop: 14, opacity: .6 }}>{ld.modalPowered}</p>
           </div>
         </div>
       )}
@@ -472,10 +508,10 @@ export default function LandingPage() {
             <div style={{ width: 26, height: 26, background: "#1F6B45", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#FFD447", fontSize: 11 }}>A</div>
             <span style={{ fontWeight: 600, color: "#97A6B2", fontSize: 14 }}>AcademyOS</span>
           </div>
-          <p style={{ fontSize: 13, color: "#97A6B2", opacity: .5 }}>© 2025 AcademyOS. All rights reserved.</p>
+          <p style={{ fontSize: 13, color: "#97A6B2", opacity: .5 }}>{ld.footerRights}</p>
           <div style={{ display: "flex", gap: 24 }}>
-            <Link href="/login" className="nav-link">Sign in</Link>
-            <Link href="/signup" className="nav-link">Sign up</Link>
+            <Link href="/login" className="nav-link">{ld.footerSignIn}</Link>
+            <Link href="/signup" className="nav-link">{ld.footerSignUp}</Link>
           </div>
         </div>
       </footer>

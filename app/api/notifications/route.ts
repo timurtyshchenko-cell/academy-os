@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Resend } from "resend";
-
-function getResend() { return new Resend(process.env.RESEND_API_KEY); }
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -58,13 +55,14 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-  const { error } = await getResend().emails.send({
-    from: `${session.academyName} <onboarding@resend.dev>`,
-    to: player.parent_email,
-    subject: `Training reminder — ${player.name} — ${trainingSession.date}`,
-    html,
+  const brevoKey = process.env.BREVO_API_KEY;
+  if (!brevoKey) throw new Error("BREVO_API_KEY missing");
+  const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: { "api-key": brevoKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ sender: { name: session.academyName, email: "noreply@academyos.app" }, to: [{ email: player.parent_email }], subject: `Training reminder — ${player.name} — ${trainingSession.date}`, htmlContent: html }),
   });
-  if (error) throw new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
+  if (!brevoRes.ok) throw new Error(`Brevo error: ${await brevoRes.text()}`);
 
   return NextResponse.json({ success: true });
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLang } from "@/lib/i18n/context";
 
 interface Settings { academy: { id: number; name: string; subscription_status: string; created_at: string }; user: { id: number; name: string; email: string } }
 
@@ -20,6 +21,8 @@ const SUB_META: Record<string, { color: string; bg: string; label: string; desc:
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { t } = useLang();
+  const s = t.settings;
   const [data, setData] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,8 +69,8 @@ export default function SettingsPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 680 }}>
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>Settings</h1>
-        <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>Manage your academy and account</p>
+        <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--c-text)", letterSpacing: "-1px", marginBottom: 4 }}>{s.title}</h1>
+        <p style={{ fontSize: 14, color: "var(--c-text-muted)" }}>{s.subtitle}</p>
       </div>
 
       {/* Profile card */}
@@ -84,11 +87,11 @@ export default function SettingsPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Your Name</label>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>{s.yourName}</label>
               <input value={form.userName} onChange={e => setForm(p => ({ ...p, userName: e.target.value }))} style={inp} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Email</label>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>{s.email}</label>
               <div style={{ ...inp, color: "var(--c-text-muted)", cursor: "not-allowed", opacity: .65 }}>{data?.user?.email || "—"}</div>
             </div>
           </div>
@@ -97,22 +100,22 @@ export default function SettingsPage() {
 
       {/* Academy card */}
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 18, padding: 28 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>Academy</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>{s.academy}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Academy Name</label>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>{s.academyName}</label>
             <input value={form.academyName} onChange={e => setForm(p => ({ ...p, academyName: e.target.value }))} style={inp} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div style={{ background: "var(--c-inner)", borderRadius: 10, padding: "12px 14px", border: "1px solid var(--c-border)" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".06em", margin: "0 0 4px" }}>Member Since</p>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".06em", margin: "0 0 4px" }}>{s.memberSince}</p>
               <p style={{ fontSize: 14, fontWeight: 700, color: "var(--c-text)", margin: 0 }}>{memberSince}</p>
-              <p style={{ fontSize: 11, color: "var(--c-text-dim)", margin: "2px 0 0" }}>{daysAgo} days ago</p>
+              <p style={{ fontSize: 11, color: "var(--c-text-dim)", margin: "2px 0 0" }}>{daysAgo} {s.daysAgo}</p>
             </div>
             <div style={{ background: "var(--c-inner)", borderRadius: 10, padding: "12px 14px", border: "1px solid var(--c-border)" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".06em", margin: "0 0 4px" }}>Academy ID</p>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-text-dim)", textTransform: "uppercase", letterSpacing: ".06em", margin: "0 0 4px" }}>{s.academyId}</p>
               <p style={{ fontSize: 14, fontWeight: 700, color: "var(--c-text)", margin: 0 }}>#{data?.academy?.id || "—"}</p>
-              <p style={{ fontSize: 11, color: "var(--c-text-dim)", margin: "2px 0 0" }}>Unique identifier</p>
+              <p style={{ fontSize: 11, color: "var(--c-text-dim)", margin: "2px 0 0" }}>{s.uniqueId}</p>
             </div>
           </div>
         </div>
@@ -122,18 +125,18 @@ export default function SettingsPage() {
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <button onClick={save} disabled={saving}
           style={{ padding: "12px 32px", borderRadius: 12, border: "none", background: "#1F6B45", color: "#fff", fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", fontSize: 14, opacity: saving ? .7 : 1, boxShadow: "0 4px 14px rgba(31,107,69,.25)" }}>
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? s.saving : s.saveChanges}
         </button>
         {saved && (
           <span style={{ fontSize: 13, color: "#1F6B45", fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ fontSize: 16 }}>✓</span> Saved
+            <span style={{ fontSize: 16 }}>✓</span> {s.saved}
           </span>
         )}
       </div>
 
       {/* Subscription card */}
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 18, padding: 28 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>Subscription</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>{s.subscription}</p>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: sub.bg, border: `1px solid ${sub.color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
@@ -148,10 +151,10 @@ export default function SettingsPage() {
             </div>
           </div>
           {subStatus === "trial" && (
-            <a href="/subscribe" style={{ fontSize: 13, fontWeight: 800, color: "#081418", background: "#FFD447", padding: "10px 22px", borderRadius: 10, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(255,212,71,.3)" }}>Upgrade →</a>
+            <a href="/subscribe" style={{ fontSize: 13, fontWeight: 800, color: "#081418", background: "#FFD447", padding: "10px 22px", borderRadius: 10, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(255,212,71,.3)" }}>{s.upgrade}</a>
           )}
           {subStatus === "active" && (
-            <a href="/subscribe/manage" style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text-muted)", background: "var(--c-inner)", border: "1px solid var(--c-border)", padding: "10px 18px", borderRadius: 10, textDecoration: "none" }}>Manage</a>
+            <a href="/subscribe/manage" style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text-muted)", background: "var(--c-inner)", border: "1px solid var(--c-border)", padding: "10px 18px", borderRadius: 10, textDecoration: "none" }}>{s.manage}</a>
           )}
         </div>
         {subStatus === "trial" && (
@@ -164,12 +167,12 @@ export default function SettingsPage() {
 
       {/* Notifications card */}
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 18, padding: 28 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>Notifications</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 20 }}>{s.notifications}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           {[
-            { key: "invoiceEmails", label: "Invoice emails", desc: "Send invoice to parents when generated" },
-            { key: "reminderEmails", label: "Payment reminders", desc: "Auto-send reminders for unpaid invoices" },
-            { key: "weeklyReport", label: "Weekly summary", desc: "Email summary of sessions and revenue" },
+            { key: "invoiceEmails", label: s.invoiceEmails, desc: s.invoiceEmailsDesc },
+            { key: "reminderEmails", label: s.reminderEmails, desc: s.reminderEmailsDesc },
+            { key: "weeklyReport", label: s.weeklyReport, desc: s.weeklyReportDesc },
           ].map((n, i) => (
             <div key={n.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: i < 2 ? "1px solid var(--c-border)" : "none", gap: 12 }}>
               <div>
@@ -187,40 +190,40 @@ export default function SettingsPage() {
 
       {/* Data export */}
       <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 18, padding: 28 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 16 }}>Data</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 16 }}>{s.data}</p>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--c-text)", margin: 0 }}>Export your data</p>
-            <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>Download all players, sessions, invoices as JSON</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--c-text)", margin: 0 }}>{s.exportData}</p>
+            <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>{s.exportDataDesc}</p>
           </div>
           <button style={{ padding: "9px 18px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontSize: 13, cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}>
-            Export JSON
+            {s.exportJson}
           </button>
         </div>
       </div>
 
       {/* Logout + Danger Zone */}
       <div style={{ background: "var(--c-card)", border: "1px solid rgba(239,68,68,.15)", borderRadius: 18, padding: 28 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 16 }}>Account Actions</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 16 }}>{s.accountActions}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--c-text)", margin: 0 }}>Sign out</p>
-              <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>Sign out from your current session</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--c-text)", margin: 0 }}>{s.signOut}</p>
+              <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>{s.signOutDesc}</p>
             </div>
             <button onClick={logout} disabled={loggingOut}
               style={{ padding: "9px 18px", borderRadius: 10, border: "1px solid var(--c-border)", background: "var(--c-inner)", color: "var(--c-text-muted)", fontSize: 13, cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap", opacity: loggingOut ? .6 : 1 }}>
-              {loggingOut ? "Signing out..." : "Sign Out"}
+              {loggingOut ? s.signingOut : s.signOutBtn}
             </button>
           </div>
           <div style={{ borderTop: "1px solid var(--c-border)", paddingTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "#ef4444", margin: 0 }}>Delete academy</p>
-              <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>Permanently delete all data. Cannot be undone.</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#ef4444", margin: 0 }}>{s.deleteAcademy}</p>
+              <p style={{ fontSize: 12, color: "var(--c-text-muted)", margin: "3px 0 0" }}>{s.deleteAcademyDesc}</p>
             </div>
             <button onClick={() => confirm("Delete your entire academy? This CANNOT be undone.") && alert("Contact support to delete your account.")}
               style={{ padding: "9px 18px", borderRadius: 10, border: "1px solid rgba(239,68,68,.3)", background: "rgba(239,68,68,.06)", color: "#ef4444", fontSize: 13, cursor: "pointer", fontWeight: 700, whiteSpace: "nowrap" }}>
-              Delete
+              {s.delete}
             </button>
           </div>
         </div>
