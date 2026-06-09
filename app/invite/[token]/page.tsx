@@ -40,30 +40,30 @@ export default function InvitePage() {
     setTimeout(() => router.push(data.role === "parent" ? "/parent" : "/player"), 1500);
   }
 
-  const inp: React.CSSProperties = { width: "100%", background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "11px 14px", fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
+  const inp: React.CSSProperties = { width: "100%", background: "var(--c-input-bg)", border: "1px solid var(--c-input-border)", borderRadius: 10, padding: "11px 14px", fontSize: 14, color: "var(--c-text)", outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
 
   if (notFound) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--c-bg)" }}>
       <div style={{ textAlign: "center", padding: 40 }}>
         <p style={{ fontSize: 48, margin: "0 0 16px" }}>🔗</p>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: "#111827", margin: "0 0 8px" }}>Приглашение не найдено</h2>
-        <p style={{ color: "#6b7280", fontSize: 14 }}>Ссылка устарела или уже была использована.</p>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--c-text)", margin: "0 0 8px" }}>Приглашение не найдено</h2>
+        <p style={{ color: "var(--c-text-muted)", fontSize: 14 }}>Ссылка устарела или уже была использована.</p>
       </div>
     </div>
   );
 
   if (!inv) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb" }}>
-      <div style={{ width: 32, height: 32, border: "3px solid #e5e7eb", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--c-bg)" }}>
+      <div style={{ width: 32, height: 32, border: "3px solid var(--c-border)", borderTopColor: "#1F6B45", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
     </div>
   );
 
   const roleLabel = inv.role === "parent" ? "Родитель" : "Игрок";
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb", padding: 24 }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--c-bg)", padding: 24 }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <div style={{ background: "#fff", borderRadius: 24, overflow: "hidden", width: "100%", maxWidth: 420, boxShadow: "0 4px 24px rgba(0,0,0,.08)" }}>
+      <div style={{ background: "var(--c-card)", border: "1px solid var(--c-border)", borderRadius: 24, overflow: "hidden", width: "100%", maxWidth: 420, boxShadow: "var(--c-shadow-lg)" }}>
         <div style={{ background: "linear-gradient(135deg,#186038,#1F6B45)", padding: "32px 36px", textAlign: "center" }}>
           <div style={{ width: 48, height: 48, background: "rgba(255,255,255,.15)", borderRadius: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
             <span style={{ fontSize: 22, fontWeight: 900, color: "#FFD447" }}>A</span>
@@ -75,17 +75,17 @@ export default function InvitePage() {
           {done ? (
             <div style={{ textAlign: "center" }}>
               <p style={{ fontSize: 36, margin: "0 0 12px" }}>✅</p>
-              <p style={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>Аккаунт создан!</p>
-              <p style={{ fontSize: 13, color: "#6b7280" }}>Переходим в портал...</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "var(--c-text)" }}>Аккаунт создан!</p>
+              <p style={{ fontSize: 13, color: "var(--c-text-muted)" }}>Переходим в портал...</p>
             </div>
           ) : (
             <>
               <div style={{ marginBottom: 18 }}>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Email</label>
-                <input value={inv.email} disabled style={{ ...inp, background: "#f3f4f6", color: "#9ca3af" }} />
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Email</label>
+                <input value={inv.email} disabled style={{ ...inp, opacity: 0.5 }} />
               </div>
               <div style={{ marginBottom: 22 }}>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Пароль</label>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--c-text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Пароль</label>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Минимум 8 символов" style={inp} onKeyDown={e => e.key === "Enter" && accept()} autoFocus />
               </div>
               {error && <p style={{ fontSize: 13, color: "#ef4444", fontWeight: 600, marginBottom: 14 }}>⚠ {error}</p>}
@@ -96,6 +96,10 @@ export default function InvitePage() {
           )}
         </div>
       </div>
+      <p style={{ textAlign: "center", fontSize: 13, color: "var(--c-text-muted)", marginTop: 16, width: "100%", maxWidth: 420 }}>
+        Уже есть аккаунт?{" "}
+        <a href="/portal/login" style={{ color: "#4ade80", fontWeight: 700, textDecoration: "none" }}>Войти</a>
+      </p>
     </div>
   );
 }

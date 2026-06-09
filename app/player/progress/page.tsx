@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fmtDate, fmtHours, langToLocale } from "@/lib/date-ru";
+import { useLang } from "@/lib/i18n/context";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +22,6 @@ const SESSION_META: Record<string, { color: string; light: string }> = {
   "Video Analysis": { color: "#607080", light: "rgba(96,112,128,.1)" },
 };
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-function fmtDate(d: string) {
-  const date = new Date(d + "T12:00:00");
-  return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-}
-
 function Stars({ rating }: { rating: number }) {
   return (
     <div style={{ display:"flex", gap:2 }}>
@@ -40,6 +35,9 @@ function Stars({ rating }: { rating: number }) {
 export default function PlayerProgress() {
   const supabase = createClient();
   const router = useRouter();
+  const { t, lang } = useLang();
+  const p = t.portal;
+  const locale = langToLocale(lang);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,7 +56,7 @@ export default function PlayerProgress() {
   const attended = sessions.filter(s => s.attendance !== "missed").length;
   const missed = sessions.filter(s => s.attendance === "missed").length;
   const pct = sessions.length > 0 ? Math.round((attended / sessions.length) * 100) : 0;
-  const totalHours = (sessions.reduce((sum, s) => sum + (s.duration || 60), 0) / 60).toFixed(1);
+  const totalHoursNum = sessions.reduce((sum, s) => sum + (s.duration || 60), 0) / 60;
 
   if (loading) return (
     <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--c-bg)" }}>
@@ -78,11 +76,11 @@ export default function PlayerProgress() {
             <span style={{ fontSize:16, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Портал игрока</p>
-            <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>Мой прогресс</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>{p.playerPortal}</p>
+            <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>{p.progress}</p>
           </div>
         </div>
-        <button onClick={() => router.push("/player")} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>← Назад</button>
+        <button onClick={() => router.push("/player")} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>{p.back}</button>
       </div>
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"20px 16px", display:"flex", flexDirection:"column", gap:16 }}>
@@ -91,10 +89,10 @@ export default function PlayerProgress() {
         <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10 }}>
           {/* Attendance % — big card */}
           <div style={{ background:"linear-gradient(135deg,#186038,#1F6B45)", borderRadius:16, padding:"20px", gridColumn:"1 / -1" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 8px" }}>Посещаемость</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 8px" }}>{p.attendancePct}</p>
             <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:12 }}>
               <p style={{ fontSize:48, fontWeight:900, color:"#fff", margin:0, lineHeight:1, letterSpacing:"-2px" }}>{pct}%</p>
-              <p style={{ fontSize:14, color:"rgba(255,255,255,.6)", margin:0 }}>{attended} из {sessions.length}</p>
+              <p style={{ fontSize:14, color:"rgba(255,255,255,.6)", margin:0 }}>{attended} / {sessions.length}</p>
             </div>
             <div style={{ height:8, background:"rgba(255,255,255,.15)", borderRadius:100, overflow:"hidden" }}>
               <div style={{ width:`${pct}%`, height:"100%", background:"#FFD447", borderRadius:100, transition:"width .5s ease" }} />
@@ -102,19 +100,19 @@ export default function PlayerProgress() {
           </div>
 
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #18B3A4", borderRadius:14, padding:"14px 16px" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Посещено</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>{p.attended}</p>
             <p style={{ fontSize:24, fontWeight:900, color:"#18B3A4", margin:0 }}>{attended}</p>
           </div>
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #ef4444", borderRadius:14, padding:"14px 16px" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Пропущено</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>{p.missed}</p>
             <p style={{ fontSize:24, fontWeight:900, color:"#ef4444", margin:0 }}>{missed}</p>
           </div>
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #d97706", borderRadius:14, padding:"14px 16px" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Часов</p>
-            <p style={{ fontSize:24, fontWeight:900, color:"#d97706", margin:0 }}>{totalHours}</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>{p.hours}</p>
+            <p style={{ fontSize:24, fontWeight:900, color:"#d97706", margin:0 }}>{fmtHours(totalHoursNum, lang)}</p>
           </div>
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #9b59b6", borderRadius:14, padding:"14px 16px" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Всего</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>{p.totalLabel}</p>
             <p style={{ fontSize:24, fontWeight:900, color:"#9b59b6", margin:0 }}>{sessions.length}</p>
           </div>
         </div>
@@ -123,11 +121,11 @@ export default function PlayerProgress() {
         {sessions.length === 0 ? (
           <div style={{ background:"var(--c-card)", border:"2px dashed var(--c-border)", borderRadius:16, padding:48, textAlign:"center" }}>
             <p style={{ fontSize:32, margin:"0 0 12px" }}>🎾</p>
-            <p style={{ fontSize:15, fontWeight:700, color:"var(--c-text)", margin:0 }}>Тренировок пока нет</p>
+            <p style={{ fontSize:15, fontWeight:700, color:"var(--c-text)", margin:0 }}>{p.noSessions}</p>
           </div>
         ) : (
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            <p style={{ fontSize:12, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", margin:0 }}>История тренировок</p>
+            <p style={{ fontSize:12, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", margin:0 }}>{p.sessionHistory}</p>
             {sessions.map(sess => {
               const meta = SESSION_META[sess.type] || SESSION_META.Training;
               const wasAttended = sess.attendance !== "missed";
@@ -141,13 +139,13 @@ export default function PlayerProgress() {
                       <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:2 }}>
                         <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>{sess.type}</p>
                         <span style={{ fontSize:11, fontWeight:700, color: wasAttended?"#1F6B45":"#ef4444", background: wasAttended?"rgba(31,107,69,.1)":"rgba(239,68,68,.1)", padding:"2px 8px", borderRadius:100 }}>
-                          {wasAttended ? "✓ Посещено" : "✗ Пропущено"}
+                          {wasAttended ? p.sessionAttended : p.sessionMissed}
                         </span>
                       </div>
                       <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>
-                        {fmtDate(sess.date)}
+                        {fmtDate(sess.date, locale)}
                         {sess.start_time && ` · ${sess.start_time}`}
-                        {sess.duration && ` · ${sess.duration} мин`}
+                        {sess.duration && ` · ${sess.duration} ${p.minsAbbr}`}
                         {sess.coach_name && ` · ${sess.coach_name}`}
                       </p>
                     </div>

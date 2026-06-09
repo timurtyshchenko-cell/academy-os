@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n/context";
+import { fmtDate } from "@/lib/date-ru";
+import { LOCALE_MAP } from "@/lib/i18n/translations";
 
 export const dynamic = "force-dynamic";
 
@@ -14,17 +16,12 @@ interface DashboardData {
   totalSessions: number;
 }
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-function fmt(dateStr: string) {
-  const d = new Date(dateStr + "T12:00:00");
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
 export default function ParentPortal() {
   const supabase = createClient();
   const router = useRouter();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const p = t.portal;
+  const locale = LOCALE_MAP[lang];
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -74,11 +71,11 @@ export default function ParentPortal() {
             <span style={{ fontSize:16, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Родительский портал</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>{p.parentPortal}</p>
             <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>{player?.name || "—"}</p>
           </div>
         </div>
-        <button onClick={signOut} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Выйти</button>
+        <button onClick={signOut} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>{p.signOut}</button>
       </div>
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"24px 16px", display:"flex", flexDirection:"column", gap:16 }}>
@@ -87,19 +84,19 @@ export default function ParentPortal() {
         <div style={{ display:"flex", gap:8 }}>
           <button onClick={() => router.push("/parent/schedule")}
             style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            📅 Расписание
+            📅 {p.schedule}
           </button>
           <button onClick={() => router.push("/parent/progress")}
             style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            📈 Прогресс
+            📈 {p.progress}
           </button>
           <button onClick={() => router.push("/parent/invoices")}
             style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            🧾 Счета
+            🧾 {p.invoices}
           </button>
           <button onClick={() => router.push("/parent/achievements")}
             style={{ flex:1, padding:"12px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            🏆 Награды
+            🏆 {p.achievements}
           </button>
         </div>
 
@@ -108,8 +105,8 @@ export default function ParentPortal() {
           <div style={{ background:"rgba(217,119,6,.1)", border:"1px solid rgba(217,119,6,.3)", borderRadius:14, padding:"14px 18px", display:"flex", alignItems:"center", gap:12 }}>
             <span style={{ fontSize:20 }}>⚠️</span>
             <div>
-              <p style={{ fontSize:13, fontWeight:700, color:"#d97706", margin:0 }}>Неоплаченных счетов: {unpaidCount}</p>
-              <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:"2px 0 0" }}>Пожалуйста оплатите вовремя</p>
+              <p style={{ fontSize:13, fontWeight:700, color:"#d97706", margin:0 }}>{p.unpaidInvoices}: {unpaidCount}</p>
+              <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:"2px 0 0" }}>{p.pleasePayOnTime}</p>
             </div>
           </div>
         )}
@@ -117,11 +114,11 @@ export default function ParentPortal() {
         {/* Stats row */}
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #1F6B45", borderRadius:14, padding:"16px 18px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Тренер</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>{p.coach}</p>
             <p style={{ fontSize:18, fontWeight:900, color:"var(--c-text)", margin:0 }}>{player?.coach_name || "—"}</p>
           </div>
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:"3px solid #18B3A4", borderRadius:14, padding:"16px 18px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>Всего тренировок</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 4px" }}>{p.totalSessions}</p>
             <p style={{ fontSize:18, fontWeight:900, color:"var(--c-text)", margin:0 }}>{totalSessions}</p>
           </div>
         </div>
@@ -130,12 +127,12 @@ export default function ParentPortal() {
         <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:16, overflow:"hidden" }}>
           <div style={{ padding:"14px 18px", borderBottom:"1px solid var(--c-border)", display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:16 }}>📅</span>
-            <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>Следующая тренировка</p>
+            <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>{p.nextSession}</p>
           </div>
           <div style={{ padding:"18px" }}>
             {nextSession ? (
               <div>
-                <p style={{ fontSize:20, fontWeight:900, color:"#1F6B45", margin:"0 0 6px", letterSpacing:"-.5px" }}>{fmt(nextSession.date)}</p>
+                <p style={{ fontSize:20, fontWeight:900, color:"#1F6B45", margin:"0 0 6px", letterSpacing:"-.5px" }}>{fmtDate(nextSession.date, locale)}</p>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                   {nextSession.start_time && <span style={{ fontSize:12, fontWeight:600, color:"var(--c-text-muted)", background:"var(--c-inner)", padding:"4px 10px", borderRadius:100 }}>🕐 {nextSession.start_time}</span>}
                   <span style={{ fontSize:12, fontWeight:600, color:"var(--c-text-muted)", background:"var(--c-inner)", padding:"4px 10px", borderRadius:100 }}>🎾 {nextSession.type}</span>
@@ -143,7 +140,7 @@ export default function ParentPortal() {
                 </div>
               </div>
             ) : (
-              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>Нет запланированных тренировок</p>
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>{p.noNextSession}</p>
             )}
           </div>
         </div>
@@ -152,16 +149,16 @@ export default function ParentPortal() {
         <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:16, overflow:"hidden" }}>
           <div style={{ padding:"14px 18px", borderBottom:"1px solid var(--c-border)", display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:16 }}>📝</span>
-            <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>Последняя заметка тренера</p>
+            <p style={{ fontSize:14, fontWeight:800, color:"var(--c-text)", margin:0 }}>{p.lastCoachNote}</p>
           </div>
           <div style={{ padding:"18px" }}>
             {lastNote ? (
               <div>
                 <p style={{ fontSize:14, color:"var(--c-text)", lineHeight:1.6, margin:"0 0 8px" }}>"{lastNote.notes}"</p>
-                <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>{fmt(lastNote.date)}</p>
+                <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>{fmtDate(lastNote.date, locale)}</p>
               </div>
             ) : (
-              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>Заметок пока нет</p>
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>{p.noNotes}</p>
             )}
           </div>
         </div>

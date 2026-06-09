@@ -2,6 +2,8 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fmtDate, langToLocale } from "@/lib/date-ru";
+import { useLang } from "@/lib/i18n/context";
 
 export const dynamic = "force-dynamic";
 
@@ -11,16 +13,13 @@ interface Invoice {
   created_at: string; paid_at: string | null;
 }
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-function fmtDate(d: string) {
-  const date = new Date(d + (d.includes("T") ? "" : "T12:00:00"));
-  return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-}
-
 function ParentInvoicesInner() {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t, lang } = useLang();
+  const p = t.portal;
+  const locale = langToLocale(lang);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [payingId, setPayingId] = useState<number | null>(null);
@@ -84,11 +83,11 @@ function ParentInvoicesInner() {
             <span style={{ fontSize:16, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Родительский портал</p>
-            <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>Счета</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>{p.parentPortal}</p>
+            <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>{p.invoices}</p>
           </div>
         </div>
-        <button onClick={() => router.push("/parent")} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>← Назад</button>
+        <button onClick={() => router.push("/parent")} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>{p.back}</button>
       </div>
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"20px 16px", display:"flex", flexDirection:"column", gap:16 }}>
@@ -97,16 +96,16 @@ function ParentInvoicesInner() {
         {successId && (
           <div style={{ background:"rgba(31,107,69,.1)", border:"1px solid rgba(31,107,69,.3)", borderRadius:12, padding:"14px 18px", display:"flex", alignItems:"center", gap:10 }}>
             <span style={{ fontSize:20 }}>✅</span>
-            <p style={{ fontSize:14, fontWeight:700, color:"#1F6B45", margin:0 }}>Оплата прошла успешно!</p>
+            <p style={{ fontSize:14, fontWeight:700, color:"#1F6B45", margin:0 }}>{p.paymentSuccess}</p>
           </div>
         )}
 
         {/* Summary */}
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
           {[
-            { label:"Всего счетов", value: invoices.length, color:"#1F6B45" },
-            { label:"К оплате", value: `$${totalOwed.toLocaleString()}`, color: totalOwed > 0 ? "#ef4444" : "#1F6B45" },
-            { label:"Оплачено", value: paid.length, color:"#18B3A4" },
+            { label: p.total, value: invoices.length, color:"#1F6B45" },
+            { label: p.owed,  value: `$${totalOwed.toLocaleString()}`, color: totalOwed > 0 ? "#ef4444" : "#1F6B45" },
+            { label: p.paid,  value: paid.length, color:"#18B3A4" },
           ].map(st => (
             <div key={st.label} style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid ${st.color}`, borderRadius:12, padding:"12px 14px" }}>
               <p style={{ fontSize:10, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 3px" }}>{st.label}</p>
@@ -118,22 +117,22 @@ function ParentInvoicesInner() {
         {/* Unpaid */}
         {unpaid.length > 0 && (
           <div>
-            <p style={{ fontSize:12, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 10px" }}>Ожидают оплаты</p>
+            <p style={{ fontSize:12, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 10px" }}>{p.unpaidInvoices}</p>
             <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
               {unpaid.map(inv => (
                 <div key={inv.id} style={{ background:"var(--c-card)", border:"1px solid rgba(239,68,68,.25)", borderRadius:14, padding:"16px 18px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, flexWrap:"wrap" }}>
                   <div>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                       <p style={{ fontSize:15, fontWeight:900, color:"var(--c-text)", margin:0 }}>{inv.month}</p>
-                      <span style={{ fontSize:11, fontWeight:700, color:"#ef4444", background:"rgba(239,68,68,.1)", padding:"2px 8px", borderRadius:100 }}>Не оплачен</span>
+                      <span style={{ fontSize:11, fontWeight:700, color:"#ef4444", background:"rgba(239,68,68,.1)", padding:"2px 8px", borderRadius:100 }}>{p.invoiceUnpaid}</span>
                     </div>
-                    <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>До {fmtDate(inv.due_date)}</p>
+                    <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>{p.dueBy} {fmtDate(inv.due_date, locale)}</p>
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                     <p style={{ fontSize:22, fontWeight:900, color:"var(--c-text)", margin:0 }}>${inv.amount.toLocaleString()}</p>
                     <button onClick={() => pay(inv)} disabled={payingId === inv.id}
                       style={{ padding:"10px 20px", background:"#1F6B45", border:"none", borderRadius:10, color:"#fff", fontWeight:700, fontSize:13, cursor:"pointer", opacity: payingId === inv.id ? .7 : 1, whiteSpace:"nowrap" }}>
-                      {payingId === inv.id ? "Открываем..." : "Оплатить →"}
+                      {payingId === inv.id ? p.opening : p.payNow}
                     </button>
                   </div>
                 </div>
@@ -145,17 +144,17 @@ function ParentInvoicesInner() {
         {/* Paid */}
         {paid.length > 0 && (
           <div>
-            <p style={{ fontSize:12, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 10px" }}>История оплат</p>
+            <p style={{ fontSize:12, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 10px" }}>{p.paidInvoices}</p>
             <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:14, overflow:"hidden" }}>
               {paid.map((inv, i) => (
                 <div key={inv.id} style={{ padding:"14px 18px", borderBottom: i < paid.length-1 ? "1px solid var(--c-border)" : "none", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                   <div>
                     <p style={{ fontSize:14, fontWeight:700, color:"var(--c-text)", margin:"0 0 2px" }}>{inv.month}</p>
-                    <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>{inv.paid_at ? `Оплачено ${fmtDate(inv.paid_at)}` : "Оплачено"}</p>
+                    <p style={{ fontSize:12, color:"var(--c-text-muted)", margin:0 }}>{inv.paid_at ? `${p.paidOn} ${fmtDate(inv.paid_at, locale)}` : p.paidOn}</p>
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                     <p style={{ fontSize:16, fontWeight:900, color:"var(--c-text)", margin:0 }}>${inv.amount.toLocaleString()}</p>
-                    <span style={{ fontSize:11, fontWeight:700, color:"#1F6B45", background:"rgba(31,107,69,.1)", padding:"3px 10px", borderRadius:100 }}>✓ Оплачен</span>
+                    <span style={{ fontSize:11, fontWeight:700, color:"#1F6B45", background:"rgba(31,107,69,.1)", padding:"3px 10px", borderRadius:100 }}>{p.invoicePaid}</span>
                   </div>
                 </div>
               ))}
@@ -166,7 +165,7 @@ function ParentInvoicesInner() {
         {invoices.length === 0 && (
           <div style={{ background:"var(--c-card)", border:"2px dashed var(--c-border)", borderRadius:16, padding:48, textAlign:"center" }}>
             <p style={{ fontSize:32, margin:"0 0 12px" }}>🧾</p>
-            <p style={{ fontSize:15, fontWeight:700, color:"var(--c-text)", margin:0 }}>Счетов пока нет</p>
+            <p style={{ fontSize:15, fontWeight:700, color:"var(--c-text)", margin:0 }}>{p.noInvoices}</p>
           </div>
         )}
       </div>

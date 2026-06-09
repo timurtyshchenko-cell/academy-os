@@ -19,8 +19,7 @@ const SESSION_META: Record<string, { color: string; bg: string; light: string }>
   Doubles:          { color: "#9b59b6", bg: "linear-gradient(135deg,#6c3483,#9b59b6)", light: "rgba(155,89,182,.12)" },
   "Video Analysis": { color: "#607080", bg: "linear-gradient(135deg,#3a4a56,#607080)", light: "rgba(96,112,128,.12)" },
 };
-const DAYS_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+import { fmtDayShort, fmtWeekRange, langToLocale } from "@/lib/date-ru";
 const HOUR_H = 64;
 const START_H = 7;
 const END_H = 21;
@@ -49,8 +48,10 @@ function nowTop() {
 export default function ParentSchedule() {
   const supabase = createClient();
   const router = useRouter();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const p = t.portal;
   const s = t.schedule;
+  const locale = langToLocale(lang);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekOf, setWeekOf] = useState(() => weekStart(new Date()));
@@ -94,7 +95,7 @@ export default function ParentSchedule() {
     sessionsByDay[sess.date].push(sess);
   }
 
-  const weekLabel = `${MONTHS[days[0].getMonth()]} ${days[0].getDate()} – ${MONTHS[days[6].getMonth()]} ${days[6].getDate()}, ${days[6].getFullYear()}`;
+  const weekLabel = fmtWeekRange(days[0], days[6], locale);
 
   if (loading) return (
     <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--c-bg)" }}>
@@ -117,11 +118,11 @@ export default function ParentSchedule() {
             <span style={{ fontSize:16, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Родительский портал</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>{p.parentPortal}</p>
             <p style={{ fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>{s.title}</p>
           </div>
         </div>
-        <button onClick={() => router.push("/parent")} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>← Назад</button>
+        <button onClick={() => router.push("/parent")} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>{p.back}</button>
       </div>
 
       <div style={{ maxWidth:1100, margin:"0 auto", padding:"20px 16px", display:"flex", flexDirection:"column", gap:16 }}>
@@ -150,7 +151,7 @@ export default function ParentSchedule() {
               const cnt = sessionsByDay[dStr]?.length || 0;
               return (
                 <div key={i} style={{ padding:"10px 8px", textAlign:"center", borderRight: i<6?"1px solid var(--c-border)":"none", background: isT?"rgba(31,107,69,.05)":"transparent" }}>
-                  <p style={{ fontSize:10, fontWeight:700, color: isT?"#1F6B45":"var(--c-text-dim)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 2px" }}>{DAYS_SHORT[day.getDay()]}</p>
+                  <p style={{ fontSize:10, fontWeight:700, color: isT?"#1F6B45":"var(--c-text-dim)", textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 2px" }}>{fmtDayShort(day, locale)}</p>
                   <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:30, height:30, borderRadius:"50%", background: isT?"#1F6B45":"transparent" }}>
                     <p style={{ fontSize:16, fontWeight:900, color: isT?"#fff":"var(--c-text)", margin:0, lineHeight:1 }}>{day.getDate()}</p>
                   </div>
@@ -222,7 +223,7 @@ export default function ParentSchedule() {
             return (
               <div key={i} style={{ background:"var(--c-card)", border:`1px solid ${isT?"rgba(31,107,69,.35)":"var(--c-border)"}`, borderRadius:14, overflow:"hidden" }}>
                 <div style={{ padding:"12px 16px", background: isT?"rgba(31,107,69,.06)":"transparent", borderBottom: daySessions.length>0?"1px solid var(--c-border)":"none" }}>
-                  <p style={{ fontSize:13, fontWeight:800, color: isT?"#1F6B45":"var(--c-text)", margin:0 }}>{DAYS_SHORT[day.getDay()]} {day.getDate()}</p>
+                  <p style={{ fontSize:13, fontWeight:800, color: isT?"#1F6B45":"var(--c-text)", margin:0 }}>{fmtDayShort(day, locale)} {day.getDate()}</p>
                 </div>
                 {daySessions.map((sess, si) => {
                   const meta = SESSION_META[sess.type] || SESSION_META.Training;
@@ -232,7 +233,7 @@ export default function ParentSchedule() {
                       <div style={{ flex:1 }}>
                         <p style={{ fontSize:13, fontWeight:800, color:"var(--c-text)", margin:0 }}>{sess.type}</p>
                         <p style={{ fontSize:11, color:"var(--c-text-muted)", margin:"2px 0 0" }}>
-                          {sess.start_time && `${sess.start_time} · `}{sess.duration}m{sess.coach_name && ` · ${sess.coach_name}`}
+                          {sess.start_time && `${sess.start_time} · `}{sess.duration} {p.minsAbbr}{sess.coach_name && ` · ${sess.coach_name}`}
                         </p>
                       </div>
                     </div>

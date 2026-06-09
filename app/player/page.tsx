@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fmtDateFull, fmtHours } from "@/lib/date-ru";
+import { useLang } from "@/lib/i18n/context";
+import { LOCALE_MAP } from "@/lib/i18n/translations";
 
 export const dynamic = "force-dynamic";
 
@@ -17,29 +20,13 @@ interface PlayerData {
 const LEVEL_COLOR: Record<string, string> = {
   Beginner: "#18B3A4", Intermediate: "#1F6B45", Advanced: "#d97706", Competitive: "#ef4444",
 };
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-
-function fmtDate(d: string) {
-  const date = new Date(d + "T12:00:00");
-  return `${DAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}`;
-}
-
-function countdown(dateStr: string, timeStr: string | null): string {
-  const target = new Date(dateStr + "T" + (timeStr || "00:00") + ":00");
-  const diff = target.getTime() - Date.now();
-  if (diff <= 0) return "Сейчас";
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  if (days > 0) return `${days} дн. ${hours} ч.`;
-  if (hours > 0) return `${hours} ч. ${mins} мин.`;
-  return `${mins} мин.`;
-}
 
 export default function PlayerPortal() {
   const supabase = createClient();
   const router = useRouter();
+  const { t, lang } = useLang();
+  const p = t.portal;
+  const locale = LOCALE_MAP[lang];
   const [data, setData] = useState<PlayerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -66,6 +53,18 @@ export default function PlayerPortal() {
   async function signOut() {
     await supabase.auth.signOut();
     router.push("/portal/login");
+  }
+
+  function countdown(dateStr: string, timeStr: string | null): string {
+    const target = new Date(dateStr + "T" + (timeStr || "00:00") + ":00");
+    const diff = target.getTime() - Date.now();
+    if (diff <= 0) return p.now;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    if (days > 0) return `${days} ${p.daysAbbr} ${hours} ${p.hoursAbbr}`;
+    if (hours > 0) return `${hours} ${p.hoursAbbr} ${mins} ${p.minsAbbr}`;
+    return `${mins} ${p.minsAbbr}`;
   }
 
   if (loading) return (
@@ -95,13 +94,13 @@ export default function PlayerPortal() {
             <span style={{ fontSize:18, fontWeight:900, color:"#FFD447" }}>A</span>
           </div>
           <div>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>Портал игрока</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:0 }}>{p.playerPortal}</p>
             <p style={{ fontSize:18, fontWeight:900, color:"#fff", margin:0, letterSpacing:"-.3px" }}>{player?.name || "—"}</p>
           </div>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,.85)", background:"rgba(255,255,255,.15)", padding:"5px 12px", borderRadius:100 }}>{player?.level}</span>
-          <button onClick={signOut} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Выйти</button>
+          <button onClick={signOut} style={{ background:"rgba(255,255,255,.15)", border:"none", color:"#fff", padding:"8px 16px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>{p.signOut}</button>
         </div>
       </div>
 
@@ -111,15 +110,15 @@ export default function PlayerPortal() {
         <div style={{ display:"flex", gap:10 }}>
           <button onClick={() => router.push("/player/schedule")}
             style={{ flex:1, padding:"13px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            📅 Расписание
+            📅 {p.schedule}
           </button>
           <button onClick={() => router.push("/player/progress")}
             style={{ flex:1, padding:"13px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            📈 Прогресс
+            📈 {p.progress}
           </button>
           <button onClick={() => router.push("/player/achievements")}
             style={{ flex:1, padding:"13px", background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:12, color:"var(--c-text)", fontWeight:700, cursor:"pointer", fontSize:13 }}>
-            🏆 Награды
+            🏆 {p.achievements}
           </button>
         </div>
 
@@ -127,12 +126,12 @@ export default function PlayerPortal() {
         <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
           {/* This week */}
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid #1F6B45`, borderRadius:14, padding:"16px 18px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>На этой неделе</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>{p.thisWeek}</p>
             <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
               <p style={{ fontSize:28, fontWeight:900, color:"#1F6B45", margin:0, lineHeight:1 }}>{weekAttended}</p>
               <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>/ {weekTotal}</p>
             </div>
-            <p style={{ fontSize:11, color:"var(--c-text-dim)", margin:"4px 0 0" }}>посещено тренировок</p>
+            <p style={{ fontSize:11, color:"var(--c-text-dim)", margin:"4px 0 0" }}>{p.trainingsAttended}</p>
             {weekTotal > 0 && (
               <div style={{ marginTop:10, height:6, background:"var(--c-inner)", borderRadius:100, overflow:"hidden" }}>
                 <div style={{ width:`${(weekAttended/weekTotal)*100}%`, height:"100%", background:"#1F6B45", borderRadius:100, transition:"width .3s" }} />
@@ -142,23 +141,23 @@ export default function PlayerPortal() {
 
           {/* All time */}
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid #18B3A4`, borderRadius:14, padding:"16px 18px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>За всё время</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>{p.allTime}</p>
             <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
               <p style={{ fontSize:28, fontWeight:900, color:"#18B3A4", margin:0, lineHeight:1 }}>{allTime}</p>
-              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>сессий</p>
+              <p style={{ fontSize:14, color:"var(--c-text-muted)", margin:0 }}>{p.sessions}</p>
             </div>
-            <p style={{ fontSize:11, color:"var(--c-text-dim)", margin:"4px 0 0" }}>{(totalHours/60).toFixed(1)} часов на корте</p>
+            <p style={{ fontSize:11, color:"var(--c-text-dim)", margin:"4px 0 0" }}>{fmtHours(totalHours/60, lang)} {p.hoursOnCourt}</p>
           </div>
 
           {/* Coach */}
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid #d97706`, borderRadius:14, padding:"16px 18px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>Тренер</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>{p.coach}</p>
             <p style={{ fontSize:18, fontWeight:900, color:"var(--c-text)", margin:0, letterSpacing:"-.3px" }}>{player?.coach_name || "—"}</p>
           </div>
 
           {/* Level */}
           <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderLeft:`3px solid ${levelColor}`, borderRadius:14, padding:"16px 18px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>Уровень</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"var(--c-text-muted)", textTransform:"uppercase", letterSpacing:".07em", margin:"0 0 8px" }}>{p.level}</p>
             <p style={{ fontSize:18, fontWeight:900, color:levelColor, margin:0, letterSpacing:"-.3px" }}>{player?.level || "—"}</p>
           </div>
         </div>
@@ -166,24 +165,24 @@ export default function PlayerPortal() {
         {/* Next session countdown */}
         <div style={{ background:"var(--c-card)", border:"1px solid var(--c-border)", borderRadius:16, overflow:"hidden" }}>
           <div style={{ background:"linear-gradient(135deg,#186038,#1F6B45)", padding:"20px 20px" }}>
-            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 4px" }}>Следующая тренировка</p>
+            <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 4px" }}>{p.nextSession}</p>
             {nextSession ? (
               <>
-                <p style={{ fontSize:22, fontWeight:900, color:"#fff", margin:"0 0 6px", letterSpacing:"-.5px" }}>{fmtDate(nextSession.date)}</p>
+                <p style={{ fontSize:22, fontWeight:900, color:"#fff", margin:"0 0 6px", letterSpacing:"-.5px" }}>{fmtDateFull(nextSession.date, locale)}</p>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:14 }}>
                   {nextSession.start_time && <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,.8)", background:"rgba(255,255,255,.15)", padding:"3px 10px", borderRadius:100 }}>🕐 {nextSession.start_time}</span>}
                   <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,.8)", background:"rgba(255,255,255,.15)", padding:"3px 10px", borderRadius:100 }}>🎾 {nextSession.type}</span>
                   {nextSession.coach_name && <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,.8)", background:"rgba(255,255,255,.15)", padding:"3px 10px", borderRadius:100 }}>👤 {nextSession.coach_name}</span>}
                 </div>
                 <div style={{ background:"rgba(255,255,255,.1)", borderRadius:12, padding:"12px 16px", display:"inline-flex", flexDirection:"column" }}>
-                  <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 2px" }}>До начала</p>
+                  <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.6)", textTransform:"uppercase", letterSpacing:".1em", margin:"0 0 2px" }}>{p.countdown}</p>
                   <p style={{ fontSize:24, fontWeight:900, color:"#FFD447", margin:0, letterSpacing:"-.5px" }}>
                     {countdown(nextSession.date, nextSession.start_time)}
                   </p>
                 </div>
               </>
             ) : (
-              <p style={{ fontSize:15, color:"rgba(255,255,255,.7)", margin:0 }}>Нет запланированных тренировок</p>
+              <p style={{ fontSize:15, color:"rgba(255,255,255,.7)", margin:0 }}>{p.noNextSession}</p>
             )}
           </div>
         </div>
